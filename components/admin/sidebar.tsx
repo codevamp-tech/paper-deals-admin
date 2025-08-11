@@ -1,16 +1,29 @@
 "use client"
-
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
+  
+  BarChart2,
+   ListChecks,
+    UserCircle,
+     PlusCircle,
+     Eye ,
+     Edit ,
+   FileCheck,
+      FileText,
+   Workflow,
   LayoutDashboard,
+  Activity,
+  Headset,
+   CheckCircle,
   Package,
   MessageSquare,
   HelpCircle,
   LifeBuoy,
   Award,
   ImageIcon,
+   
   Settings,
   Megaphone,
   Tv,
@@ -21,12 +34,20 @@ import {
   History,
   Pi,
   CalendarCheck,
+   MessageSquareQuote, ListTree, Image,  Video, ImagePlus, Newspaper,
   Bolt,
   MessageSquareText,
   Users,
   ChevronDown,
   ChevronRight,
+  ClipboardList,
+  
+  CreditCard,
+  Store,
+  Handshake,
+  BarChart3
 } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 
 // ✅ Main Navigation Items (only single-link pages)
@@ -35,12 +56,10 @@ const navigation = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Certificates", href: "/admin/certificates", icon: Award },
   { name: "Media Gallery", href: "/admin/media", icon: ImageIcon },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
   { name: "Advertisement", href: "/admin/advertisement", icon: Megaphone },
   { name: "Live Stock", href: "/admin/livestock", icon: Radio },
   { name: "Live Price", href: "/admin/liveprice", icon: FileBadge },
   { name: "Consultant", href: "/admin/consultant", icon: Pi },
-  { name: "General Settings", href: "/admin/generalsettings", icon: Bolt },
   { name: "Chat History", href: "/admin/chathistory", icon: MessageSquareText },
   { name: "User", href: "/admin/user", icon: Users },
 ]
@@ -152,145 +171,150 @@ export default function AdminSidebar({ onClose }) {
         ))}
 
         {/* Dropdowns */}
-        <DropdownMenu
-          title="Buyer"
-          icon={MessageSquare}
-          isOpen={buyerOpen}
-          toggle={() => setBuyerOpen(!buyerOpen)}
-          links={[
-            { name: "Buyer", href: "/admin/buyer/buyerPage", icon: HelpCircle },
-            { name: "Products", href: "/admin/buyer/products", icon: LifeBuoy },
-          ]}
-        />
+      <DropdownMenu
+  title="Buyer"
+  icon={Users}
+  isOpen={buyerOpen}
+  toggle={() => setBuyerOpen(!buyerOpen)}
+  links={[
+   { name: "Buyer", href: "/admin/buyer/buyerPage", icon: UserCircle },
+{ name: "Products", href: "/admin/buyer/products", icon: Package },
 
-        <DropdownMenu
-          title="Direct Order"
-          icon={MessageSquare}
-          isOpen={directOrderOpen}
-          toggle={() => setDirectOrderOpen(!directOrderOpen)}
-          links={[
-            { name: "Create Direct Order", href: "/admin/directorder/create", icon: HelpCircle },
-            { name: "Current Direct Order", href: "/admin/directorder/current", icon: LifeBuoy },
-            { name: "Close Direct Order", href: "/admin/directorder/close", icon: LifeBuoy },
-          ]}
-        />
+  ]}
+/>
 
-        
-        <DropdownMenu
-          title="Paper Report"
-          icon={MessageSquare}
-          isOpen={paperreportOpen}
-          toggle={() => setpaperreportOpen(!paperreportOpen)}
-          links={[
-            { name: "paper deals business report", href: "/admin/paperreport/business", icon: HelpCircle },
-            { name: "paper deals business report", href: "/admin/paperreport/status", icon: LifeBuoy },
-            { name: "paper deals business report", href: "/admin/paperreport/closure", icon: LifeBuoy },
-             { name: "paper deals business report", href: "/admin/paperreport/process", icon: LifeBuoy },
-          ]}
-        />
 
+      <DropdownMenu
+  title="Direct Order"
+  icon={ClipboardList}
+  isOpen={directOrderOpen}
+  toggle={() => setDirectOrderOpen(!directOrderOpen)}
+  links={[
+  { name: "Create Direct Order", href: "/admin/directorder/create", icon: PlusCircle },
+{ name: "Current Direct Order", href: "/admin/directorder/current", icon: ClipboardList },
+{ name: "Close Direct Order", href: "/admin/directorder/close", icon: CheckCircle },
+
+  ]}
+/>
+
+    <DropdownMenu
+  title="Paper Report"
+  icon={FileText}
+  isOpen={paperreportOpen}
+  toggle={() => setpaperreportOpen(!paperreportOpen)}
+  links={[
+{ name: "Business Report", href: "/admin/paperreport/business", icon: BarChart2 },
+  { name: "Status Report", href: "/admin/paperreport/status", icon: ListChecks },
+  { name: "Closure Report", href: "/admin/paperreport/closure", icon: FileCheck },
+  { name: "Process Report", href: "/admin/paperreport/process", icon: Workflow },
+]}
+/>
              
-        <DropdownMenu
-          title="General Setting"
-          icon={MessageSquare}
-          isOpen={generalsettingOpen}
-          toggle={() => setgeneralsettingOpen(!generalsettingOpen)}
-          links={[
-            { name: "Testimonial", href: "/admin/generalsetting/testimonial", icon: HelpCircle },
-            { name: "Categories", href: "/admin/generalsetting/categories", icon: LifeBuoy },
-            { name: "Main Logo", href: "/admin/generalsetting/logo", icon: LifeBuoy },
-             { name: "Association Partner", href: "/admin/generalsetting/partner", icon: LifeBuoy },
-               { name: "Videos", href: "/admin/generalsetting/video", icon: HelpCircle },
-            { name: "Image", href: "/admin/generalsetting/image", icon: LifeBuoy },
-            { name: "News", href: "/admin/generalsetting/news", icon: LifeBuoy },
-          
-          ]}
-        />
+      <DropdownMenu
+  title="General Setting"
+  icon={Settings}
+  isOpen={generalsettingOpen}
+  toggle={() => setgeneralsettingOpen(!generalsettingOpen)}
+  links={[
+  { name: "Testimonial", href: "/admin/generalsetting/testimonial", icon: MessageSquareQuote },
+{ name: "Categories", href: "/admin/generalsetting/categories", icon: ListTree },
+{ name: "Main Logo", href: "/admin/generalsetting/logo", icon: Image },
+{ name: "Association Partner", href: "/admin/generalsetting/partner", icon: Handshake },
+{ name: "Videos", href: "/admin/generalsetting/video", icon: Video },
+{ name: "Image", href: "/admin/generalsetting/image", icon: ImagePlus },
+{ name: "News", href: "/admin/generalsetting/news", icon: Newspaper },
+
+  ]}
+/>
 
 
 
 
-         <DropdownMenu
-          title="Live Stock"
-          icon={MessageSquare}
-          isOpen={livestockOpen}
-          toggle={() => setlivestockOpen(!livestockOpen)}
-          links={[
-            { name: "edit live stock", href: "/admin/livestock/stock", icon: HelpCircle },
-            { name: "view live stock", href: "/admin/livestock/stock", icon: LifeBuoy },
-          ]}
-        />
+       <DropdownMenu
+  title="Live Stock"
+  icon={Radio}
+  isOpen={livestockOpen}
+  toggle={() => setlivestockOpen(!livestockOpen)}
+  links={[
+  { name: "Edit Live Stock", href: "/admin/livestock/stock/edit", icon: FileText },
+{ name: "View Live Stock", href: "/admin/livestock/stock/view", icon: Eye },
+
+  ]}
+/>
 
         
-         <DropdownMenu
-          title="Billing History"
-          icon={MessageSquare}
-          isOpen={billinghistoryOpen}
-          toggle={() => setbillinghistoryOpen(!billinghistoryOpen)}
-          links={[
-            { name: "Direct Deal Billing", href: "/admin/billinghistory/billing", icon: HelpCircle },
-            { name: "PD Deal Billing", href: "/admin/billinghistory/billing", icon: LifeBuoy },
-          ]}
-        />
+       <DropdownMenu
+  title="Billing History"
+  icon={History}
+  isOpen={billinghistoryOpen}
+  toggle={() => setbillinghistoryOpen(!billinghistoryOpen)}
+  links={[
+    { name: "Direct Deal Billing", href: "/admin/billinghistory/billing", icon: CreditCard },
+{ name: "PD Deal Billing", href: "/admin/billinghistory/billing", icon:   FileText },
 
-          <DropdownMenu
-          title="Subscriptions"
-          icon={MessageSquare}
-          isOpen={subscriptionOpen}
-          toggle={() => setsubscriptionsOpen(!subscriptionOpen)}
-          links={[
-            { name: "subscriptions", href: "/admin/subscriptions/subscribe", icon: HelpCircle },
-          
-          ]}
-        />
+  ]}
+/>
 
-        <DropdownMenu
-          title="Seller"
-          icon={MessageSquare}
-          isOpen={sellerOpen}
-          toggle={() => setSellerOpen(!sellerOpen)}
-          links={[
-            { name: "Products", href: "/admin/seller/products", icon: HelpCircle },
-            { name: "Seller", href: "/admin/seller/seller", icon: LifeBuoy },
-          ]}
-        />
 
-        <DropdownMenu
-          title="PD Deals"
-          icon={MessageSquare}
-          isOpen={pddealOpen}
-          toggle={() => setPdDealOpen(!pddealOpen)}
-          links={[
-            { name: "Create Paper Deals", href: "/admin/pddeal/create", icon: HelpCircle },
-            { name: "Process Paper Deals", href: "/admin/pddeal/process", icon: LifeBuoy },
-            { name: "Current Paper Deals", href: "/admin/pddeal/current", icon: HelpCircle },
-            { name: "Close Paper Deals", href: "/admin/pddeal/close", icon: LifeBuoy },
-          ]}
-        />
+      <DropdownMenu
+  title="Subscriptions"
+  icon={CreditCard}
+  isOpen={subscriptionOpen}
+  toggle={() => setsubscriptionsOpen(!subscriptionOpen)}
+  links={[
+    { name: "Subscriptions", href: "/admin/subscriptions/subscribe", icon:CreditCard },
+  ]}
+/>
 
-         <DropdownMenu
-                  title="Direct Report"
-                  icon={MessageSquare}
-                  isOpen={directreportOpen}
-                  toggle={() => setdirectreportOpen(!directreportOpen)}
-                  links={[
-                    { name: "Direct Business Report", href: "/admin/directreport/business", icon: HelpCircle },
-                    { name: "Direct Status Report", href: "/admin/directreport/status", icon: LifeBuoy },
-                    { name: "Direct Process Report ", href: "/admin/directreport/process", icon: HelpCircle },
-                    { name: "Direct Closer Report", href: "/admin/directreport/closer", icon: LifeBuoy },
-                  ]}
-                />
+ <DropdownMenu
+  title="Seller"
+  icon={Store}
+  isOpen={sellerOpen}
+  toggle={() => setSellerOpen(!sellerOpen)}
+  links={[
+   { name: "Products", href: "/admin/seller/products", icon: Package },
+{ name: "Seller", href: "/admin/seller/seller", icon: UserCircle },
+  ]}
+/>
 
-        <DropdownMenu
-          title="Inquiries"
-          icon={MessageSquare}
-          isOpen={inquiryOpen}
-          toggle={() => setInquiryOpen(!inquiryOpen)}
-          links={[
-            { name: "Help", href: "/admin/inquiries/help", icon: HelpCircle },
-            { name: "Support", href: "/admin/inquiries/support", icon: LifeBuoy },
-          ]}
-        />
+<DropdownMenu
+  title="PD Deals"
+  icon={Handshake}
+  isOpen={pddealOpen}
+  toggle={() => setPdDealOpen(!pddealOpen)}
+  links={[
+    { name: "Create Paper Deals", href: "/admin/pddeal/create", icon: PlusCircle },
+{ name: "Process Paper Deals", href: "/admin/pddeal/process", icon: Settings },
+{ name: "Current Paper Deals", href: "/admin/pddeal/current", icon:  FileText },
+{ name: "Close Paper Deals", href: "/admin/pddeal/close", icon: CheckCircle },
+  ]}
+/>
+
+<DropdownMenu
+  title="Direct Report"
+  icon={BarChart3}
+  isOpen={directreportOpen}
+  toggle={() => setdirectreportOpen(!directreportOpen)}
+  links={[
+{ name: "Direct Business Report", href: "/admin/directreport/business", icon: BarChart2 },
+{ name: "Direct Status Report", href: "/admin/directreport/status", icon: Activity },
+{ name: "Direct Process Report", href: "/admin/directreport/process", icon: Settings },
+{ name: "Direct Closer Report", href: "/admin/directreport/closer", icon: CheckCircle },
+  ]}
+/>
+
+<DropdownMenu
+  title="Inquiries"
+  icon={HelpCircle}
+  isOpen={inquiryOpen}
+  toggle={() => setInquiryOpen(!inquiryOpen)}
+  links={[
+
+{ name: "Help", href: "/admin/inquiries/help", icon: HelpCircle },
+{ name: "Support", href: "/admin/inquiries/support", icon: Headset },
+  ]}
+/>
+
       </div>
 
       {/* Logout */}
