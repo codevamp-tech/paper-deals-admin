@@ -1,7 +1,7 @@
 "use client"
-
-import React, { useState } from "react"
-import Link from "next/link"
+import Link from 'next/link';
+import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,8 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const router = useRouter();
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -31,9 +33,9 @@ export default function SignupForm() {
     setIsLoading(true)
 
     try {
-      const res = await fetch("/api/admin/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
 
@@ -41,8 +43,9 @@ export default function SignupForm() {
 
       if (!res.ok) throw new Error(data.message || "Signup failed")
 
-      setSuccess("Admin registered successfully!")
-      setFormData({ name: "", email: "", password: "" })
+      setSuccess('Admin registered successfully!');
+      router.push('/')
+      setFormData({ name: '', email: '', password: '' });
     } catch (err: any) {
       setError(err.message)
     } finally {
