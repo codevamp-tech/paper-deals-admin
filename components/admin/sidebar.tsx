@@ -86,8 +86,8 @@ function DropdownMenu({ title, icon: Icon, isOpen, toggle, links }) {
               key={link.href}
               href={link.href}
               className={`block px-2 py-2 rounded-md text-sm font-medium ${isActive(link.href)
-                  ? "bg-orange-600 text-white"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
               <link.icon className="inline-block mr-2 h-4 w-4" />
@@ -158,8 +158,8 @@ export default function AdminSidebar({ onClose }) {
             key={item.name}
             href={item.href}
             className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive(item.href)
-                ? "bg-orange-600 text-white"
-                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+              ? "bg-orange-600 text-white"
+              : "text-gray-300 hover:bg-gray-800 hover:text-white"
               }`}
           >
             <item.icon className="mr-3 h-5 w-5" />
@@ -174,8 +174,8 @@ export default function AdminSidebar({ onClose }) {
           isOpen={buyerOpen}
           toggle={() => setBuyerOpen(!buyerOpen)}
           links={[
-            { name: "Buyer", href: "/admin/buyer/buyerPage", icon: UserCircle },
-            { name: "Products", href: "/admin/buyer/products", icon: Package },
+            { name: "Buyer", href: "/admin/Buyer/buyerPage", icon: UserCircle },
+            { name: "Products", href: "/admin/Buyer/products", icon: Package },
 
           ]}
         />
