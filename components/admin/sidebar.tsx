@@ -57,10 +57,9 @@ const navigation = [
   { name: "Certificates", href: "/admin/certificates", icon: Award },
   { name: "Media Gallery", href: "/admin/media", icon: ImageIcon },
   { name: "Advertisement", href: "/admin/advertisement", icon: Megaphone },
-  { name: "Live Stock", href: "/admin/livestock", icon: Radio },
-  { name: "Live Price", href: "/admin/liveprice", icon: FileBadge },
+  { name: "Live Price", href: "/admin/livePrice", icon: FileBadge },
   { name: "Consultant", href: "/admin/consultant", icon: Pi },
-  { name: "Chat History", href: "/admin/chathistory", icon: MessageSquareText },
+  { name: "Chat History", href: "/admin/chatHistory", icon: MessageSquareText },
   { name: "User", href: "/admin/user", icon: Users },
 ]
 
@@ -234,8 +233,8 @@ export default function AdminSidebar({ onClose }) {
           isOpen={livestockOpen}
           toggle={() => setlivestockOpen(!livestockOpen)}
           links={[
-            { name: "Edit Live Stock", href: "/admin/livestock/stock/editlivestock", icon: FileText },
-            { name: "View Live Stock", href: "/admin/livestock/stock/viewlivestock", icon: Eye },
+            { name: "Edit Live Stock", href: "/admin/livestock/editlivestock", icon: FileText },
+            { name: "View Live Stock", href: "/admin/livestock/viewlivestock", icon: Eye },
 
           ]}
         />
