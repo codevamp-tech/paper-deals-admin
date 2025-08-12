@@ -1,5 +1,6 @@
 "use client"
 import Link from 'next/link';
+import { useRouter } from "next/navigation";
 import React, { useState } from 'react';
 
 const SignupForm = () => {
@@ -8,6 +9,8 @@ const SignupForm = () => {
     email: '',
     password: '',
   });
+
+  const router = useRouter();
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -22,7 +25,7 @@ const SignupForm = () => {
     setSuccess('');
 
     try {
-      const res = await fetch('/api/admin/signup', {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -33,6 +36,7 @@ const SignupForm = () => {
       if (!res.ok) throw new Error(data.message || 'Signup failed');
 
       setSuccess('Admin registered successfully!');
+      router.push('/')
       setFormData({ name: '', email: '', password: '' });
     } catch (err: any) {
       setError(err.message);
@@ -88,13 +92,13 @@ const SignupForm = () => {
             Sign Up
           </button>
         </form>
-         <div className="mt-4">
-            <Link href="/">
-              <button className=" hover:underline hover:text-blue-500 ">
-                 If you are already sing up
-              </button>
-            </Link>
-          </div>
+        <div className="mt-4">
+          <Link href="/">
+            <button className=" hover:underline hover:text-blue-500 ">
+              If you are already sing up
+            </button>
+          </Link>
+        </div>
 
       </div>
     </div>
