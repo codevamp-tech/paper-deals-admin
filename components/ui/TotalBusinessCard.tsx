@@ -1,25 +1,59 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
   Cell,
   Legend,
-  ResponsiveContainer
-} from 'recharts';
+  ResponsiveContainer,
+  Tooltip,   // 👈 import Tooltip
+} from "recharts";
 
-const data = [
-  { name: 'Paper Deals', value: 2000000 },
-  { name: 'Direct Order', value: 2196770 }
-];
-
-const COLORS = ['#f76c5e', '#f4a300']; // Paper Deals (coral), Direct Order (orange)
+const COLORS = ["#f76c5e", "#f4a300"]; // Paper Deals (coral), Direct Order (orange)
 
 export default function TotalBusinessCard() {
+  const [data, setData] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [directRes, paperRes] = await Promise.all([
+          fetch("http://localhost:5000/api/dashboard/summary"),
+          fetch("http://localhost:5000/api/pd-deals/stats"),
+        ]);
+
+        const directData = await directRes.json();
+        const paperData = await paperRes.json();
+
+        const formattedData = [
+          { name: "Paper Deals", value: Number(paperData.sum) || 0 },
+          { name: "Direct Order", value: Number(directData.sum) || 0 },
+        ];
+
+        setData(formattedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const total = data.reduce((acc, item) => acc + item.value, 0);
 
+  if (loading) {
+    return (
+      <div className="bg-white shadow-md rounded-lg overflow-hidden w-full max-w-3xl flex items-center justify-center p-6">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden w-full  max-w-3xl">
+    <div className="bg-white shadow-md rounded-lg overflow-hidden w-full max-w-3xl">
       {/* Header */}
       <div className="bg-red-600 p-3">
         <h2 className="text-white font-semibold text-lg">Total Business</h2>
@@ -35,21 +69,23 @@ export default function TotalBusinessCard() {
               cy="50%"
               innerRadius={60}
               outerRadius={90}
-              fill="#8884d8"
               paddingAngle={2}
               dataKey="value"
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
+
+            {/* 👇 Add this */}
+            <Tooltip formatter={(value: number) => `${value}`} />
             <Legend verticalAlign="top" height={36} />
           </PieChart>
         </ResponsiveContainer>
 
         {/* Total Amount */}
         <p className="mt-2 font-semibold text-lg">
-          Total - {total.toLocaleString('en-IN')}
+          Total – {total}
         </p>
       </div>
     </div>

@@ -301,15 +301,21 @@ export default function AdminSidebar({ onClose }) {
         />
 
         <DropdownMenu
-          title="Inquiries"
+          title="Enquiry"
           icon={HelpCircle}
           isOpen={inquiryOpen}
           toggle={() => setInquiryOpen(!inquiryOpen)}
           links={[
 
-            { name: "Help", href: "/admin/inquiries/help", icon: HelpCircle },
             { name: "Support", href: "/admin/inquiries/support", icon: Headset },
+            { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: HelpCircle },
+            { name: "Request Call", href: "/admin/inquiries/help", icon: HelpCircle },
+            { name: "Contact Us", href: "/admin/inquiries/contact_us", icon: HelpCircle },
+            { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon: HelpCircle },
+
+
           ]}
+
         />
 
       </div>

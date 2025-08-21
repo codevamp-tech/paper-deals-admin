@@ -14,71 +14,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import TotalBusinessCard from "@/components/ui/TotalBusinessCard";
-import TotalDealsCard from "@/components/ui/TotalDealsCard";
-import React from "react";
+import TotalDealsCard from "@/components/ui/TotalDealsCard"
+import React, { useEffect, useState } from "react";
+import { fromJSON } from "postcss";
 
-const orders = [
-  {
-    id: 1,
-    dealId: "00060",
-    buyer: "No organization found.",
-    seller: "abc pvt ltd",
-    mobile: "9876543210",
-    email: "adityaseller12@gmail.com",
-    size: 840,
-    product: "p66",
-    remarks: "we",
-    date: "2025-07-11 09:56:31",
-  },
-  {
-    id: 2,
-    dealId: "00059",
-    buyer: "Abhi Papper",
-    seller: "Pawan Seller vnvhmgh",
-    mobile: "9953334665",
-    email: "pawan@gmail.com",
-    size: 1000,
-    product: "Maka",
-    remarks: "ggdkgd",
-    date: "2025-07-09 17:02:32",
-  },
-  {
-    id: 3,
-    dealId: "00058",
-    buyer: "demo buyer",
-    seller: "kailashi devi kashipur",
-    mobile: "7253802003",
-    email: "mznanubhav@gmail.com",
-    size: 250000,
-    product: "duplex",
-    remarks: "mix gsm",
-    date: "2025-07-09 11:06:43",
-  },
-  {
-    id: 4,
-    dealId: "00057",
-    buyer: "demo buyer",
-    seller: "kailashi devi kashipur",
-    mobile: "7253802003",
-    email: "mznanubhav@gmail.com",
-    size: 200000,
-    product: "jk",
-    remarks: "copier a4",
-    date: "2025-07-09 10:14:24",
-  },
-  {
-    id: 5,
-    dealId: "00056",
-    buyer: "Abhi Papper",
-    seller: "DEV PRIYA PAPERS PVT LTD",
-    mobile: "7088006640",
-    email: "",
-    size: 750,
-    product: "test",
-    remarks: "testtt",
-    date: "2025-07-08 18:31:12",
-  },
-];
+
 
 const stats = [
   {
@@ -143,6 +83,81 @@ const recentInquiries = [
 ];
 
 export default function AdminDashboard() {
+
+  const [orders, setOrders] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const rowsPerPage = 10; // default rows per page
+  const [paperDeals, setPaperDeals] = useState<any[]>([]);
+  const [paperCurrentPage, setPaperCurrentPage] = useState(1);
+  const [paperTotalPages, setPaperTotalPages] = useState(1);
+  const paperRowsPerPage = 10;
+
+
+  useEffect(() => {
+    const fetchOrders = async (page = 1) => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/dashboard?page=${page}&limit=${rowsPerPage}`);
+        const data = await res.json();
+
+        // Map API fields to table fields
+        const mappedOrders = data.deals.map((item: any, index: number) => ({
+          id: index + 1 + (page - 1) * rowsPerPage,
+          dealId: item.deal_id,
+          buyer: item.buyerUser?.name || item.buyer || "N/A",
+          seller: item.sellerUser?.name || item.contact_person || "N/A",
+          mobile: item.mobile_no,
+          email: item.email_id || item.sellerUser?.email_address || "N/A",
+          size: item.deal_size,
+          product: item.product_description,
+          remarks: item.remarks,
+          date: new Date(item.created_on).toLocaleString(),
+        }));
+
+        setOrders(mappedOrders);
+        setTotalPages(data.totalPages);
+        setCurrentPage(data.currentPage);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders(currentPage);
+  }, [currentPage]);
+
+  // Inside useEffect for paper deals
+  useEffect(() => {
+    const fetchPaperDeals = async (page = 1) => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
+        const data = await res.json();
+
+        const mappedDeals = data.deals.map((item: any, index: number) => ({
+          id: index + 1 + (page - 1) * paperRowsPerPage,
+          dealId: item.deal_id.padStart(6, "0"), // formatting like 000101
+          pdName: item.user?.name || "N/A",
+          buyer: item.buyerUser?.name || "N/A",
+          contactPerson: item.contact_person || "-",
+          mobile: item.mobile_no || item.user?.phone_no || "-",
+          email: item.email_id || item.user?.email_address || "-",
+          dealSize: item.deal_size || item.quantity_in_kg || "-", // fallback
+          productDescription: item.product_description || item.sub_product || "-",
+          date: new Date(item.updated_on || item.created_on).toLocaleString(),
+        }));
+
+        setPaperDeals(mappedDeals);
+        setPaperTotalPages(data.totalPages || 1);
+        setPaperCurrentPage(data.currentPage || 1);
+      } catch (error) {
+        console.error("Error fetching paper deals:", error);
+      }
+    };
+
+    fetchPaperDeals(paperCurrentPage);
+  }, [paperCurrentPage]);
+
+
+
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4 py-8">
       <div>
@@ -188,88 +203,12 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Inquiries + Actions */}
-      <div className="grid lg:grid-cols-2 gap-6 mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Inquiries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentInquiries.map((inquiry) => (
-                <div
-                  key={inquiry.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">{inquiry.name}</p>
-                    <p className="text-sm text-gray-600">{inquiry.email}</p>
-                    <p className="text-sm text-gray-500">
-                      {inquiry.category}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">{inquiry.date}</p>
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        inquiry.status === "new"
-                          ? "bg-blue-100 text-blue-800"
-                          : inquiry.status === "in-progress"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {inquiry.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <button className="p-4 bg-orange-50 hover:bg-orange-100 rounded-lg text-left transition-colors">
-                <Package className="h-8 w-8 text-orange-600 mb-2" />
-                <p className="font-medium text-gray-900">Add Product</p>
-                <p className="text-sm text-gray-600">
-                  Create new product listing
-                </p>
-              </button>
-              <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-left transition-colors">
-                <Award className="h-8 w-8 text-blue-600 mb-2" />
-                <p className="font-medium text-gray-900">Upload Certificate</p>
-                <p className="text-sm text-gray-600">
-                  Add new certification
-                </p>
-              </button>
-              <button className="p-4 bg-green-50 hover:bg-green-100 rounded-lg text-left transition-colors">
-                <MessageSquare className="h-8 w-8 text-green-600 mb-2" />
-                <p className="font-medium text-gray-900">View Inquiries</p>
-                <p className="text-sm text-gray-600">Check new messages</p>
-              </button>
-              <button className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-left transition-colors">
-                <TrendingUp className="h-8 w-8 text-purple-600 mb-2" />
-                <p className="font-medium text-gray-900">Analytics</p>
-                <p className="text-sm text-gray-600">View performance</p>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* 📦 Recent Orders Table at Bottom */}
       <Card className="mt-10">
         <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>Recent Orders</CardTitle>
-          <button className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-sm">
-            View All
-          </button>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full border-collapse border border-gray-200 text-sm">
@@ -299,13 +238,119 @@ export default function AdminDashboard() {
                   <td className="border p-2 text-center">{order.size}</td>
                   <td className="border p-2">{order.product}</td>
                   <td className="border p-2">{order.remarks}</td>
-                  <td className="border p-2 text-nowrap">{order.date}</td>
+                  <td className="border p-2">{order.date}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-end items-center mt-4 gap-2">
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-teal-600 text-white" : "bg-gray-200"
+                  }`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </CardContent>
       </Card>
+
+
+      {/* 📄 Recent Paper Deals Table */}
+      <Card className="mt-10">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <CardTitle>Recent Paper Deals</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-200 text-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border p-2">ID</th>
+                <th className="border p-2">Deal ID</th>
+                <th className="border p-2">PD Name</th>
+                <th className="border p-2">Buyer</th>
+                {/* <th className="border p-2">Contact Person</th> */}
+                <th className="border p-2">Mobile No.</th>
+                <th className="border p-2">Email Id</th>
+                <th className="border p-2">Deal Size</th>
+                <th className="border p-2">Product Description</th>
+                <th className="border p-2">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paperDeals.map((deal) => (
+                <tr key={deal.id} className="hover:bg-gray-50">
+                  <td className="border p-2 text-center">{deal.id}</td>
+                  <td className="border p-2 text-center">{deal.dealId}</td>
+                  <td className="border p-2">{deal.pdName}</td>
+                  <td className="border p-2">{deal.buyer}</td>
+                  {/* <td className="border p-2">{deal.contactPerson}</td> */}
+                  <td className="border p-2 text-center">{deal.mobile}</td>
+                  <td className="border p-2">{deal.email}</td>
+                  <td className="border p-2 text-center">{deal.dealSize}</td>
+                  <td className="border p-2">{deal.productDescription}</td>
+                  <td className="border p-2">{deal.date}</td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
+
+          {/* Pagination */}
+          <div className="flex justify-end items-center mt-4 gap-2">
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setPaperCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={paperCurrentPage === 1}
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: paperTotalPages }, (_, i) => (
+              <button
+                key={i}
+                className={`px-3 py-1 rounded ${paperCurrentPage === i + 1 ? "bg-teal-600 text-white" : "bg-gray-200"}`}
+                onClick={() => setPaperCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              onClick={() => setPaperCurrentPage((prev) => Math.min(prev + 1, paperTotalPages))}
+              disabled={paperCurrentPage === paperTotalPages}
+            >
+              Next
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+
     </div>
   );
 }

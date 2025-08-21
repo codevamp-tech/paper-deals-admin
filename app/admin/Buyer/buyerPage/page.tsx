@@ -106,7 +106,6 @@ export default function BuyerPage() {
               <th className="border p-2">Phone</th>
               <th className="border p-2">City</th>
               <th className="border p-2">Deals In</th>
-              <th className="border p-2">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -120,14 +119,6 @@ export default function BuyerPage() {
                 <td className="border p-2">{buyer.phone}</td>
                 <td className="border p-2">{buyer.city}</td>
                 <td className="border p-2">{buyer.dealsIn}</td>
-                <td className="border p-2 flex space-x-2">
-                  <Button size="icon" variant="outline">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button size="icon" variant="destructive">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </td>
               </tr>
             ))}
           </tbody>

@@ -3,7 +3,7 @@
 export default function HelpPage() {
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold text-white">Help & Support</h2>
+      <h2 className="text-2xl font-semibold text-white">profile enquiry</h2>
       <p className="text-gray-300">
         Welcome to the Help Center. Here you can find answers to common questions and contact our support team if needed.
       </p>
