@@ -1,37 +1,40 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-// import { verifyToken } from "@/lib/auth";
+import * as jose from "jose";
 
-export function middleware(request: NextRequest) {
-  return NextResponse.next(); // Just allow everything
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+
+async function verifyToken(token: string) {
+  try {
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET);
+    return payload; // contains decoded JWT data
+  } catch (e) {
+    console.error("verify error:", e);
+    return null;
+  }
 }
 
-// export function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-//   const isLoginPage = pathname === "/admin/login";
-//   const isSignupPage = pathname === "/admin/signup"; // optional: if you have signup page
-//   const isDashboardRoute = pathname.startsWith("/admin");
+  const isLoginPage = pathname === "/";
+  const isDashboardRoute = pathname.startsWith("/admin");
 
-//   const token = request.cookies.get("admin-token")?.value;
-//   const isAuthenticated = token && verifyToken(token);
+  const token = request.cookies.get("token")?.value;
+  const isAuthenticated = token && (await verifyToken(token));
+  console.log("isauth", isAuthenticated);
 
-//   // ✅ Redirect unauthenticated users trying to access protected admin routes
-//   if (isDashboardRoute && !isLoginPage && !isSignupPage && !isAuthenticated) {
-//     return NextResponse.redirect(new URL("/admin/login", request.url));
-//   }
+  if (isDashboardRoute && !isLoginPage && !isAuthenticated) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
 
-//   // ✅ Redirect authenticated users trying to access login or signup
-//   if ((isLoginPage || isSignupPage) && isAuthenticated) {
-//     return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-//   }
+  if (isLoginPage && isAuthenticated) {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  }
 
-//   return NextResponse.next();
-// }
+  return NextResponse.next();
+}
 
-// export const config = {
-//   matcher: ["/admin/:path*"],
-// };
 export const config = {
-  matcher: [],
+  matcher: ["/admin/:path*"],
 };

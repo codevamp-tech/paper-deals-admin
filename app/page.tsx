@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import Cookies from "js-cookie"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -9,13 +9,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import {  Loader2, Shield } from "lucide-react"
+import { Loader2, Shield } from "lucide-react"
 import Link from "next/link"
+
+const Apilocalurl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    type: 1,
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -27,7 +30,7 @@ export default function AdminLogin() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(`${Apilocalurl}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,10 +40,10 @@ export default function AdminLogin() {
       })
 
       const data = await response.json()
-      console.log("Login response:", data)
+      // save token in the cookies
 
       if (response.ok) {
-        console.log("Redirecting to /admin/dashboard... ✅")
+        Cookies.set("token", data.token, { expires: 7 })
         router.push("/admin/dashboard")
       } else {
         setError(data.message || "Login failed")
@@ -69,6 +72,22 @@ export default function AdminLogin() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            <div>
+              <Label htmlFor="type">Login as</Label>
+              <select
+                id="type"
+                className="w-full mt-1 p-2 border rounded-md bg-white text-gray-900"
+                value={formData.type}
+                onChange={(e) => setFormData((prev) => ({ ...prev, type: e.target.value }))}
+                required
+              >
+                <option value={1}>Admin</option>
+                <option value={2}>Seller</option>
+                <option value={3}>Buyer</option>
+                <option value={4}>Consultant</option>
+              </select>
+            </div>
 
             <div>
               <Label htmlFor="email">Email</Label>
@@ -107,18 +126,11 @@ export default function AdminLogin() {
           </form>
           <div className="mt-4 text-center">
             <Link href="/signup" className="text-sm text-center">
-            Create your Account ?
+              Create your Account ?
               <button className=" pl-2 text-orange-600 hover:underline hover:text-orange-600 ">
                 SignUp
               </button>
             </Link>
-          </div>
-
-
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Demo Credentials:</p>
-            <p>Email: admin@indiamanufacture.com</p>
-            <p>Password: admin123</p>
           </div>
         </CardContent>
       </Card>
