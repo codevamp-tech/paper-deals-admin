@@ -37,10 +37,13 @@ import {
   MessageSquareQuote, ListTree, Image, Video, ImagePlus, Newspaper,
   Bolt,
   MessageSquareText,
+   IndianRupee,
   Users,
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  PhoneCall,
+  
 
   CreditCard,
   Store,
@@ -308,10 +311,10 @@ export default function AdminSidebar({ onClose }) {
           links={[
 
             { name: "Support", href: "/admin/inquiries/support", icon: Headset },
-            { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: HelpCircle },
-            { name: "Request Call", href: "/admin/inquiries/help", icon: HelpCircle },
-            { name: "Contact Us", href: "/admin/inquiries/contact_us", icon: HelpCircle },
-            { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon: HelpCircle },
+            { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon:  UserCircle  },
+            { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall},
+            { name: "Contact Us", href: "/admin/inquiries/contact_us", icon:  MessageSquare  },
+            { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon:  IndianRupee },
 
 
           ]}
