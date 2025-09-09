@@ -23,7 +23,7 @@ export default function EnquiryPage() {
 
   // fetch enquiries
   useEffect(() => {
-    fetch(`http://localhost:5000/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`)
+    fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`)
       .then((res) => res.json())
       .then((d) => {
         setData(d.enquiries || [])
@@ -36,7 +36,7 @@ export default function EnquiryPage() {
   const handleUpdate = async () => {
     if (!selected) return
     try {
-      await fetch(`http://localhost:5000/api/enquiry/enquiries/${selected.id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries/${selected.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

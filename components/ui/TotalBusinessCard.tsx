@@ -19,8 +19,8 @@ export default function TotalBusinessCard() {
     const fetchData = async () => {
       try {
         const [directRes, paperRes] = await Promise.all([
-          fetch("http://localhost:5000/api/dashboard/summary"),
-          fetch("http://localhost:5000/api/pd-deals/stats"),
+          fetch("https://paper-deal-server.onrender.com/api/dashboard/summary"),
+          fetch("https://paper-deal-server.onrender.com/api/pd-deals/stats"),
         ]);
 
         const directData = await directRes.json();

@@ -48,7 +48,7 @@ const LiveStockTable = () => {
     setLoading(true)
     try {
       const res = await fetch(
-        `http://localhost:5000/api/live-stocks/getEdit-stocks?page=${pageNum}&limit=10`
+        `https://paper-deal-server.onrender.com/api/live-stocks/getEdit-stocks?page=${pageNum}&limit=10`
       )
       const data = await res.json()
 
@@ -102,7 +102,7 @@ const LiveStockTable = () => {
       const { seller, ...rest } = editData
 
       const res = await fetch(
-        `http://localhost:5000/api/live-stocks/edit-stocks/${editData.id}`,
+        `https://paper-deal-server.onrender.com/api/live-stocks/edit-stocks/${editData.id}`,
         {
           method: "PUT",
           headers: {

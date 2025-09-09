@@ -17,7 +17,7 @@ export default function SpotPriceEnquiryPage() {
   const fetchEnquiries = async (page = currentPage) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/spotPriceEnqiry/get-spotenquiries?page=${page}&limit=${perPage}`
+        `https://paper-deal-server.onrender.com/api/spotPriceEnqiry/get-spotenquiries?page=${page}&limit=${perPage}`
       )
       const data = await res.json()
       setEnquiries(data.data || [])
@@ -39,7 +39,7 @@ export default function SpotPriceEnquiryPage() {
 
   const updateStatus = async () => {
     try {
-      await fetch(`http://localhost:5000/api/spotPriceEnqiry/${selectedEnquiry.id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/spotPriceEnqiry/${selectedEnquiry.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -83,10 +83,10 @@ export default function SpotPriceEnquiryPage() {
                 <td className="px-3 py-2 border-b">
                   <span
                     className={`px-2 py-1 text-xs rounded-full border ${row.status === 1
-                        ? "bg-green-100 text-green-600 border-green-400"
-                        : row.status === 2
-                          ? "bg-red-100 text-red-600 border-red-400"
-                          : "bg-orange-100 text-orange-600 border-orange-400"
+                      ? "bg-green-100 text-green-600 border-green-400"
+                      : row.status === 2
+                        ? "bg-red-100 text-red-600 border-red-400"
+                        : "bg-orange-100 text-orange-600 border-orange-400"
                       }`}
                   >
                     {row.status === 1 ? "Completed" : row.status === 2 ? "Rejected" : "Pending"}

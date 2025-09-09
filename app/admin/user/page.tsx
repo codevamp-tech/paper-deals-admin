@@ -58,7 +58,7 @@ export default function UsersPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/alluser?page=${page}&limit=10`
+        `https://paper-deal-server.onrender.com/api/users/alluser?page=${page}&limit=10`
       );
       const data = await res.json();
 
@@ -137,14 +137,14 @@ export default function UsersPage() {
                 <td className="p-2 border">
                   <span
                     className={`px-2 py-1 rounded text-white ${u.role === "Buyer"
-                        ? "bg-yellow-500"
-                        : u.role === "Consultant"
-                          ? "bg-gray-700"
-                          : u.role === "Seller"
-                            ? "bg-blue-500"
-                            : u.role === "Admin"
-                              ? "bg-purple-500"
-                              : "bg-red-500"
+                      ? "bg-yellow-500"
+                      : u.role === "Consultant"
+                        ? "bg-gray-700"
+                        : u.role === "Seller"
+                          ? "bg-blue-500"
+                          : u.role === "Admin"
+                            ? "bg-purple-500"
+                            : "bg-red-500"
                       }`}
                   >
                     {u.role}
