@@ -1,95 +1,100 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import Pagination from "@/components/pagination"
 
 export default function SpotPriceEnquiryPage() {
   const [currentPage, setCurrentPage] = useState(1)
+  const [enquiries, setEnquiries] = useState([])
+  const [totalPages, setTotalPages] = useState(1)
+  const [selectedEnquiry, setSelectedEnquiry] = useState(null)
+  const [status, setStatus] = useState(0)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   const perPage = 10
 
-  // Dummy data
-  const enquiryData = Array.from({ length: 34 }, (_, i) => ({
-    id: 34 - i,
-    productName: "Products-1213",
-    sellerName: "DEMO SELLER",
-    name: ["Yash Bhardwaj", "Tanish Singh", "Ajay Gupta", "Mukesh Mittal", "Mayank Singh", "Careedge", "Suryansh Singh", "Saakshi Dhaka"][i % 8],
-    phone: ["6395019000", "9897969999", "9719305555", "9874563210", "9719305555", "9874563210", "9116859737", "9696969506"][i % 8],
-    email: [
-      "yashbhardwaj@gmail.com",
-      "tanishsingh@gmail.com",
-      "ajaygupta@gmail.com",
-      "mukeshmittal@gmail.com",
-      "mayanksingh@gmail.com",
-      "careedge@gmail.com",
-      "suryansh272208@gmail.com",
-      "prince@gmail.com"
-    ][i % 8],
-    message: "Read",
-    createdAt: `2025-07-${String((i % 28) + 1).padStart(2, "0")} ${String(9 + (i % 10)).padStart(2, "0")}:5${i % 6}:3${i % 9}`,
-    status: i % 3 === 0 ? "Completed" : "Pending",
-  }))
+  // Fetch enquiries from API
+  const fetchEnquiries = async (page = currentPage) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/spotPriceEnqiry/get-spotenquiries?page=${page}&limit=${perPage}`
+      )
+      const data = await res.json()
+      setEnquiries(data.data || [])
+      setTotalPages(data.totalPages || 1)
+    } catch (err) {
+      console.error("Failed to fetch enquiries:", err)
+    }
+  }
 
-  const totalPages = Math.ceil(enquiryData.length / perPage)
-  const currentData = enquiryData.slice((currentPage - 1) * perPage, currentPage * perPage)
+  useEffect(() => {
+    fetchEnquiries(currentPage)
+  }, [currentPage])
+
+  const openDialog = (enquiry) => {
+    setSelectedEnquiry(enquiry)
+    setStatus(enquiry.status) // 0 = Pending, 1 = Completed, 2 = Rejected
+    setIsDialogOpen(true)
+  }
+
+  const updateStatus = async () => {
+    try {
+      await fetch(`http://localhost:5000/api/spotPriceEnqiry/${selectedEnquiry.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      })
+      setIsDialogOpen(false)
+      fetchEnquiries(currentPage) // refresh current page
+    } catch (err) {
+      console.error("Failed to update status:", err)
+    }
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-4">View Spot Price Enquiry</h1>
-
-      {/* Action Buttons */}
-      <div className="flex gap-2 mb-4">
-        {["Copy", "CSV", "Excel", "PDF", "Print"].map((btn) => (
-          <button
-            key={btn}
-            className="px-3 py-1 bg-gray-200 text-sm font-medium rounded hover:bg-gray-300"
-          >
-            {btn}
-          </button>
-        ))}
-      </div>
-
-      {/* Search Box */}
-      <div className="flex justify-end mb-2">
-        <label className="text-sm mr-2">Search:</label>
-        <input
-          type="text"
-          className="border px-2 py-1 rounded text-sm"
-          placeholder="Search..."
-        />
-      </div>
 
       {/* Table */}
       <div className="overflow-x-auto border rounded-lg">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
-              {["ID", "Product Name", "Seller Name", "Name", "Phone", "Email ID", "Message", "Created At", "Status", "Action"].map((head) => (
-                <th key={head} className="px-3 py-2 border-b text-left">{head}</th>
-              ))}
+              {["ID", "Product Name", "Seller Name", "Name", "Phone", "Email ID", "Message", "Created At", "Status", "Action"].map(
+                (head) => (
+                  <th key={head} className="px-3 py-2 border-b text-left">
+                    {head}
+                  </th>
+                )
+              )}
             </tr>
           </thead>
           <tbody>
-            {currentData.map((row) => (
+            {enquiries.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50">
                 <td className="px-3 py-2 border-b">{row.id}</td>
-                <td className="px-3 py-2 border-b">{row.productName}</td>
-                <td className="px-3 py-2 border-b">{row.sellerName}</td>
+                <td className="px-3 py-2 border-b">{row.ProductNew?.product_name || "-"}</td>
+                <td className="px-3 py-2 border-b">{row.ProductNew?.seller_id || "-"}</td>
                 <td className="px-3 py-2 border-b">{row.name}</td>
                 <td className="px-3 py-2 border-b">{row.phone}</td>
-                <td className="px-3 py-2 border-b">{row.email}</td>
+                <td className="px-3 py-2 border-b">{row.email_id}</td>
                 <td className="px-3 py-2 border-b text-blue-600 cursor-pointer">{row.message}</td>
-                <td className="px-3 py-2 border-b">{row.createdAt}</td>
+                <td className="px-3 py-2 border-b">{new Date(row.created_at).toLocaleString()}</td>
                 <td className="px-3 py-2 border-b">
                   <span
-                    className={`px-2 py-1 text-xs rounded-full border ${
-                      row.status === "Completed"
+                    className={`px-2 py-1 text-xs rounded-full border ${row.status === 1
                         ? "bg-green-100 text-green-600 border-green-400"
-                        : "bg-orange-100 text-orange-600 border-orange-400"
-                    }`}
+                        : row.status === 2
+                          ? "bg-red-100 text-red-600 border-red-400"
+                          : "bg-orange-100 text-orange-600 border-orange-400"
+                      }`}
                   >
-                    {row.status}
+                    {row.status === 1 ? "Completed" : row.status === 2 ? "Rejected" : "Pending"}
                   </span>
                 </td>
-                <td className="px-3 py-2 border-b text-blue-600 cursor-pointer">View</td>
+                <td className="px-3 py-2 border-b text-blue-600 cursor-pointer" onClick={() => openDialog(row)}>
+                  View
+                </td>
               </tr>
             ))}
           </tbody>
@@ -97,37 +102,39 @@ export default function SpotPriceEnquiryPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-sm text-gray-600">
-          Showing {(currentPage - 1) * perPage + 1} to{" "}
-          {Math.min(currentPage * perPage, enquiryData.length)} of {enquiryData.length} entries
-        </p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className={`px-3 py-1 text-sm border rounded ${currentPage === 1 ? "bg-gray-200 text-gray-400" : "hover:bg-gray-100"}`}
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-            <button
-              key={num}
-              onClick={() => setCurrentPage(num)}
-              className={`px-3 py-1 text-sm border rounded ${currentPage === num ? "bg-blue-500 text-white" : "hover:bg-gray-100"}`}
-            >
-              {num}
-            </button>
-          ))}
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className={`px-3 py-1 text-sm border rounded ${currentPage === totalPages ? "bg-gray-200 text-gray-400" : "hover:bg-gray-100"}`}
-          >
-            Next
-          </button>
-        </div>
+      <div className="mt-4">
+        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
       </div>
+
+      {/* Update Dialog */}
+      {isDialogOpen && selectedEnquiry && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
+          <div className="bg-white p-6 rounded shadow-lg w-80">
+            <h2 className="text-lg font-semibold mb-4">Update Status</h2>
+            <p className="mb-2">Name: {selectedEnquiry.name}</p>
+            <p className="mb-2">Product: {selectedEnquiry.ProductNew?.product_name || "-"}</p>
+
+            <select
+              className="w-full border px-2 py-1 rounded mb-4"
+              value={status}
+              onChange={(e) => setStatus(parseInt(e.target.value))}
+            >
+              <option value={0}>Pending</option>
+              <option value={1}>Completed</option>
+              <option value={2}>Rejected</option>
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <button className="px-4 py-2 border rounded hover:bg-gray-100" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </button>
+              <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={updateStatus}>
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

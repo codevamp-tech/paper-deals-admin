@@ -17,6 +17,7 @@ import TotalBusinessCard from "@/components/ui/TotalBusinessCard";
 import TotalDealsCard from "@/components/ui/TotalDealsCard"
 import React, { useEffect, useState } from "react";
 import { fromJSON } from "postcss";
+import Pagination from "@/components/pagination";
 
 
 
@@ -178,7 +179,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
         {stats.map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
@@ -201,7 +202,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </div> */}
 
 
 
@@ -244,37 +245,12 @@ export default function AdminDashboard() {
             </tbody>
           </table>
 
-          {/* Pagination Controls */}
-          <div className="flex justify-end items-center mt-4 gap-2">
-            <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Prev
-            </button>
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-teal-600 text-white" : "bg-gray-200"
-                  }`}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </div>
         </CardContent>
       </Card>
 
@@ -319,34 +295,12 @@ export default function AdminDashboard() {
 
           </table>
 
-          {/* Pagination */}
-          <div className="flex justify-end items-center mt-4 gap-2">
-            <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() => setPaperCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={paperCurrentPage === 1}
-            >
-              Prev
-            </button>
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
 
-            {Array.from({ length: paperTotalPages }, (_, i) => (
-              <button
-                key={i}
-                className={`px-3 py-1 rounded ${paperCurrentPage === i + 1 ? "bg-teal-600 text-white" : "bg-gray-200"}`}
-                onClick={() => setPaperCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              onClick={() => setPaperCurrentPage((prev) => Math.min(prev + 1, paperTotalPages))}
-              disabled={paperCurrentPage === paperTotalPages}
-            >
-              Next
-            </button>
-          </div>
         </CardContent>
       </Card>
 

@@ -3,68 +3,48 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
-
+  LayoutDashboard,
+  HelpCircle,
+  Headset,
+  UserCircle,
+  PhoneCall,
+  MessageSquare,
+  IndianRupee,
+  Megaphone,
+  Store,
+  Users,
+  ClipboardList,
+  PlusCircle,
+  CheckCircle,
+  Handshake,
+  Settings,
+  FileText,
   BarChart2,
   ListChecks,
-  UserCircle,
-  PlusCircle,
-  Eye,
-  Edit,
   FileCheck,
-  FileText,
   Workflow,
-  LayoutDashboard,
-  Activity,
-  Headset,
-  CheckCircle,
-  Package,
-  MessageSquare,
-  HelpCircle,
-  LifeBuoy,
-  Award,
-  ImageIcon,
-
-  Settings,
-  Megaphone,
-  Tv,
-  SquareArrowOutUpRight,
-  MessageSquareWarning,
   Radio,
+  Eye,
   FileBadge,
   History,
+  CreditCard,
   Pi,
-  CalendarCheck,
-  MessageSquareQuote, ListTree, Image, Video, ImagePlus, Newspaper,
-  Bolt,
   MessageSquareText,
-   IndianRupee,
-  Users,
   ChevronDown,
   ChevronRight,
-  ClipboardList,
-  PhoneCall,
-  
-
-  CreditCard,
-  Store,
-  Handshake,
-  BarChart3
+  MessageSquareQuote,
+  ListTree,
+  Image,
+  Handshake as Partner,
+  Video,
+  ImagePlus,
+  Newspaper,
+  BarChart3,
+  Activity,
+  Package,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-
-// ✅ Main Navigation Items (only single-link pages)
-const navigation = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Products", href: "/admin/products", icon: Package },
-  { name: "Certificates", href: "/admin/certificates", icon: Award },
-  { name: "Media Gallery", href: "/admin/media", icon: ImageIcon },
-  { name: "Advertisement", href: "/admin/advertisement", icon: Megaphone },
-  { name: "Live Price", href: "/admin/livePrice", icon: FileBadge },
-  { name: "Consultant", href: "/admin/consultant", icon: Pi },
-  { name: "Chat History", href: "/admin/chatHistory", icon: MessageSquareText },
-  { name: "User", href: "/admin/user", icon: Users },
-]
 
 // ✅ Dropdown Menu Component
 function DropdownMenu({ title, icon: Icon, isOpen, toggle, links }) {
@@ -107,25 +87,23 @@ export default function AdminSidebar({ onClose }) {
   const pathname = usePathname()
   const router = useRouter()
 
-  // ✅ Fixed: Added missing state for PD Deals
-  const [buyerOpen, setBuyerOpen] = useState(false)
+  // ✅ State for dropdowns
+  const [inquiryOpen, setInquiryOpen] = useState(false)
   const [sellerOpen, setSellerOpen] = useState(false)
+  const [buyerOpen, setBuyerOpen] = useState(false)
   const [directOrderOpen, setDirectOrderOpen] = useState(false)
   const [pddealOpen, setPdDealOpen] = useState(false)
-  const [inquiryOpen, setInquiryOpen] = useState(false)
   const [directreportOpen, setdirectreportOpen] = useState(false)
   const [paperreportOpen, setpaperreportOpen] = useState(false)
   const [livestockOpen, setlivestockOpen] = useState(false)
   const [billinghistoryOpen, setbillinghistoryOpen] = useState(false)
   const [subscriptionOpen, setsubscriptionsOpen] = useState(false)
-  const [generalsettingOpen, setgeneralsettingOpen] = useState(false);
-
-
+  const [generalsettingOpen, setgeneralsettingOpen] = useState(false)
 
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" })
-      router.push("/admin/login")
+      router.push("/")
       router.refresh()
     } catch (error) {
       console.error("Logout error:", error)
@@ -136,138 +114,60 @@ export default function AdminSidebar({ onClose }) {
 
   return (
     <div className="h-full flex flex-col p-4 text-white">
-      {/* Mobile Close Button */}
-      <div className="flex justify-between items-center md:hidden mb-6">
-        <div className="text-lg font-bold">Admin Panel</div>
-        <button onClick={onClose}>
-          <div className="w-6 h-6" />
-        </button>
-      </div>
-
       {/* Logo */}
       <div className="hidden md:flex items-center space-x-2 mb-8">
-        <div className="bg-orange-600 text-white p-2 rounded-lg font-bold text-xl">IM</div>
+        <div className="bg-orange-600 text-white p-2 rounded-lg font-bold text-xl">PD</div>
         <div>
           <div className="font-bold text-lg">Admin Panel</div>
-          <div className="text-sm text-gray-400">IndiaManufacture</div>
+          <div className="text-sm text-gray-400">Paper Deals</div>
         </div>
       </div>
 
-      {/* Scrollable Navigation */}
+      {/* Navigation */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-        {/* Static Single Links */}
-        {navigation.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive(item.href)
-              ? "bg-orange-600 text-white"
-              : "text-gray-300 hover:bg-gray-800 hover:text-white"
-              }`}
-          >
-            <item.icon className="mr-3 h-5 w-5" />
-            {item.name}
-          </Link>
-        ))}
 
-        {/* Dropdowns */}
+        {/* Dashboard */}
+        <Link
+          href="/admin/dashboard"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/dashboard")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <LayoutDashboard className="mr-3 h-5 w-5" />
+          Dashboard
+        </Link>
+
+        {/* Enquiry */}
         <DropdownMenu
-          title="Buyer"
-          icon={Users}
-          isOpen={buyerOpen}
-          toggle={() => setBuyerOpen(!buyerOpen)}
+          title="Enquiry"
+          icon={HelpCircle}
+          isOpen={inquiryOpen}
+          toggle={() => setInquiryOpen(!inquiryOpen)}
           links={[
-            { name: "Buyer", href: "/admin/Buyer/buyerPage", icon: UserCircle },
-            { name: "Products", href: "/admin/Buyer/products", icon: Package },
-
+            { name: "Support", href: "/admin/inquiries/support", icon: Headset },
+            { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: UserCircle },
+            { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall },
+            { name: "Contact Us", href: "/admin/inquiries/contact_us", icon: MessageSquare },
+            { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon: IndianRupee },
           ]}
         />
 
+        {/* Advertisement */}
+        <Link
+          href="/admin/advertisement"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/advertisement")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <Megaphone className="mr-3 h-5 w-5" />
+          Advertisement
+        </Link>
 
+        {/* Seller */}
         <DropdownMenu
-          title="Direct Order"
-          icon={ClipboardList}
-          isOpen={directOrderOpen}
-          toggle={() => setDirectOrderOpen(!directOrderOpen)}
-          links={[
-            { name: "Create Direct Order", href: "/admin/directorder/Create", icon: PlusCircle },
-            { name: "Current Direct Order", href: "/admin/directorder/Current", icon: ClipboardList },
-            { name: "Close Direct Order", href: "/admin/directorder/Close", icon: CheckCircle },
-
-          ]}
-        />
-
-        <DropdownMenu
-          title="Paper Report"
-          icon={FileText}
-          isOpen={paperreportOpen}
-          toggle={() => setpaperreportOpen(!paperreportOpen)}
-          links={[
-            { name: "Business Report", href: "/admin/paperreport/business", icon: BarChart2 },
-            { name: "Status Report", href: "/admin/paperreport/status", icon: ListChecks },
-            { name: "Closure Report", href: "/admin/paperreport/closure", icon: FileCheck },
-            { name: "Process Report", href: "/admin/paperreport/process", icon: Workflow },
-          ]}
-        />
-
-        <DropdownMenu
-          title="General Setting"
-          icon={Settings}
-          isOpen={generalsettingOpen}
-          toggle={() => setgeneralsettingOpen(!generalsettingOpen)}
-          links={[
-            { name: "Testimonial", href: "/admin/generalsetting/testimonial", icon: MessageSquareQuote },
-            { name: "Categories", href: "/admin/generalsetting/categories", icon: ListTree },
-            { name: "logo", href: "/admin/generalsetting/logo", icon: Image },
-            { name: "partner", href: "/admin/generalsetting/partner", icon: Handshake },
-            { name: "Videos", href: "/admin/generalsetting/video", icon: Video },
-            { name: "Image", href: "/admin/generalsetting/image", icon: ImagePlus },
-            { name: "News", href: "/admin/generalsetting/news", icon: Newspaper },
-
-          ]}
-        />
-
-
-
-
-        <DropdownMenu
-          title="Live Stock"
-          icon={Radio}
-          isOpen={livestockOpen}
-          toggle={() => setlivestockOpen(!livestockOpen)}
-          links={[
-            { name: "Edit Live Stock", href: "/admin/livestock/editlivestock", icon: FileText },
-            { name: "View Live Stock", href: "/admin/livestock/viewlivestock", icon: Eye },
-
-          ]}
-        />
-
-
-        <DropdownMenu
-          title="Billing History"
-          icon={History}
-          isOpen={billinghistoryOpen}
-          toggle={() => setbillinghistoryOpen(!billinghistoryOpen)}
-          links={[
-            { name: "Direct Deal Billing", href: "/admin/billinghistory/directdealbilling", icon: CreditCard },
-            { name: "PD Deal Billing", href: "/admin/billinghistory/pddealbilling", icon: FileText },
-
-          ]}
-        />
-
-
-        <DropdownMenu
-          title="Subscriptions"
-          icon={CreditCard}
-          isOpen={subscriptionOpen}
-          toggle={() => setsubscriptionsOpen(!subscriptionOpen)}
-          links={[
-            { name: "Subscriptions", href: "/admin/subscriptions/subscriptions", icon: CreditCard },
-          ]}
-        />
-
-        <DropdownMenu
-          title="seller-page"
+          title="Seller"
           icon={Store}
           isOpen={sellerOpen}
           toggle={() => setSellerOpen(!sellerOpen)}
@@ -277,8 +177,34 @@ export default function AdminSidebar({ onClose }) {
           ]}
         />
 
+        {/* Buyer */}
         <DropdownMenu
-          title="PD Deals"
+          title="Buyer"
+          icon={Users}
+          isOpen={buyerOpen}
+          toggle={() => setBuyerOpen(!buyerOpen)}
+          links={[
+            { name: "Buyer", href: "/admin/Buyer/buyerPage", icon: UserCircle },
+            { name: "Products", href: "/admin/Buyer/products", icon: Package },
+          ]}
+        />
+
+        {/* Direct Order */}
+        <DropdownMenu
+          title="Direct/Single Order"
+          icon={ClipboardList}
+          isOpen={directOrderOpen}
+          toggle={() => setDirectOrderOpen(!directOrderOpen)}
+          links={[
+            { name: "Create Direct Order", href: "/admin/directorder/Create", icon: PlusCircle },
+            { name: "Current Direct Order", href: "/admin/directorder/Current", icon: ClipboardList },
+            { name: "Close Direct Order", href: "/admin/directorder/Close", icon: CheckCircle },
+          ]}
+        />
+
+        {/* PD/Bulk Deals */}
+        <DropdownMenu
+          title="PD/Bulk Deals"
           icon={Handshake}
           isOpen={pddealOpen}
           toggle={() => setPdDealOpen(!pddealOpen)}
@@ -290,8 +216,9 @@ export default function AdminSidebar({ onClose }) {
           ]}
         />
 
+        {/* Direct Report */}
         <DropdownMenu
-          title="Direct Report"
+          title="Direct Order Report"
           icon={BarChart3}
           isOpen={directreportOpen}
           toggle={() => setdirectreportOpen(!directreportOpen)}
@@ -303,23 +230,131 @@ export default function AdminSidebar({ onClose }) {
           ]}
         />
 
+        {/* Paper Deals Report */}
         <DropdownMenu
-          title="Enquiry"
-          icon={HelpCircle}
-          isOpen={inquiryOpen}
-          toggle={() => setInquiryOpen(!inquiryOpen)}
+          title="Paper Deals Report"
+          icon={FileText}
+          isOpen={paperreportOpen}
+          toggle={() => setpaperreportOpen(!paperreportOpen)}
           links={[
-
-            { name: "Support", href: "/admin/inquiries/support", icon: Headset },
-            { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon:  UserCircle  },
-            { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall},
-            { name: "Contact Us", href: "/admin/inquiries/contact_us", icon:  MessageSquare  },
-            { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon:  IndianRupee },
-
-
+            { name: "Business Report", href: "/admin/paperreport/business", icon: BarChart2 },
+            { name: "Status Report", href: "/admin/paperreport/status", icon: ListChecks },
+            { name: "Closure Report", href: "/admin/paperreport/closure", icon: FileCheck },
+            { name: "Process Report", href: "/admin/paperreport/process", icon: Workflow },
           ]}
-
         />
+
+        {/* Live Stock */}
+        <DropdownMenu
+          title="Live Stock"
+          icon={Radio}
+          isOpen={livestockOpen}
+          toggle={() => setlivestockOpen(!livestockOpen)}
+          links={[
+            { name: "Edit Live Stock", href: "/admin/livestock/editlivestock", icon: FileText },
+            { name: "View Live Stock", href: "/admin/livestock/viewlivestock", icon: Eye },
+          ]}
+        />
+
+        {/* Live Price */}
+        <Link
+          href="/admin/livePrice"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <FileBadge className="mr-3 h-5 w-5" />
+          Live Price
+        </Link>
+
+        {/* Stocks */}
+        <Link
+          href="/admin/stocks"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/stocks")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <Package className="mr-3 h-5 w-5" />
+          Stocks
+        </Link>
+
+        {/* Billing History */}
+        <DropdownMenu
+          title="Billing History"
+          icon={History}
+          isOpen={billinghistoryOpen}
+          toggle={() => setbillinghistoryOpen(!billinghistoryOpen)}
+          links={[
+            { name: "Direct Deal Billing", href: "/admin/billinghistory/directdealbilling", icon: CreditCard },
+            { name: "PD Deal Billing", href: "/admin/billinghistory/pddealbilling", icon: FileText },
+          ]}
+        />
+
+        {/* Consultant */}
+        <Link
+          href="/admin/consultant"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultant")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <Pi className="mr-3 h-5 w-5" />
+          Consultant
+        </Link>
+
+        {/* Subscriptions */}
+        <DropdownMenu
+          title="Subscriptions"
+          icon={CreditCard}
+          isOpen={subscriptionOpen}
+          toggle={() => setsubscriptionsOpen(!subscriptionOpen)}
+          links={[
+            { name: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
+          ]}
+        />
+
+        {/* General Settings */}
+        <DropdownMenu
+          title="General Settings"
+          icon={Settings}
+          isOpen={generalsettingOpen}
+          toggle={() => setgeneralsettingOpen(!generalsettingOpen)}
+          links={[
+            { name: "Testimonial", href: "/admin/generalsetting/testimonial", icon: MessageSquareQuote },
+            { name: "Categories", href: "/admin/generalsetting/categories", icon: ListTree },
+            { name: "Logo", href: "/admin/generalsetting/logo", icon: Image },
+            { name: "Partner", href: "/admin/generalsetting/partner", icon: Partner },
+            { name: "Videos", href: "/admin/generalsetting/video", icon: Video },
+            { name: "Image", href: "/admin/generalsetting/image", icon: ImagePlus },
+            { name: "News", href: "/admin/generalsetting/news", icon: Newspaper },
+          ]}
+        />
+
+        {/* Chat History */}
+        <Link
+          href="/admin/chatHistory"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chatHistory")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <MessageSquareText className="mr-3 h-5 w-5" />
+          Chat History
+        </Link>
+
+        {/* Users */}
+        <Link
+          href="/admin/user"
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/user")
+            ? "bg-orange-600 text-white"
+            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+            }`}
+        >
+          <Users className="mr-3 h-5 w-5" />
+          Users
+        </Link>
 
       </div>
 

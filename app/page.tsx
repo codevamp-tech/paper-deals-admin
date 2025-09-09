@@ -44,6 +44,7 @@ export default function AdminLogin() {
 
       if (response.ok) {
         Cookies.set("token", data.token, { expires: 7 })
+        localStorage.setItem("token", data.token);
         router.push("/admin/dashboard")
       } else {
         setError(data.message || "Login failed")

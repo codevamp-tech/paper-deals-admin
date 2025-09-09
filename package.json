@@ -53,6 +53,7 @@
     "jose": "^6.0.12",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "latest",
+    "jwt-decode": "^4.0.0",
     "kerberos": "latest",
     "lucide-react": "^0.454.0",
     "mongodb": "latest",

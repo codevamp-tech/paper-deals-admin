@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { Plus, Edit, Trash2, Search } from "lucide-react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -9,121 +8,310 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog"
+import Pagination from "@/components/pagination"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
-export default function BuyerPage() {
+type Organization = {
+  id: number
+  organizations: string
+  contact_person: string
+  email: string
+  phone: string
+  city: string
+  materials_used: string
+}
+
+type Buyer = {
+  id: number
+  name: string
+  email_address: string
+  phone_no: string
+  active_status: number
+  organization: Organization
+}
+
+export default function BuyerTable() {
+  const [buyers, setBuyers] = useState<Buyer[]>([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
-  const [buyers, setBuyers] = useState([
+  const [loading, setLoading] = useState(false)
+
+  const [openDialog, setOpenDialog] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email_address: "",
+    password: "",
+    phone_no: "",
+    join_date: "",
+    whatsapp_no: "",
+  })
+
+  const fetchBuyers = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/users/getBuyer?page=${page}&limit=10`
+      )
+      const data = await res.json()
+      setBuyers(data.data || [])
+      setTotalPages(data.totalPages || 1)
+    } catch (error) {
+      console.error("Error fetching buyers:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBuyers()
+  }, [page])
+
+  const handleAddBuyer = async () => {
+    try {
+      await fetch("http://localhost:5000/api/users/create-buyer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email_address: formData.email_address,
+          password: formData.password,
+          phone_no: formData.phone_no,
+          join_date: formData.join_date,
+          whatsapp_no: formData.whatsapp_no,
+        }),
+      })
+      setOpenDialog(false)
+      setFormData({
+        name: "",
+        email_address: "",
+        password: "",
+        phone_no: "",
+        join_date: "",
+        whatsapp_no: "",
+      })
+      fetchBuyers()
+    } catch (error) {
+      console.error("Error adding buyer:", error)
+    }
+  }
+
+  const handleEdit = (buyer: Buyer) => {
+    alert(`Edit Buyer: ${buyer.name}`)
+  }
+
+  const handleDelete = async (buyer: Buyer) => {
     {
-      id: 37,
-      companyId: "KPDB_120",
-      companyName: "procare",
-      buyerName: "vishal singh",
-      email: "vishalsingh1@gmail.com",
-      phone: "9874563201",
-      city: "ghaziabad",
-      dealsIn: "kraft paper",
-    },
-    {
-      id: 36,
-      companyId: "KPDB_116",
-      companyName: "Abc",
-      buyerName: "Suryansh Singh",
-      email: "suryanshsinsinwar@outlook.com",
-      phone: "9116859737",
-      city: "Bharatpur",
-      dealsIn: "Used Tissues",
-    },
-  ])
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/users/deletebuyer/${buyer.id}`,
+          { method: "DELETE" }
+        )
+        const data = await res.json()
+        if (res.ok) {
+          toast.success("Buyer deleted successfully")
+          fetchBuyers()
+        } else {
+          toast.error("Failed to delete buyer")
+        }
+      } catch (error) {
+        console.error("Error deleting buyer:", error)
+        toast.error("Error deleting buyer")
+      }
+    }
+  }
+
+  const handleToggleStatus = async (buyer: Buyer) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/users/users/toggle-buyer-status/${buyer.id}`,
+        { method: "PATCH" }
+      )
+      const data = await res.json()
+      if (res.ok) {
+        toast.success("Buyer status updated")
+        fetchBuyers()
+      } else {
+        toast.error(data.error || "Failed to update buyer status")
+      }
+    } catch (error) {
+      toast.error("Error toggling buyer status")
+    }
+  }
 
   const filteredBuyers = buyers.filter(
-    (b) =>
-      b.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (buyer) =>
+      buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      buyer.email_address.toLowerCase().includes(searchTerm.toLowerCase())
   )
-
-  const handleAddBuyer = (e: React.FormEvent) => {
-    e.preventDefault()
-    // TODO: Save buyer to backend
-  }
 
   return (
     <div className="p-4">
-      {/* Header and Add Buyer Button */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Buyer</h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add Buyer
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Buyer</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleAddBuyer} className="grid grid-cols-2 gap-4">
-              <Input placeholder="Name" required />
-              <Input placeholder="Email" type="email" required />
-              <Input placeholder="Password" type="password" required />
-              <Input placeholder="Mobile (to be verified)" required />
-              <Input placeholder="Join Date" type="date" />
-              <Input placeholder="WhatsApp No." />
-              <div className="col-span-2">
-                <Button type="submit" className="w-full">
-                  Save
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <h2 className="text-xl font-bold">Buyers</h2>
+        <div className="flex gap-2">
+          <Button onClick={() => setOpenDialog(true)}>+ Add Buyer</Button>
+        </div>
       </div>
-
-      {/* Search Bar */}
-      <div className="flex items-center space-x-2 mb-4">
-        <Input
-          placeholder="Search buyers..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <Button variant="outline">
-          <Search className="h-4 w-4" />
-        </Button>
-      </div>
-
+      <Input
+        placeholder="Search buyers..."
+        className="w-52 mb-2"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       {/* Table */}
-      <div className="overflow-x-auto border rounded-lg">
-        <table className="min-w-full border-collapse">
-          <thead className="bg-gray-100">
+      <div className="overflow-x-auto rounded-lg border">
+        <table className="w-full border-collapse text-sm">
+          <thead className="bg-gray-100 text-left">
             <tr>
-              <th className="border p-2">ID</th>
-              <th className="border p-2">Company ID</th>
-              <th className="border p-2">Company Name</th>
-              <th className="border p-2">Buyer Name</th>
-              <th className="border p-2">Email</th>
-              <th className="border p-2">Phone</th>
-              <th className="border p-2">City</th>
-              <th className="border p-2">Deals In</th>
+              <th className="p-2 border">ID</th>
+              <th className="p-2 border">Company Id</th>
+              <th className="p-2 border">Company Name</th>
+              <th className="p-2 border">Buyer Name</th>
+              <th className="p-2 border">Buyer Email</th>
+              <th className="p-2 border">Buyer Phone</th>
+              <th className="p-2 border">City</th>
+              <th className="p-2 border">Deals In</th>
+              <th className="p-2 border">Status</th>
+              <th className="p-2 border">Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredBuyers.map((buyer) => (
-              <tr key={buyer.id}>
-                <td className="border p-2">{buyer.id}</td>
-                <td className="border p-2">{buyer.companyId}</td>
-                <td className="border p-2">{buyer.companyName}</td>
-                <td className="border p-2">{buyer.buyerName}</td>
-                <td className="border p-2">{buyer.email}</td>
-                <td className="border p-2">{buyer.phone}</td>
-                <td className="border p-2">{buyer.city}</td>
-                <td className="border p-2">{buyer.dealsIn}</td>
+            {loading ? (
+              <tr>
+                <td colSpan={11} className="p-4 text-center">
+                  Loading...
+                </td>
               </tr>
-            ))}
+            ) : filteredBuyers.length > 0 ? (
+              filteredBuyers.map((buyer) => (
+                <tr key={buyer.id}>
+                  <td className="p-2 border">{buyer.id}</td>
+                  <td className="p-2 border">{buyer.organization?.id}</td>
+                  <td className="p-2 border">{buyer.organization?.organizations}</td>
+                  <td className="p-2 border">{buyer.name}</td>
+                  <td className="p-2 border">{buyer.email_address}</td>
+                  <td className="p-2 border">{buyer.phone_no}</td>
+                  <td className="p-2 border">{buyer.organization?.city}</td>
+                  <td className="p-2 border">{buyer.organization?.materials_used}</td>
+                  <td className="p-2 border">
+                    <span
+                      className={`px-2 py-1 rounded text-white text-sm ${buyer.active_status === 1 ? "bg-green-500" : "bg-red-500"
+                        }`}
+                    >
+                      {buyer.active_status === 1 ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+
+                  <td className="p-2 border">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">Actions</Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleEdit(buyer)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(buyer)}>
+                          Delete
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleStatus(buyer)}>
+                          {buyer.active_status === 1 ? "Deactivate" : "Activate"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={11} className="p-4 text-center">
+                  No buyers found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      <div className="mt-4">
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(newPage: number) => setPage(newPage)}
+        />
+      </div>
+
+      {/* Add Buyer Dialog */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Buyer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Input
+              placeholder="Name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+            <Input
+              placeholder="Email"
+              value={formData.email_address}
+              onChange={(e) =>
+                setFormData({ ...formData, email_address: e.target.value })
+              }
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+            />
+            <Input
+              placeholder="Mobile (to be verified)"
+              value={formData.phone_no}
+              onChange={(e) =>
+                setFormData({ ...formData, phone_no: e.target.value })
+              }
+            />
+            <Input
+              type="date"
+              placeholder="Join Date"
+              value={formData.join_date}
+              onChange={(e) =>
+                setFormData({ ...formData, join_date: e.target.value })
+              }
+            />
+            <Input
+              placeholder="WhatsApp No."
+              value={formData.whatsapp_no}
+              onChange={(e) =>
+                setFormData({ ...formData, whatsapp_no: e.target.value })
+              }
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddBuyer}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

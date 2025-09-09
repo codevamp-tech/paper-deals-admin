@@ -1,81 +1,143 @@
-"use client"
+"use client";
+import { getCookie } from "@/hooks/use-cookies";
+import { useEffect, useState } from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+export default function StatusReport() {
+  const [data, setData] = useState([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
-export default function PaperDealscloserreportPage() {
-  const [search, setSearch] = useState("")
+  const fetchReport = async () => {
+    try {
+      setLoading(true);
+      const token = getCookie("token");
+      if (!token) throw new Error("No token in cookies");
+      const res = await fetch(
+        `http://localhost:5000/api/pd-deals/closedpddeals`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
 
-  const tableData = [
-    { id: 1, dealId: "PD-1001", buyer: "ABC Pvt Ltd", seller: "XYZ Traders", amount: "₹50,000", date: "2025-08-11" },
-    { id: 2, dealId: "PD-1002", buyer: "Global Impex", seller: "Metro Papers", amount: "₹75,000", date: "2025-08-10" },
-    { id: 3, dealId: "PD-1003", buyer: "Prime Papers", seller: "City Traders", amount: "₹30,000", date: "2025-08-09" },
-  ]
+      const json = await res.json();
+      if (json.success) {
+        setData(json.data || []); // ✅ FIXED
+      } else {
+        setData([]);
+      }
+    } catch (err) {
+      console.error("Error fetching business report:", err);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const filteredData = tableData.filter(
-    (item) =>
-      item.dealId.toLowerCase().includes(search.toLowerCase()) ||
-      item.buyer.toLowerCase().includes(search.toLowerCase()) ||
-      item.seller.toLowerCase().includes(search.toLowerCase())
-  )
+  useEffect(() => {
+    fetchReport();
+  }, []);
 
   return (
-    <div className="p-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Paper Deals closer report</CardTitle>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-64"
-            />
-            <Button>
-              <Search className="w-4 h-4 mr-2" /> Search
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200">
-              <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="p-2 border">#</th>
-                  <th className="p-2 border">Deal ID</th>
-                  <th className="p-2 border">Buyer</th>
-                  <th className="p-2 border">Seller</th>
-                  <th className="p-2 border">Amount</th>
-                  <th className="p-2 border">Date</th>
+    <div className="p-6">
+      {/* 🔎 Top Filter Section */}
+      <div className="flex items-center gap-2 mb-4">
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+          className="border px-3 py-2 rounded"
+        />
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+          className="border px-3 py-2 rounded"
+        />
+        <button
+          onClick={fetchReport}
+          className="bg-orange-500 text-white px-4 py-2 rounded"
+        >
+          Filter
+        </button>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => window.print()}
+        >
+          Preview
+        </button>
+      </div>
+
+      {/* 📝 Header */}
+      <div className="text-center mb-6">
+        <h1 className="bg-brown-700 py-2 text-xl font-bold">
+          BUSINESS REPORT
+        </h1>
+        <p className="mt-2 font-semibold">
+          Business Report Date: {new Date().toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* 📊 Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-4 py-2">Date</th>
+              <th className="border px-4 py-2">Buyer</th>
+              <th className="border px-4 py-2">Seller</th>
+              <th className="border px-4 py-2">Amount</th>
+              <th className="border px-4 py-2">Weight (kg)</th>
+              <th className="border px-4 py-2">Commission</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  Loading...
+                </td>
+              </tr>
+            ) : data.length > 0 ? (
+              data.map((deal, index) => (
+                <tr key={index}>
+                  <td className="border px-4 py-2">
+                    {deal.created_on
+                      ? new Date(deal.created_on).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.buyerUser?.name || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.sellerUser?.name || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.deal_amount || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.quantity_in_kg || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.commission || "0"}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((row, index) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
-                      <td className="p-2 border">{index + 1}</td>
-                      <td className="p-2 border">{row.dealId}</td>
-                      <td className="p-2 border">{row.buyer}</td>
-                      <td className="p-2 border">{row.seller}</td>
-                      <td className="p-2 border">{row.amount}</td>
-                      <td className="p-2 border">{row.date}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="p-4 text-center text-gray-500">
-                      No records found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  No records found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
+  );
 }

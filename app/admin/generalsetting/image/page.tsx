@@ -1,33 +1,120 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import Pagination from "@/components/pagination"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+type Image = {
+  id: number
+  title: string
+  created_at: string
+}
+
 export default function ImagePage() {
-  const images = [
-    {
-      id: 10,
-      title: "DELHI NCR RECYCLING PAPER SUPPLIERS - MEETING - LEELA HOTEL DELHI",
-      createdAt: "2024-08-09 19:23:01"
-    },
-    {
-      id: 9,
-      title: "IRPTA - PANNEL DISUSSION - Domestic & Influence of imports -11th May 2022",
-      createdAt: "2024-08-09 20:11:50"
-    },
-    {
-      id: 8,
-      title: 'IPPTA meet "vision 2030"',
-      createdAt: "2024-08-09 20:17:32"
-    },
-    {
-      id: 7,
-      title: "IRPTA Panel Discussion: OUT LOOK RECOVER PAPER INDIA ( DATE- 7th DEC 23)",
-      createdAt: "2024-08-09 20:19:39"
-    },
-    {
-      id: 6,
-      title: "Germany visit organized by FPTA to the Drupa trip",
-      createdAt: "2024-08-12 17:26:49"
+  const [images, setImages] = useState<Image[]>([])
+  const [title, setTitle] = useState("")
+  const [files, setFiles] = useState<FileList | null>(null)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editImage, setEditImage] = useState<Image | null>(null)
+
+  const limit = 10
+
+  // Fetch images
+  const fetchImages = async (page = 1) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/images?page=${page}&limit=${limit}`)
+      const data = await res.json()
+      if (data.success) {
+        setImages(data.data)
+        setTotalPages(data.totalPages)
+      }
+    } catch (err) {
+      console.error("Error fetching images:", err)
     }
-  ]
+  }
+
+  useEffect(() => {
+    fetchImages(page)
+  }, [page])
+
+  // Add Image
+  const handleSave = async () => {
+    try {
+      const formData = new FormData()
+      formData.append("title", title)
+      if (files) {
+        Array.from(files).forEach((file) => {
+          formData.append("images", file)
+        })
+      }
+
+      await fetch("http://localhost:5000/api/images", {
+        method: "POST",
+        body: formData,
+      })
+
+      setTitle("")
+      setFiles(null)
+      fetchImages(page)
+    } catch (err) {
+      console.error("Error saving image:", err)
+    }
+  }
+
+  // Delete Image
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this image?")) return
+    try {
+      await fetch(`http://localhost:5000/api/images/${id}`, { method: "DELETE" })
+      fetchImages(page)
+    } catch (err) {
+      console.error("Error deleting image:", err)
+    }
+  }
+
+  // Open Edit Dialog
+  const openEditDialog = (image: Image) => {
+    setEditImage(image)
+    setTitle(image.title)
+    setEditDialogOpen(true)
+  }
+
+  // Update Image
+  const handleUpdate = async () => {
+    if (!editImage) return
+    try {
+      const formData = new FormData()
+      formData.append("title", title)
+      if (files) {
+        Array.from(files).forEach((file) => {
+          formData.append("images", file)
+        })
+      }
+
+      await fetch(`http://localhost:5000/api/images/${editImage.id}`, {
+        method: "PUT",
+        body: formData,
+      })
+
+      setEditDialogOpen(false)
+      setEditImage(null)
+      setTitle("")
+      setFiles(null)
+      fetchImages(page)
+    } catch (err) {
+      console.error("Error updating image:", err)
+    }
+  }
 
   return (
     <div className="p-6 space-y-8">
@@ -39,6 +126,8 @@ export default function ImagePage() {
             <label className="block text-sm font-medium mb-1">Title</label>
             <input
               type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter Event Name"
               className="border rounded px-3 py-2 w-full"
             />
@@ -48,11 +137,15 @@ export default function ImagePage() {
             <input
               type="file"
               multiple
+              onChange={(e) => setFiles(e.target.files)}
               className="border rounded px-3 py-2 w-full"
             />
           </div>
           <div>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+            <button
+              onClick={handleSave}
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            >
               Save
             </button>
           </div>
@@ -63,29 +156,6 @@ export default function ImagePage() {
       <div>
         <h2 className="text-xl font-semibold mb-4">Images</h2>
         <div className="bg-white shadow rounded-lg p-4">
-          {/* Top Controls */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="space-x-2">
-              {["Copy", "CSV", "Excel", "PDF", "Print"].map((btn) => (
-                <button
-                  key={btn}
-                  className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-                >
-                  {btn}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center">
-              <label className="mr-2 text-sm">Search:</label>
-              <input
-                type="text"
-                className="border px-2 py-1 rounded"
-                placeholder=""
-              />
-            </div>
-          </div>
-
-          {/* Table */}
           <table className="min-w-full border text-sm">
             <thead className="bg-gray-100">
               <tr>
@@ -101,14 +171,27 @@ export default function ImagePage() {
                 <tr key={image.id} className="border-t">
                   <td className="px-4 py-2 border">{image.id}</td>
                   <td className="px-4 py-2 border">{image.title}</td>
-                  <td className="px-4 py-2 border">{image.createdAt}</td>
+                  <td className="px-4 py-2 border">
+                    {image.created_at
+                      ? new Date(image.created_at).toLocaleString("en-IN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })
+                      : "—"}
+                  </td>
                   <td className="px-4 py-2 border text-center">
-                    <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+                    <button
+                      onClick={() => openEditDialog(image)}
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                    >
                       Edit
                     </button>
                   </td>
                   <td className="px-4 py-2 border text-center">
-                    <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                    <button
+                      onClick={() => handleDelete(image.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    >
                       Delete
                     </button>
                   </td>
@@ -116,8 +199,48 @@ export default function ImagePage() {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <div className="mt-4">
+            <Pagination
+              totalPages={totalPages}
+              currentPage={page}
+              onPageChange={(p: number) => setPage(p)}
+            />
+          </div>
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Image</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Title</label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter new title"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Replace Image</label>
+              <Input type="file" multiple onChange={(e) => setFiles(e.target.files)} />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

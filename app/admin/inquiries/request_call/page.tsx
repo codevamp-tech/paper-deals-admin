@@ -1,34 +1,72 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
-const dummyData = [
-  { id: 51, name: "yash bhardwaj", phone: "6395019000", createdAt: "2025-07-29 11:18:20", status: "Completed" },
-  { id: 50, name: "tanish singh", phone: "9897969999", createdAt: "2025-07-25 10:44:08", status: "Completed" },
-  { id: 49, name: "ajay gupta", phone: "9719305555", createdAt: "2025-07-10 09:33:07", status: "Completed" },
-  { id: 48, name: "hello test", phone: "9658741230", createdAt: "2025-07-09 06:02:29", status: "Completed" },
-  { id: 47, name: "vishal singh", phone: "9875641230", createdAt: "2025-07-09 05:57:01", status: "Completed" },
-  { id: 46, name: "pawan kumar srivastava", phone: "6677892579", createdAt: "2025-07-09 04:24:32", status: "Pending" },
-  { id: 45, name: "fjhkhjghjbkk", phone: "6785685747", createdAt: "2025-07-09 04:24:10", status: "Pending" },
-  { id: 44, name: "gahgssg", phone: "9865786567", createdAt: "2025-07-09 04:23:56", status: "Pending" },
-  { id: 43, name: "abhishek ty", phone: "5683268253", createdAt: "2025-07-09 04:23:07", status: "Rejected" },
-  { id: 42, name: "Saakshi Dhaka", phone: "9696969506", createdAt: "2025-07-08 14:08:15", status: "Pending" },
-]
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import Pagination from "@/components/pagination"
 
 export default function RequestCallPage() {
+  const [data, setData] = useState<any[]>([])
   const [search, setSearch] = useState("")
+  const [selected, setSelected] = useState<any | null>(null) // selected row for dialog
+  const [status, setStatus] = useState("")
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
-  const filtered = dummyData.filter((row) =>
-    row.name.toLowerCase().includes(search.toLowerCase()) ||
-    row.phone.includes(search)
-  )
+  // Fetch all request calls
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/reqcall?page=${page}&limit=10`)
+      .then((res) => res.json())
+      .then((d) => {
+        setData(d.data)
+        setTotalPages(d.totalPages)
+      })
+      .catch((err) => console.error(err))
+  }, [page])
+
+  console.log("data request", data);
+  // Filtered list
+  const filtered = Array.isArray(data)
+    ? data.filter(
+      (row) =>
+        row.name?.toLowerCase().includes(search.toLowerCase()) ||
+        row.phone?.includes(search)
+    )
+    : [];
+
+
+  // Handle update
+  const handleUpdate = async () => {
+    if (!selected) return
+    try {
+      await fetch(`http://localhost:5000/api/reqcall/${selected.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      })
+      // Update UI after saving
+      setData((prev) =>
+        prev.map((item) =>
+          item.id === selected.id ? { ...item, status } : item
+        )
+      )
+      setSelected(null) // close dialog
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
-    <Card className="m-6">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Request Call</CardTitle>
+    <div className="m-6">
+      <div className="flex flex-row items-center justify-between">
+        <div>Request Call</div>
         <input
           type="text"
           placeholder="Search..."
@@ -36,17 +74,8 @@ export default function RequestCallPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="border rounded px-2 py-1 text-sm"
         />
-      </CardHeader>
-      <CardContent>
-        {/* Export Buttons */}
-        <div className="flex gap-2 mb-4">
-          <Button variant="secondary">Copy</Button>
-          <Button variant="secondary">CSV</Button>
-          <Button variant="secondary">Excel</Button>
-          <Button variant="secondary">PDF</Button>
-          <Button variant="secondary">Print</Button>
-        </div>
-
+      </div>
+      <div>
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full border text-sm">
@@ -66,36 +95,86 @@ export default function RequestCallPage() {
                   <td className="border px-3 py-2">{row.id}</td>
                   <td className="border px-3 py-2">{row.name}</td>
                   <td className="border px-3 py-2">{row.phone}</td>
-                  <td className="border px-3 py-2">{row.createdAt}</td>
                   <td className="border px-3 py-2">
-                    {row.status === "Completed" && (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Completed ✔</span>
+                    {new Date(row.created_at).toLocaleString()}
+                  </td>
+                  <td className="border px-3 py-2">
+                    {row.status === 1 && (
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Completed </span>
                     )}
-                    {row.status === "Pending" && (
-                      <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Pending ⏳</span>
+                    {row.status === 0 && (
+                      <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">Pending </span>
                     )}
-                    {row.status === "Rejected" && (
-                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Rejected ❌</span>
+                    {row.status === 2 && (
+                      <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">Rejected </span>
                     )}
                   </td>
-                  <td className="border px-3 py-2 text-blue-600 cursor-pointer">View</td>
+                  <td
+                    className="border px-3 py-2 text-blue-600 cursor-pointer"
+                    onClick={() => {
+                      setSelected(row)
+                      setStatus(row.status) // preload current status
+                    }}
+                  >
+                    View
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <Pagination
+          totalPages={totalPages}
+          currentPage={page}
+          onPageChange={(newPage: number) => setPage(newPage)}
+        />
+      </div>
 
-        {/* Pagination (dummy) */}
-        <div className="flex justify-between items-center mt-4 text-sm">
-          <p>Showing 1 to {filtered.length} of {dummyData.length} entries</p>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline">Previous</Button>
-            <Button size="sm" variant="default">1</Button>
-            <Button size="sm" variant="outline">2</Button>
-            <Button size="sm" variant="outline">Next</Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Dialog */}
+      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>View Request Call</DialogTitle>
+          </DialogHeader>
+          {selected && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Name</label>
+                <input
+                  type="text"
+                  value={selected.name}
+                  disabled
+                  className="w-full border rounded px-2 py-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Mobile No.</label>
+                <input
+                  type="text"
+                  value={selected.phone}
+                  disabled
+                  className="w-full border rounded px-2 py-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Select Status</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="w-full border rounded px-2 py-1"
+                >
+                  <option value={1}>Completed </option>
+                  <option value={0}>Pending</option>
+                  <option value={2}>Rejected </option>
+                </select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={handleUpdate}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
