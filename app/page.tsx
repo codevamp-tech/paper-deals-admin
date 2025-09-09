@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Shield } from "lucide-react"
 import Link from "next/link"
 
-const Apilocalurl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+const Apilocalurl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com"
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({

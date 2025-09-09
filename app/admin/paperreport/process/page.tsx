@@ -25,7 +25,7 @@ export default function PdProcessReport() {
       if (!token) throw new Error("No token in cookies");
 
       const res = await fetch(
-        `http://localhost:5000/api/pd-deals/pdProcessReport?page=${page}&limit=${limit}&search=${search}`,
+        `https://paper-deal-server.onrender.com/api/pd-deals/pdProcessReport?page=${page}&limit=${limit}&search=${search}`,
         {
           method: "GET",
           headers: {

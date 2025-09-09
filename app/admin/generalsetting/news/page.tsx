@@ -35,7 +35,7 @@ export default function NewsPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/news?page=${page}&limit=${limit}`
+        `https://paper-deal-server.onrender.com/api/news?page=${page}&limit=${limit}`
       );
       const data = await res.json();
       setNewsList(data.news || []);
@@ -73,8 +73,8 @@ export default function NewsPage() {
     try {
       const res = await fetch(
         editId
-          ? `http://localhost:5000/api/news/${editId}`
-          : "http://localhost:5000/api/news",
+          ? `https://paper-deal-server.onrender.com/api/news/${editId}`
+          : "https://paper-deal-server.onrender.com/api/news",
         {
           method: editId ? "PUT" : "POST",
           body: form,
@@ -97,7 +97,7 @@ export default function NewsPage() {
     if (!confirm("Are you sure you want to delete this news?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/news/${id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/news/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {

@@ -46,7 +46,7 @@ export default function SupportPage() {
   const fetchSupports = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`http://localhost:5000/api/support?page=${page}&limit=${limit}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/support?page=${page}&limit=${limit}`)
       const data = await res.json()
       setSupports(data.supports || [])  // <- only the array
       setTotalPages(data.totalPages || 1)
@@ -116,7 +116,7 @@ export default function SupportPage() {
   const handleUpdate = async () => {
     if (!selectedTicket) return
     try {
-      await fetch(`http://localhost:5000/api/support/${selectedTicket.id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/support/${selectedTicket.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -131,7 +131,7 @@ export default function SupportPage() {
   // Delete support
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/api/support/${id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/support/${id}`, {
         method: "DELETE",
       })
       fetchSupports()

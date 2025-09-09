@@ -22,7 +22,7 @@ export default function RequestCallPage() {
 
   // Fetch all request calls
   useEffect(() => {
-    fetch(`http://localhost:5000/api/reqcall?page=${page}&limit=10`)
+    fetch(`https://paper-deal-server.onrender.com/api/reqcall?page=${page}&limit=10`)
       .then((res) => res.json())
       .then((d) => {
         setData(d.data)
@@ -46,7 +46,7 @@ export default function RequestCallPage() {
   const handleUpdate = async () => {
     if (!selected) return
     try {
-      await fetch(`http://localhost:5000/api/reqcall/${selected.id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/reqcall/${selected.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

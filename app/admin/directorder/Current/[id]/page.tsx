@@ -93,7 +93,7 @@ export default function DealForm() {
   const handleSubmit = async (endpoint: string) => {
     try {
       const payload = mapFormToApi(form)
-      const res = await fetch(`http://localhost:5000/api/${endpoint}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -109,7 +109,7 @@ export default function DealForm() {
 
   const fetchDeal = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/dashboard/dealbyid/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard/dealbyid/${dealId}`)
       const data = await res.json()
       setForm(mapApiToForm(data))
     } catch (error) {
@@ -121,7 +121,7 @@ export default function DealForm() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categiry")
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
       const data = await res.json()
       setCategories(data.data || data) // adjust if API wraps in .data
     } catch (error) {
@@ -133,8 +133,8 @@ export default function DealForm() {
   const fetchBuyersAndSellers = async () => {
     try {
       const [buyerRes, sellerRes] = await Promise.all([
-        fetch("http://localhost:5000/api/users/getBuyer"),
-        fetch("http://localhost:5000/api/users/getallsellers?user_type=2"),
+        fetch("https://paper-deal-server.onrender.com/api/users/getBuyer"),
+        fetch("https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2"),
       ])
       const buyersData = await buyerRes.json()
       const sellersData = await sellerRes.json()

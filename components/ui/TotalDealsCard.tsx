@@ -22,10 +22,10 @@ export default function TotalDealsCard() {
         setLoading(true);
 
         const [directRes, pdRes] = await Promise.all([
-          fetch("http://localhost:5000/api/dashboard/stats").then((res) =>
+          fetch("https://paper-deal-server.onrender.com/api/dashboard/stats").then((res) =>
             res.json()
           ),
-          fetch("http://localhost:5000/api/pd-deals/graph").then((res) =>
+          fetch("https://paper-deal-server.onrender.com/api/pd-deals/graph").then((res) =>
             res.json()
           ),
         ]);

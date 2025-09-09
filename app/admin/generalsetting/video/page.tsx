@@ -40,7 +40,7 @@ export default function VideoPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `http://localhost:5000/api/videos?page=${page}&limit=${limit}`
+        `https://paper-deal-server.onrender.com/api/videos?page=${page}&limit=${limit}`
       )
       const data = await res.json()
       setVideos(data.data) // backend sends {success,total,page,totalPages,data}
@@ -60,7 +60,7 @@ export default function VideoPage() {
   const handleCreate = async () => {
     if (!newUrl || !newTitle) return alert("Fill all fields")
     try {
-      await fetch("http://localhost:5000/api/videos", {
+      await fetch("https://paper-deal-server.onrender.com/api/videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ video: newUrl, video_title: newTitle }),
@@ -77,7 +77,7 @@ export default function VideoPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this video?")) return
     try {
-      await fetch(`http://localhost:5000/api/videos/${id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/videos/${id}`, {
         method: "DELETE",
       })
       fetchVideos()
@@ -98,7 +98,7 @@ export default function VideoPage() {
   const handleEditSave = async () => {
     if (!editId || !editTitle || !editUrl) return alert("Fill all fields")
     try {
-      await fetch(`http://localhost:5000/api/videos/${editId}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/videos/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ video: editUrl, video_title: editTitle }),

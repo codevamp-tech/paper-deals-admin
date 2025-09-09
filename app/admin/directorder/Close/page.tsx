@@ -33,7 +33,7 @@ export default function CloseDealsPage() {
     const fetchDeals = async () => {
       try {
         setLoading(true)
-        const res = await fetch(`http://localhost:5000/api/dashboard/closed?page=${page}`)
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard/closed?page=${page}`)
         const data = await res.json()
 
         if (data.success) {
