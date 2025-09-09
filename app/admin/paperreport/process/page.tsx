@@ -1,81 +1,155 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { getCookie } from "@/hooks/use-cookies";
+import Pagination from "@/components/pagination";
 
-export default function PaperDealsprocessreportPage() {
-  const [search, setSearch] = useState("")
+export default function PdProcessReport() {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
 
-  const tableData = [
-    { id: 1, dealId: "PD-1001", buyer: "ABC Pvt Ltd", seller: "XYZ Traders", amount: "₹50,000", date: "2025-08-11" },
-    { id: 2, dealId: "PD-1002", buyer: "Global Impex", seller: "Metro Papers", amount: "₹75,000", date: "2025-08-10" },
-    { id: 3, dealId: "PD-1003", buyer: "Prime Papers", seller: "City Traders", amount: "₹30,000", date: "2025-08-09" },
-  ]
+  useEffect(() => {
+    fetchData();
+  }, [page, search]);
 
-  const filteredData = tableData.filter(
-    (item) =>
-      item.dealId.toLowerCase().includes(search.toLowerCase()) ||
-      item.buyer.toLowerCase().includes(search.toLowerCase()) ||
-      item.seller.toLowerCase().includes(search.toLowerCase())
-  )
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const token = getCookie("token");
+      if (!token) throw new Error("No token in cookies");
+
+      const res = await fetch(
+        `http://localhost:5000/api/pd-deals/pdProcessReport?page=${page}&limit=${limit}&search=${search}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
+
+      const json = await res.json();
+      setData(json.data || []);
+      setTotalPages(json.totalPages || 1);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="p-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Paper Deals process report</CardTitle>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-64"
-            />
-            <Button>
-              <Search className="w-4 h-4 mr-2" /> Search
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200">
-              <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="p-2 border">#</th>
-                  <th className="p-2 border">Deal ID</th>
-                  <th className="p-2 border">Buyer</th>
-                  <th className="p-2 border">Seller</th>
-                  <th className="p-2 border">Amount</th>
-                  <th className="p-2 border">Date</th>
+    <div className="p-6">
+      {/* Header Actions */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="space-x-2">
+          <Button variant="outline">Copy</Button>
+          <Button variant="outline">CSV</Button>
+          <Button variant="outline">Excel</Button>
+          <Button variant="outline">PDF</Button>
+          <Button variant="outline">Print</Button>
+        </div>
+        <Input
+          placeholder="Search..."
+          className="w-64"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border px-2 py-1">ID</th>
+              <th className="border px-2 py-1">Buyer</th>
+              <th className="border px-2 py-1">Seller</th>
+              <th className="border px-2 py-1">Contact Person</th>
+              <th className="border px-2 py-1">Mobile No.</th>
+              <th className="border px-2 py-1">Email Id</th>
+              <th className="border px-2 py-1">Product Description</th>
+              <th className="border px-2 py-1">Deal Size</th>
+              <th className="border px-2 py-1">Commission</th>
+              <th className="border px-2 py-1">Buyer Commission</th>
+              <th className="border px-2 py-1">Seller Commission</th>
+              <th className="border px-2 py-1">Remarks</th>
+              <th className="border px-2 py-1">Date</th>
+              <th className="border px-2 py-1">Status</th>
+              <th className="border px-2 py-1">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={15} className="text-center py-4">
+                  Loading...
+                </td>
+              </tr>
+            ) : data.length > 0 ? (
+              data.map((item: any) => (
+                <tr key={item.id}>
+                  <td className="border px-2 py-1">{item.id}</td>
+                  <td className="border px-2 py-1">
+                    {item.buyerUser?.name || "N/A"}
+                  </td>
+                  <td className="border px-2 py-1">
+                    {item.sellerUser?.name || "N/A"}
+                  </td>
+                  <td className="border px-2 py-1">{item.contact_person || "—"}</td>
+                  <td className="border px-2 py-1">{item.mobile_no}</td>
+                  <td className="border px-2 py-1">{item.email_id}</td>
+                  <td className="border px-2 py-1">
+                    {item.product_description}
+                  </td>
+                  <td className="border px-2 py-1">{item.deal_size || "-"}</td>
+                  <td className="border px-2 py-1">{item.commission}</td>
+                  <td className="border px-2 py-1">{item.buyer_commission}</td>
+                  <td className="border px-2 py-1">{item.seller_commission}</td>
+                  <td className="border px-2 py-1">{item.remarks}</td>
+                  <td className="border px-2 py-1">
+                    {new Date(item.created_on).toLocaleDateString()}
+                  </td>
+                  <td className="border px-2 py-1">
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                      {item.status === 1 ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="border px-2 py-1">
+                    <Button size="sm" variant="link">
+                      View
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((row, index) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
-                      <td className="p-2 border">{index + 1}</td>
-                      <td className="p-2 border">{row.dealId}</td>
-                      <td className="p-2 border">{row.buyer}</td>
-                      <td className="p-2 border">{row.seller}</td>
-                      <td className="p-2 border">{row.amount}</td>
-                      <td className="p-2 border">{row.date}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="p-4 text-center text-gray-500">
-                      No records found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={15} className="text-center py-4">
+                  No records found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={page}
+        onPageChange={(newPage: number) => setPage(newPage)}
+      />
     </div>
-  )
+  );
 }

@@ -1,23 +1,81 @@
-// app/admin/chat-users/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface ChatUser {
+  id: number;
+  buyer: string;
+  consultant: string;
+  message: string;
+  incoming_msg_id: number;
+  outgoing_msg_id: number;
+}
+
+interface Message {
+  msg_id: number;
+  incoming_msg_id: number;
+  outgoing_msg_id: number;
+  message: string;
+  created_at: string;
+  incomingUser?: { name: string };
+  outgoingUser?: { name: string };
+}
 
 export default function ChatUsersPage() {
   const [search, setSearch] = useState("");
+  const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const chatUsers = [
-    { id: 8, buyer: "abhishek ty", consultant: "ratan", message: "Read" },
-    { id: 6, buyer: "DEMO BUYER", consultant: "DEMO CONSULTANT", message: "Read" },
-    { id: 4, buyer: "abhishek ty", consultant: "DEMO CONSULTANT", message: "Read" },
-    { id: 2, buyer: "DEMO SELLER", consultant: "DEMO CONSULTANT", message: "Read" },
-  ];
+  const [selectedThread, setSelectedThread] = useState<ChatUser | null>(null);
+  const [conversation, setConversation] = useState<Message[]>([]);
+  const [convLoading, setConvLoading] = useState(false);
 
+  // Fetch chat threads
+  useEffect(() => {
+    const fetchChatThreads = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/message/list");
+        if (!res.ok) throw new Error("Failed to fetch chat threads");
+        const data = await res.json();
+        setChatUsers(data);
+      } catch (err: any) {
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChatThreads();
+  }, []);
+
+  // Fetch conversation for a selected thread
+  const handleThreadClick = async (thread: ChatUser) => {
+    setSelectedThread(thread);
+    setConvLoading(true);
+    setConversation([]);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/message/conversation?senderId=${thread.incoming_msg_id}&receiverId=${thread.outgoing_msg_id}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch conversation");
+      const data = await res.json();
+      setConversation(data);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setConvLoading(false);
+    }
+  };
+
+  // Filter chat threads
   const filtered = chatUsers.filter(
     (u) =>
       u.buyer.toLowerCase().includes(search.toLowerCase()) ||
       u.consultant.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (loading) return <p className="p-6">Loading chat users...</p>;
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -25,13 +83,6 @@ export default function ChatUsersPage() {
 
       {/* Top Bar */}
       <div className="flex justify-between mb-4">
-        <div className="flex gap-2">
-          <button className="px-3 py-1 bg-gray-600 text-white rounded">Copy</button>
-          <button className="px-3 py-1 bg-gray-600 text-white rounded">CSV</button>
-          <button className="px-3 py-1 bg-gray-600 text-white rounded">Excel</button>
-          <button className="px-3 py-1 bg-gray-600 text-white rounded">PDF</button>
-          <button className="px-3 py-1 bg-gray-600 text-white rounded">Print</button>
-        </div>
         <div>
           <label className="mr-2">Search:</label>
           <input
@@ -43,43 +94,65 @@ export default function ChatUsersPage() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Chat Threads Table */}
       <table className="w-full border border-gray-300 bg-white rounded shadow-sm">
         <thead className="bg-gray-100">
           <tr>
             <th className="p-2 border">ID</th>
-            <th className="p-2 border">Buyer/Seller/Guest</th>
+            <th className="p-2 border">Buyer</th>
             <th className="p-2 border">Consultant</th>
-            <th className="p-2 border">Message</th>
+            <th className="p-2 border">Last Message</th>
           </tr>
         </thead>
         <tbody>
-          {filtered.map((u) => (
-            <tr key={u.id} className="hover:bg-gray-50">
-              <td className="p-2 border">{u.id}</td>
-              <td className="p-2 border">{u.buyer}</td>
-              <td className="p-2 border">{u.consultant}</td>
-              <td className="p-2 border text-blue-500 cursor-pointer">{u.message}</td>
+          {filtered.map((thread) => (
+            <tr
+              key={thread.id}
+              className="hover:bg-gray-50 cursor-pointer"
+              onClick={() => handleThreadClick(thread)}
+            >
+              <td className="p-2 border">{thread.id}</td>
+              <td className="p-2 border">{thread.buyer}</td>
+              <td className="p-2 border">{thread.consultant}</td>
+              <td className="p-2 border text-blue-500">{thread.message}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Footer */}
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-sm text-gray-500">
-          Showing 1 to {filtered.length} of {chatUsers.length} entries
-        </p>
-        <div className="flex gap-1">
-          <button className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed">
-            Previous
-          </button>
-          <button className="px-3 py-1 border rounded bg-blue-500 text-white">1</button>
-          <button className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed">
-            Next
-          </button>
+      {/* Conversation Panel */}
+      {selectedThread && (
+        <div className="mt-6 p-4 bg-white rounded shadow">
+          <h2 className="text-xl font-semibold mb-2">
+            Chat between {selectedThread.buyer} and {selectedThread.consultant}
+          </h2>
+          {convLoading ? (
+            <p>Loading conversation...</p>
+          ) : conversation.length === 0 ? (
+            <p className="text-gray-500">No messages yet.</p>
+          ) : (
+            <div className="flex flex-col gap-2 max-h-96 overflow-y-auto">
+              {conversation.map((msg) => (
+                <div
+                  key={msg.msg_id}
+                  className={`p-2 rounded ${msg.outgoing_msg_id === selectedThread.outgoing_msg_id
+                    ? "bg-blue-100 self-end"
+                    : "bg-gray-100 self-start"
+                    }`}
+                >
+                  <strong>{msg.outgoingUser?.name || "Unknown"}: </strong>
+                  {msg.msg}
+                  <div className="text-xs text-gray-400">
+                    {new Date(msg.created_at).toLocaleString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

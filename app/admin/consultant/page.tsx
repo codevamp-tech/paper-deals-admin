@@ -1,65 +1,323 @@
-// app/admin/consultants/page.tsx
 "use client";
 
-import { useState } from "react";
+import Pagination from "@/components/pagination";
+import { useState, useEffect } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MoreHorizontal } from "lucide-react";
 
 export default function ConsultantsPage() {
+  const [consultants, setConsultants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  // For Edit Dialog
+  const [openDialog, setOpenDialog] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
 
-  const consultants = [
-    { id: 14, name: "DEMO CONSULTANT", email: "democonsultant@gmail.com", phone: "9458613002", price: 1, whatsapp: "9458613002", date: "2024-08-03 00:00:00", status: "Active" },
-    { id: 13, name: "S.C JAIN", email: "papierengineers@gmail.com", phone: "9868104303", price: 5000, whatsapp: "9868104303", date: "2024-08-09 13:39:27", status: "Active" },
-    { id: 12, name: "Prince Sharma Vashishtha", email: "prince@gmail.com", phone: "9897123456", price: 1233, whatsapp: "9897123456", date: "2024-11-13 11:22:29", status: "Active" },
-    { id: 11, name: "ratan", email: "ratan@gmail.com", phone: "9911942600", price: 1, whatsapp: "1234567890", date: "2024-12-11 15:29:25", status: "Active" },
-    { id: 10, name: "Saakshi Dhaka", email: "vinu@gmail.com", phone: "9897123456", price: 12, whatsapp: "1234567890", date: "2025-06-28 11:18:04", status: "Active" },
-    { id: 9, name: "Saakshi Dhaka", email: "shaurya.vashistha@oakvweb.com", phone: "9897123456", price: 1234, whatsapp: "1234567890", date: "2025-06-28 12:31:24", status: "Active" },
-    { id: 8, name: "Saakshi Dhaka", email: "abc@gmail.com", phone: "8976767067", price: 1234, whatsapp: "9868104303", date: "2025-06-28 12:32:20", status: "Active" },
-    { id: 7, name: "Suryansh Singh", email: "suryansh272208@gmail.com", phone: "9116859737", price: 1, whatsapp: "9116859737", date: "2025-06-28 00:00:00", status: "Active" },
-    { id: 6, name: "arvind kumar", email: "arvindkumar@gmail.com", phone: "9874563210", price: 1, whatsapp: "9874563210", date: "2025-07-01 00:00:00", status: "Active" },
-    { id: 5, name: "Shivam Bhargava", email: "qwqe@gmail.com", phone: "9897123456", price: 1234, whatsapp: "1234567890", date: "2025-07-04 12:11:02", status: "Active" },
-  ];
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    price: "",
+    phone: "",
+    experience: "",
+    mills_supported: "",
+    whatsapp: "",
+    description: "",
+    file: null as File | null,
+  });
 
-  const filtered = consultants.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase())
-  );
+  // Fetch consultants
+  const fetchConsultants = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/users/getallsellers?user_type=5?page=${page}&limit=10`
+      );
+      const data = await res.json();
+
+      setConsultants(data.data || []);
+      setTotalPages(data.totalPages || 1);
+    } catch (err) {
+      console.error("Error fetching consultants", err);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchConsultants();
+  }, [page, search]);
+
+  // Handle form change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, files } = e.target as any;
+    if (files) {
+      setFormData({ ...formData, [name]: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  // Submit form
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const body = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) body.append(key, value as any);
+      });
+
+      const res = await fetch("http://localhost:5000/api/users/consultants", {
+        method: "POST",
+        body,
+      });
+
+      if (res.ok) {
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          price: "",
+          phone: "",
+          experience: "",
+          mills_supported: "",
+          whatsapp: "",
+          description: "",
+          file: null,
+        });
+        fetchConsultants();
+      } else {
+        console.error("Failed to add consultant");
+      }
+    } catch (err) {
+      console.error("Error submitting form", err);
+    }
+  };
+
+
+  const handleEdit = (consultant: any) => {
+    setEditData(consultant);
+    setFormData({
+      name: consultant.name || "",
+      email: consultant.email_address || "",
+      password: "",
+      price: consultant.price || "",
+      phone: consultant.phone_no || "",
+      experience: consultant.experience || "",
+      mills_supported: consultant.mills_supported || "",
+      whatsapp: consultant.whatsapp || "",
+      description: consultant.description || "",
+      file: null,
+    });
+    setOpenDialog(true);
+  };
+  console.log("Updating consultant:", editData);
+
+  // Submit update
+  const handleUpdate = async () => {
+    try {
+      const body = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) body.append(key, value as any);
+      });
+
+      const res = await fetch(`http://localhost:5000/api/users/updateconsultant/${editData.id}?user_type=5`, {
+        method: "PUT",
+        body,
+      });
+
+      if (res.ok) {
+        setOpenDialog(false);
+        fetchConsultants();
+      } else {
+        console.error("Failed to update consultant");
+      }
+    } catch (err) {
+      console.error("Error updating consultant", err);
+    }
+  };
+
+  const handleToggleStatus = async (id: number) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/users/deactivateconsulatant/${id}`, {
+        method: "PUT",
+      });
+
+      if (res.ok) {
+        fetchConsultants(); // refresh the table
+      } else {
+        console.error("Failed to toggle consultant status");
+      }
+    } catch (err) {
+      console.error("Error toggling consultant status", err);
+    }
+  };
+
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Add Consultant Form */}
       <h1 className="text-lg font-semibold mb-3">Add Consultant</h1>
-      <form className="bg-white border rounded p-4 grid grid-cols-3 gap-4 mb-6">
-        <input type="text" placeholder="Enter Consultant Name" className="border p-2 rounded w-full" />
-        <input type="email" defaultValue="mznanubhav@gmail.com" className="border p-2 rounded w-full" />
-        <input type="password" placeholder="Password" defaultValue="***" className="border p-2 rounded w-full" />
-        <input type="number" placeholder="Enter Price" className="border p-2 rounded w-full" />
-        <input type="text" placeholder="Enter Phone" className="border p-2 rounded w-full" />
-        <input type="text" placeholder="Enter Years of Experience" className="border p-2 rounded w-full" />
-        <input type="text" placeholder="Mills Supported" className="border p-2 rounded w-full" />
-        <input type="text" placeholder="Enter WhatsApp Number" className="border p-2 rounded w-full" />
-        <input type="file" className="border p-2 rounded w-full" />
-        <textarea placeholder="Enter Description" className="border p-2 rounded col-span-3 h-20"></textarea>
+      <form onSubmit={handleSubmit} className="p-4 grid grid-cols-3 gap-4 mb-6">
+        {/* Consultant Name */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Consultant Name</label>
+          <input
+            type="text"
+            name="name"
+            placeholder="Enter Consultant Name"
+            value={formData.name}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Password</label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* Price */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Price</label>
+          <input
+            type="number"
+            name="price"
+            placeholder="Enter Price"
+            value={formData.price}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            placeholder="Enter Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* Experience */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Years of Experience</label>
+          <input
+            type="text"
+            name="experience"
+            placeholder="Enter Years of Experience"
+            value={formData.experience}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* Mills Supported */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Mills Supported</label>
+          <input
+            type="text"
+            name="mills_supported"
+            placeholder="Mills Supported"
+            value={formData.mills_supported}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* WhatsApp */}
+        <div>
+          <label className="block text-sm font-medium mb-1">WhatsApp Number</label>
+          <input
+            type="text"
+            name="whatsapp"
+            placeholder="Enter WhatsApp Number"
+            value={formData.whatsapp}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* File Upload */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Profile Image / File</label>
+          <input
+            type="file"
+            name="file"
+            onChange={handleChange}
+          />
+
+        </div>
+
+        {/* Description */}
+        <div className="col-span-3">
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea
+            name="description"
+            placeholder="Enter Description"
+            value={formData.description}
+            onChange={handleChange}
+            className="border p-2 rounded w-full h-20"
+          />
+        </div>
+
+        {/* Submit Button */}
         <div className="col-span-3 flex justify-center">
-          <button type="button" className="bg-blue-500 text-white px-6 py-2 rounded">Save</button>
+          <button type="submit" className="bg-blue-500 text-white px-6 py-2 rounded">
+            Save
+          </button>
         </div>
       </form>
 
       {/* View Consultant Table */}
       <h2 className="text-lg font-semibold mb-3">View Consultant</h2>
       <div className="flex justify-between mb-4">
-        <div className="flex gap-2">
-          {["Copy", "CSV", "Excel", "PDF", "Print"].map((btn) => (
-            <button key={btn} className="px-3 py-1 bg-gray-600 text-white rounded">{btn}</button>
-          ))}
-        </div>
+
         <div>
           <label className="mr-2">Search:</label>
           <input
             type="text"
             className="border p-1 rounded"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1); // reset page on new search
+            }}
           />
         </div>
       </div>
@@ -72,43 +330,134 @@ export default function ConsultantsPage() {
             <th className="p-2 border">Email ID</th>
             <th className="p-2 border">Phone</th>
             <th className="p-2 border">Price</th>
-            <th className="p-2 border">WhatsApp Number</th>
+            <th className="p-2 border">WhatsApp</th>
             <th className="p-2 border">Date</th>
             <th className="p-2 border">Status</th>
             <th className="p-2 border">Action</th>
           </tr>
         </thead>
         <tbody>
-          {filtered.map((c) => (
-            <tr key={c.id} className="hover:bg-gray-50">
-              <td className="p-2 border">{c.id}</td>
-              <td className="p-2 border">{c.name}</td>
-              <td className="p-2 border">{c.email}</td>
-              <td className="p-2 border">{c.phone}</td>
-              <td className="p-2 border">{c.price}</td>
-              <td className="p-2 border">{c.whatsapp}</td>
-              <td className="p-2 border">{c.date}</td>
-              <td className="p-2 border">
-                <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">{c.status}</span>
+          {loading ? (
+            <tr>
+              <td colSpan={9} className="text-center p-4">
+                Loading...
               </td>
-              <td className="p-2 border text-blue-500 cursor-pointer">Action ▼</td>
             </tr>
-          ))}
+          ) : consultants.length > 0 ? (
+            consultants.map((c: any) => (
+              <tr key={c.id} className="hover:bg-gray-50">
+                <td className="p-2 border">{c.id}</td>
+                <td className="p-2 border">{c.name}</td>
+                <td className="p-2 border">{c.email_address}</td>
+                <td className="p-2 border">{c.phone_no}</td>
+                <td className="p-2 border">{c.price}</td>
+                <td className="p-2 border">{c.whatsapp}</td>
+                <td className="px-4 py-2 border">
+                  {c.created_on
+                    ? new Date(c.created_on).toLocaleString("en-IN", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })
+                    : "—"}
+                </td>
+                <td className="p-2 border">
+                  <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
+                    {c.active_status ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td className="p-2 border">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-2 rounded hover:bg-gray-100">
+                        <MoreHorizontal className="w-5 h-5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(c)}>
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleToggleStatus(c.id)}
+                      >
+                        {c.active_status ? "Deactivate" : "Activate"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={9} className="text-center p-4">
+                No consultants found
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-sm text-gray-500">
-          Showing 1 to {filtered.length} of {consultants.length} entries
-        </p>
-        <div className="flex gap-1">
-          <button className="px-3 py-1 border rounded text-gray-400 cursor-not-allowed">Previous</button>
-          <button className="px-3 py-1 border rounded bg-blue-500 text-white">1</button>
-          <button className="px-3 py-1 border rounded">2</button>
-          <button className="px-3 py-1 border rounded">Next</button>
-        </div>
-      </div>
+      <Pagination totalPages={totalPages} currentPage={page} onPageChange={setPage} />
+
+
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Edit Consultant</DialogTitle>
+          </DialogHeader>
+
+          {editData && (
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm mb-1">Consultant Name</label>
+                <Input name="name" value={formData.name} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Email ID</label>
+                <Input name="email" value={formData.email} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Phone</label>
+                <Input name="phone" value={formData.phone} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Price</label>
+                <Input name="price" value={formData.price} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">WhatsApp Number</label>
+                <Input name="whatsapp" value={formData.whatsapp} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Years of Experience</label>
+                <Input name="experience" value={formData.experience} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Mills Supported</label>
+                <Input name="mills_supported" value={formData.mills_supported} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Upload Image</label>
+                <Input type="file" name="file" onChange={handleChange} />
+                {editData.file_url && (
+                  <div className="text-sm text-blue-600 mt-1">
+                    <a href={editData.file_url} target="_blank" rel="noreferrer">View Document</a>
+                  </div>
+                )}
+              </div>
+              <div className="col-span-3">
+                <label className="block text-sm mb-1">Description</label>
+                <Textarea name="description" value={formData.description} onChange={handleChange} />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="default" onClick={handleUpdate}>
+              Update
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

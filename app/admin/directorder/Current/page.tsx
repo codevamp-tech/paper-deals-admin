@@ -1,288 +1,151 @@
-"use client"
+'use client'
+import Pagination from "@/components/pagination"
+import { Edit } from "lucide-react"
+import { useRouter } from "next/navigation"
+import React, { useEffect, useState } from "react"
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { useState } from "react"
 
-const currentDeals = [
-  {
-    dealId: "00060",
-    buyerId: "KPDB_3",
-    sellerId: "KPDS_92",
-    productDescription: "p66",
-    priceInKg: 20,
-    quantityInKg: 42,
-    totalAmount: 840,
-    remarks: "we",
-    date: "2025-07-11 09:56:31",
-    status: "Active"
-  },
-  {
-    dealId: "00059",
-    buyerId: "KPDB_81",
-    sellerId: "KPDS_75",
-    productDescription: "Maka",
-    priceInKg: 20,
-    quantityInKg: 50,
-    totalAmount: 1000,
-    remarks: "ggdkgd",
-    date: "2025-07-09 17:02:32",
-    status: "Active"
-  },
-  {
-    dealId: "00058",
-    buyerId: "KPDB_7",
-    sellerId: "KPDS_8",
-    productDescription: "duplex",
-    priceInKg: 5,
-    quantityInKg: 50000,
-    totalAmount: 250000,
-    remarks: "mix gsm",
-    date: "2025-07-09 11:06:43",
-    status: "Active"
-  },
-  {
-    dealId: "00057",
-    buyerId: "KPDB_7",
-    sellerId: "KPDS_8",
-    productDescription: "jk",
-    priceInKg: 20,
-    quantityInKg: 10000,
-    totalAmount: 200000,
-    remarks: "copier a4",
-    date: "2025-07-09 10:14:24",
-    status: "Active"
-  },
-  {
-    dealId: "00056",
-    buyerId: "KPDB_81",
-    sellerId: "KPDS_50",
-    productDescription: "test",
-    priceInKg: 30,
-    quantityInKg: 25,
-    totalAmount: 750,
-    remarks: "testtt",
-    date: "2025-07-09 08:30:15",
-    status: "Active"
-  }
-]
+type Deal = {
+  dealId: number
+  buyerId: number
+  sellerId: number
+  productDescription: string | null
+  pricePerKg: number | string
+  quantityInKg: number | string
+  totalAmount: number | string | null
+  remarks: string | null
+  date: string | null
+  status: string
+}
 
-export default function CurrentDealsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortField, setSortField] = useState("")
-  const [sortDirection, setSortDirection] = useState("asc")
+const DealsTable: React.FC = () => {
+  const [deals, setDeals] = useState<Deal[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 })
+  const [currentPage, setCurrentPage] = useState(1)
+  const router = useRouter()
 
-  const filteredDeals = currentDeals.filter(deal =>
-    Object.values(deal).some(value =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  )
+  // Fetch deals with pagination
+  useEffect(() => {
+    const fetchDeals = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch(
+          `http://localhost:5000/api/dashboard/current?page=${currentPage}&limit=10`
+        )
+        if (!res.ok) throw new Error("Failed to fetch deals")
+        const data = await res.json()
 
-  const sortedDeals = [...filteredDeals].sort((a, b) => {
-    if (!sortField) return 0
-    
-    const aValue = a[sortField]
-    const bValue = b[sortField]
-    
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === "asc" ? aValue - bValue : bValue - aValue
+        // map API snake_case → camelCase for frontend
+        const mappedDeals: Deal[] = (data.deals || []).map((d: any) => ({
+          dealId: d.deal_id,
+          buyerId: d.buyer_id,
+          sellerId: d.seller_id,
+          productDescription: d.product_description,
+          pricePerKg: d.price_per_kg,
+          quantityInKg: d.quantity_in_kg,
+          totalAmount: d.deal_amount,
+          remarks: d.remarks,
+          date: d.created_on,
+          status: d.deal_status === 7 ? "Closed" : "Active",
+        }))
+
+        setDeals(mappedDeals)
+        setPagination(data.pagination)
+      } catch (err: any) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
     }
-    
-    const aStr = aValue.toString().toLowerCase()
-    const bStr = bValue.toString().toLowerCase()
-    
-    if (sortDirection === "asc") {
-      return aStr.localeCompare(bStr)
-    } else {
-      return bStr.localeCompare(aStr)
-    }
-  })
+    fetchDeals()
+  }, [currentPage])
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("asc")
-    }
+
+
+  const handleEdit = (id: number) => {
+    router.push(`/admin/directorder/Current/${id}`)
   }
 
-  const getSortIcon = (field) => {
-    if (sortField !== field) return "↕"
-    return sortDirection === "asc" ? "↑" : "↓"
-  }
 
-  const handleExport = (type) => {
-    console.log(`Exporting as ${type}`)
-    // Export functionality would be implemented here
-  }
+  if (loading) return <p>Loading...</p>
+  if (error) return <p className="text-red-500">{error}</p>
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Current Deals</h1>
-      
-      {/* Warning message */}
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-        <p className="text-sm text-yellow-800">
-          <strong>Warning:</strong> Undefined variable $i in C:\xampp\htdocs\paper-deals\admin\current-deals.php on line 187
-        </p>
-      </div>
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Current Deals</h2>
 
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2">
-              <button 
-                onClick={() => handleExport('copy')}
-                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-              >
-                Copy
-              </button>
-              <button 
-                onClick={() => handleExport('csv')}
-                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-              >
-                CSV
-              </button>
-              <button 
-                onClick={() => handleExport('excel')}
-                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-              >
-                Excel
-              </button>
-              <button 
-                onClick={() => handleExport('pdf')}
-                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-              >
-                PDF
-              </button>
-              <button 
-                onClick={() => handleExport('print')}
-                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-              >
-                Print
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm">Search:</label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 text-sm"
-                placeholder="Search deals..."
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('dealId')}
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border p-2">Deal ID</th>
+            <th className="border p-2">Buyer Id</th>
+            <th className="border p-2">Seller Id</th>
+            <th className="border p-2">Product Description</th>
+            <th className="border p-2">Price in Kg</th>
+            <th className="border p-2">Quantity in Kg</th>
+            <th className="border p-2">Total Amount</th>
+            <th className="border p-2">Remarks</th>
+            <th className="border p-2">Date</th>
+            <th className="border p-2">Status</th>
+            <th className="border p-2">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {deals.length > 0 ? (
+            deals.map((deal) => (
+              <tr key={deal.dealId}>
+                <td className="border p-2">{deal.dealId}</td>
+                <td className="border p-2">{deal.buyerId}</td>
+                <td className="border p-2">{deal.sellerId}</td>
+                <td className="border p-2">{deal.productDescription || "-"}</td>
+                <td className="border p-2">{deal.pricePerKg}</td>
+                <td className="border p-2">{deal.quantityInKg}</td>
+                <td className="border p-2">{deal.totalAmount || "-"}</td>
+                <td className="border p-2">{deal.remarks || "-"}</td>
+                <td className="border p-2">
+                  {deal.date ? new Date(deal.date).toLocaleDateString() : "-"}
+                </td>
+                <td className="border p-2">
+                  <span
+                    className={`px-2 py-1 rounded text-white ${deal.status === "Closed" ? "bg-red-500" : "bg-green-500"
+                      }`}
                   >
-                    Deal ID {getSortIcon('dealId')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('buyerId')}
+                    {deal.status}
+                  </span>
+                </td>
+                <td className="border p-2 text-center">
+                  <button
+                    onClick={() => handleEdit(deal.dealId)}
+                    className="text-blue-600 hover:text-blue-800"
                   >
-                    Buyer Id {getSortIcon('buyerId')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('sellerId')}
-                  >
-                    Seller Id {getSortIcon('sellerId')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('productDescription')}
-                  >
-                    Product Description {getSortIcon('productDescription')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('priceInKg')}
-                  >
-                    Price in Kg {getSortIcon('priceInKg')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('quantityInKg')}
-                  >
-                    Quantity in Kg {getSortIcon('quantityInKg')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('totalAmount')}
-                  >
-                    Total Amount {getSortIcon('totalAmount')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('remarks')}
-                  >
-                    Remarks {getSortIcon('remarks')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('date')}
-                  >
-                    Date {getSortIcon('date')}
-                  </th>
-                  <th 
-                    className="p-2 border border-gray-200 text-left cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('status')}
-                  >
-                    Status {getSortIcon('status')}
-                  </th>
-                  <th className="p-2 border border-gray-200 text-left">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedDeals.map((deal, index) => (
-                  <tr key={deal.dealId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="p-2 border border-gray-200">{deal.dealId}</td>
-                    <td className="p-2 border border-gray-200">{deal.buyerId}</td>
-                    <td className="p-2 border border-gray-200">{deal.sellerId}</td>
-                    <td className="p-2 border border-gray-200">{deal.productDescription}</td>
-                    <td className="p-2 border border-gray-200">{deal.priceInKg}</td>
-                    <td className="p-2 border border-gray-200">{deal.quantityInKg.toLocaleString()}</td>
-                    <td className="p-2 border border-gray-200">{deal.totalAmount.toLocaleString()}</td>
-                    <td className="p-2 border border-gray-200">{deal.remarks}</td>
-                    <td className="p-2 border border-gray-200 text-xs">{deal.date}</td>
-                    <td className="p-2 border border-gray-200">
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                        {deal.status}
-                      </span>
-                    </td>
-                    <td className="p-2 border border-gray-200">
-                      <select className="text-blue-600 bg-transparent border-none text-sm cursor-pointer">
-                        <option>Action</option>
-                        <option>View Details</option>
-                        <option>Edit</option>
-                        <option>Delete</option>
-                        <option>Mark Complete</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {sortedDeals.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              No deals found matching your search criteria.
-            </div>
+                    <Edit className="w-5 h-5" />
+                  </button>
+                </td>
+
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={11} className="text-center p-4">
+                No deals found
+              </td>
+            </tr>
           )}
-        </CardContent>
-      </Card>
+        </tbody>
+      </table>
+
+      {/* Pagination */}
+      <div className="mt-4 flex justify-center">
+        <Pagination
+          totalPages={pagination.pages}
+          currentPage={pagination.page}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </div>
     </div>
   )
 }
+
+export default DealsTable

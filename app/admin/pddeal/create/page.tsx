@@ -1,18 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getUserFromToken } from "@/hooks/use-token";
+import { toast } from "sonner";
+
+// ✅ Match your actual token structure
+interface TokenPayload {
+  user_id: string;     // backend user id
+  user_name: string;   // executive name
+  phone_no: string;    // phone number
+}
 
 export default function CreatePaperDealPage() {
+  const [buyers, setBuyers] = useState<any[]>([]);
+  const today = new Date().toISOString().split("T")[0];
+  const user = getUserFromToken();
+  console.log("user????>>", user);
+
   const [form, setForm] = useState({
-    enquiryId: "000102",
-    creationDate: "2025-08-12",
-    pdExecutive: "ANUBHAV TOMER",
-    mobile: "9458613002",
+    enquiryId: "",
+    creationDate: today,
+    pdExecutive: "",  // executive name
+    userId: "",       // backend user id
+    mobile: "",       // phone number
     buyer: "",
     product: "",
     price: "",
@@ -20,18 +41,87 @@ export default function CreatePaperDealPage() {
     dealAmount: "",
   });
 
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        pdExecutive: user.user_name,
+        mobile: user.phone_no,
+      }));
+    }
+  }, []);
+
+
+  useEffect(() => {
+    const fetchBuyers = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/users/getBuyer");
+        const data = await res.json();
+        setBuyers(data?.data || []);
+      } catch (error) {
+        console.error("Error fetching buyers:", error);
+      }
+    };
+    fetchBuyers();
+  }, []);
+
+  // Handle input changes
   const handleChange = (e: any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let updatedForm = { ...form, [name]: value };
+
+    // Auto calculate deal amount
+    if (name === "price" || name === "quantity") {
+      const price = parseFloat(name === "price" ? value : updatedForm.price || "0");
+      const quantity = parseFloat(name === "quantity" ? value : updatedForm.quantity || "0");
+      updatedForm.dealAmount = (price * quantity).toString();
+    }
+
+    setForm(updatedForm);
   };
 
-  const handleBuyerChange = (value: string) => {
-    setForm({ ...form, buyer: value });
+  // Handle buyer selection
+  // Handle buyer selection safely
+  const handleBuyerChange = (buyerId: string) => {
+    if (buyerId !== form.buyer) {
+      setForm((prev) => ({ ...prev, buyer: buyerId }));
+    }
   };
 
-  const handleSubmit = (e: any) => {
+
+  // Submit form
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("New Paper Deal:", form);
-    // API call here
+
+    const payload = {
+      user_id: form.userId, // ✅ send actual id, not name
+      buyer_id: form.buyer,
+      total_deal_amount: parseFloat(form.dealAmount || "0"),
+      enquiry_id: form.enquiryId,
+      creation_date: form.creationDate,
+      product_description: form.product,
+      price: parseFloat(form.price || "0"),
+      quantity: parseFloat(form.quantity || "0"),
+      mobile: form.mobile,
+    };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/pd-deals-master/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        toast.success("PD Deal created successfully!");
+
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error creating deal:", error);
+    }
   };
 
   return (
@@ -44,19 +134,14 @@ export default function CreatePaperDealPage() {
       </CardHeader>
 
       <CardContent>
-        {/* Enquiry ID */}
-        <div className="mb-4 text-sm font-semibold">
-          Enquiry Id: {form.enquiryId}
-        </div>
-
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* PD Executive */}
+          {/* PD Executive (auto-filled from token, read-only) */}
           <div>
             <Label>PD Executive</Label>
             <Input name="pdExecutive" value={form.pdExecutive} readOnly />
           </div>
 
-          {/* Mobile Number */}
+          {/* Mobile Number (auto-filled from token, read-only) */}
           <div>
             <Label>Mobile Number</Label>
             <Input name="mobile" value={form.mobile} readOnly />
@@ -70,14 +155,23 @@ export default function CreatePaperDealPage() {
                 <SelectValue placeholder="--Select Buyer--" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="buyer1">Buyer 1</SelectItem>
-                <SelectItem value="buyer2">Buyer 2</SelectItem>
+                {buyers.length > 0 ? (
+                  buyers.map((b) => (
+                    <SelectItem key={b.id} value={b.id.toString()}>
+                      {b.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>
+                    No buyers found
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
 
           {/* Product Description */}
-          <div className="md:col-span-1">
+          <div>
             <Label>Product Description</Label>
             <Input
               placeholder="Product Description"
@@ -110,12 +204,12 @@ export default function CreatePaperDealPage() {
           </div>
 
           {/* Deal Amount */}
-          <div className="md:col-span-1">
+          <div>
             <Label>Deal Amount</Label>
             <Input name="dealAmount" value={form.dealAmount} readOnly />
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <div className="md:col-span-3 flex justify-center mt-4">
             <Button type="submit">Submit</Button>
           </div>

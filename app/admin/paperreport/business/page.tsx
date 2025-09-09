@@ -1,119 +1,137 @@
 "use client"
+import { getCookie } from "@/hooks/use-cookies";
+import { useEffect, useState } from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+export default function BusinessReport() {
+  const [data, setData] = useState([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
-export default function PaperDealsBusinessReportPage() {
-  const [fromDate, setFromDate] = useState("")
-  const [toDate, setToDate] = useState("")
-  const [search, setSearch] = useState("")
+  const fetchReport = async () => {
+    try {
+      setLoading(true);
+      const token = getCookie("token");
+      if (!token) throw new Error("No token in cookies");
 
-  const tableData = [
-    {
-      id: 1,
-      date: "29/11/2024",
-      buyer: "M/s DEMO BUYER",
-      seller: "M/spawan Singh",
-      amount: "10 /-",
-      weight: "",
-      commission: 0,
-    },
-    {
-      id: 2,
-      date: "30/11/2024",
-      buyer: "M/s DEMO BUYER",
-      seller: "M/s DEMO SELLER",
-      amount: "50 /-",
-      weight: "",
-      commission: 0,
-    },
-  ]
+      const res = await fetch(
+        `http://localhost:5000/api/pd-deals/pddeals-business-report`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        }
+      );
 
-  const filteredData = tableData.filter(
-    (item) =>
-      item.buyer.toLowerCase().includes(search.toLowerCase()) ||
-      item.seller.toLowerCase().includes(search.toLowerCase())
-  )
+      const json = await res.json();
+      setData(json?.deals || []);
+    } catch (err) {
+      console.error("Error fetching business report:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReport();
+  }, []);
 
   return (
-    <div className="p-4">
-      {/* Date Filters */}
-      <div className="flex gap-2 items-center bg-blue-700 p-2 rounded">
-        <Input
+    <div className="p-6">
+      {/* Top Filter Section */}
+      <div className="flex items-center gap-2 mb-4">
+        <input
           type="date"
           value={fromDate}
           onChange={(e) => setFromDate(e.target.value)}
-          className="w-40"
+          className="border px-3 py-2 rounded"
         />
-        <Input
+        <input
           type="date"
           value={toDate}
           onChange={(e) => setToDate(e.target.value)}
-          className="w-40"
+          className="border px-3 py-2 rounded"
         />
-        <Button className="bg-orange-500 hover:bg-orange-600">Filter</Button>
-        <Button className="bg-yellow-400 text-black hover:bg-yellow-500">Preview</Button>
+        <button
+          onClick={fetchReport}
+          className="bg-orange-500 text-white px-4 py-2 rounded"
+        >
+          Filter
+        </button>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={() => window.print()}
+        >
+          Preview
+        </button>
       </div>
 
-      {/* Date Range Info */}
-      <div className="border p-2 mt-2 inline-block">
-        Date from {fromDate || "----"} to {toDate || "----"}
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h1 className="bg-brown-700  py-2 text-xl font-bold">
+          BUSINESS REPORT
+        </h1>
+        <p className="mt-2 font-semibold">
+          Business Report Date: {new Date().toLocaleDateString()}
+        </p>
       </div>
-
-      {/* Logo & Header */}
-      <div className="mt-4">
-        <img src="/logo.png" alt="Paper Deals Logo" className="h-8" />
-      </div>
-      <div className="bg-brown-700 text-white text-center text-xl font-bold p-2 mt-2">
-        BUSINESS REPORT
-      </div>
-      <h2 className="text-center font-semibold mt-2">
-        Business Report Date: {new Date().toLocaleDateString()}
-      </h2>
 
       {/* Table */}
-      <Card className="mt-4">
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="p-2 border">Date</th>
-                  <th className="p-2 border">Buyer</th>
-                  <th className="p-2 border">Seller</th>
-                  <th className="p-2 border">Amount</th>
-                  <th className="p-2 border">Weight</th>
-                  <th className="p-2 border">Commission</th>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-4 py-2">Date</th>
+              <th className="border px-4 py-2">Buyer</th>
+              <th className="border px-4 py-2">Seller</th>
+              <th className="border px-4 py-2">Amount</th>
+              <th className="border px-4 py-2">Weight (kg)</th>
+              <th className="border px-4 py-2">Commission</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  Loading...
+                </td>
+              </tr>
+            ) : data.length > 0 ? (
+              data.map((deal, index) => (
+                <tr key={index}>
+                  <td className="border px-4 py-2">
+                    {new Date(deal.created_on).toLocaleDateString()}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.buyerUser?.name || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.sellerUser?.name || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.deal_amount || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.quantity_in_kg || "-"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {deal.commission || "0"}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((row) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
-                      <td className="p-2 border">{row.date}</td>
-                      <td className="p-2 border">{row.buyer}</td>
-                      <td className="p-2 border">{row.seller}</td>
-                      <td className="p-2 border">{row.amount}</td>
-                      <td className="p-2 border">
-                        {row.weight || "0"}
-                      </td>
-                      <td className="p-2 border">{row.commission}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="p-4 text-center text-gray-500">
-                      No records found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center py-4">
+                  No records found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
+  );
 }
