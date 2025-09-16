@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import Pagination from "@/components/pagination"
+import { getCookie } from "@/hooks/use-cookies"
 
 export default function EnquiryPage() {
   const [data, setData] = useState<any[]>([])
@@ -20,10 +21,19 @@ export default function EnquiryPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const limit = 10
+  const token = getCookie("token");
 
   // fetch enquiries
   useEffect(() => {
-    fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`)
+    fetch(`http://localhost:5000/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      })
       .then((res) => res.json())
       .then((d) => {
         setData(d.enquiries || [])
@@ -36,7 +46,7 @@ export default function EnquiryPage() {
   const handleUpdate = async () => {
     if (!selected) return
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries/${selected.id}`, {
+      await fetch(`http://localhost:5000/api/enquiry/enquiries/${selected.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -62,9 +72,9 @@ export default function EnquiryPage() {
   );
 
   return (
-    <Card className="m-6">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Enquiry Show</CardTitle>
+    <div className="m-6">
+      <div className="flex flex-row items-center justify-between">
+        <div>Enquiry Show</div>
         <input
           type="text"
           placeholder="Search..."
@@ -72,8 +82,8 @@ export default function EnquiryPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="border rounded px-2 py-1 text-sm"
         />
-      </CardHeader>
-      <CardContent>
+      </div>
+      <div>
         <div className="overflow-x-auto">
           <table className="w-full border text-sm">
             <thead className="bg-gray-100">
@@ -98,7 +108,7 @@ export default function EnquiryPage() {
               {filtered.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{row.id}</td>
-                  <td className="border px-3 py-2">{row.sellerId}</td>
+                  <td className="border px-3 py-2">KPDS_{row.user_id}</td>
                   <td className="border px-3 py-2">
                     {row.buyer?.name || "N/A"}
                   </td>
@@ -150,7 +160,7 @@ export default function EnquiryPage() {
           currentPage={page}
           onPageChange={(newPage) => setPage(newPage)}
         />
-      </CardContent>
+      </div>
 
       {/* Dialog */}
       <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
@@ -191,6 +201,6 @@ export default function EnquiryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   )
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Plus } from "lucide-react"
+import { Edit, Eye, Plus } from "lucide-react"
 import Pagination from "@/components/pagination"
 import {
   Dialog,
@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 
 type Seller = {
@@ -38,6 +39,8 @@ export default function SellerPage() {
   const [open, setOpen] = useState(false)
   const [isEdit, setIsEdit] = useState(false) // track mode
   const [editId, setEditId] = useState<number | null>(null) // track seller id
+  const router = useRouter()
+
 
   // form states
   const [formData, setFormData] = useState({
@@ -53,7 +56,7 @@ export default function SellerPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2&page=${page}`
+        `http://localhost:5000/api/users/getallsellers?user_type=2&page=${page}`
       )
       const data = await res.json()
       setSellers(data.data || [])
@@ -76,8 +79,8 @@ export default function SellerPage() {
   const handleSave = async () => {
     try {
       const url = isEdit
-        ? `https://paper-deal-server.onrender.com/api/users/updateseller/${editId}`
-        : "https://paper-deal-server.onrender.com/api/users/addseller"
+        ? `http://localhost:5000/api/users/updateseller/${editId}`
+        : "http://localhost:5000/api/users/addseller"
 
       const res = await fetch(url, {
         method: "POST",
@@ -152,7 +155,9 @@ export default function SellerPage() {
                 <th className="px-4 py-2 border">City</th>
                 <th className="px-4 py-2 border">Deals In</th>
                 <th className="px-4 py-2 border">Status</th>
-                <th className="px-4 py-2 border">Action</th>
+                <th className="px-4 py-2 border">Edit</th>
+                <th className="px-4 py-2 border">View</th>
+
               </tr>
             </thead>
             <tbody>
@@ -183,14 +188,21 @@ export default function SellerPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-2 border">
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
                       onClick={() => handleEdit(seller)}
-                      className="flex items-center gap-1"
                     >
-                      <Edit size={14} /> Edit
-                    </Button>
+                      <Edit size={22} />
+
+                    </button>
+                  </td>
+                  <td className="px-4 py-2 border">
+                    <button
+                      onClick={() =>
+                        router.push(`/admin/seller-page/seller/${seller.id}`)
+                      }
+                    >
+                      <Eye size={22} />
+                    </button>
                   </td>
                 </tr>
               ))}

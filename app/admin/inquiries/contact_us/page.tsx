@@ -21,7 +21,7 @@ export default function ContactUsPage() {
 
   const fetchData = async (page = 1) => {
     setLoading(true)
-    const res = await fetch(`https://paper-deal-server.onrender.com/api/contactUs/contact-us?page=${page}&limit=10`)
+    const res = await fetch(`http://localhost:5000/api/contactUs/contact-us?page=${page}&limit=10`)
     const json = await res.json()
     setData(json.data)
     setTotalPages(json.totalPages)
@@ -34,7 +34,7 @@ export default function ContactUsPage() {
 
   const handleUpdate = async () => {
     if (!selectedRow) return
-    await fetch(`https://paper-deal-server.onrender.com/api/contactUs/contact-us/${selectedRow.id}`, {
+    await fetch(`http://localhost:5000/api/contactUs/contact-us/${selectedRow.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),

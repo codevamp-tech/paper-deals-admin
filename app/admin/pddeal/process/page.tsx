@@ -55,7 +55,7 @@ export default function ProcessPaperDealPage() {
   const fetchDeals = async () => {
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/pd-deals-master?limit=${limit}&page=${page}`
+        `http://localhost:5000/api/pd-deals-master?limit=${limit}&page=${page}`
       );
       const data = await res.json();
       setDeals(data.data);
@@ -74,7 +74,7 @@ export default function ProcessPaperDealPage() {
     const fetchSellers = async () => {
       try {
         const res = await fetch(
-          "https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2"
+          "http://localhost:5000/api/users/getallsellers?user_type=2"
         );
         const json = await res.json();
         setSellers(json.data);
@@ -90,7 +90,7 @@ export default function ProcessPaperDealPage() {
 
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/pd-deals-master/${openDeal.id}`,
+        `http://localhost:5000/api/pd-deals-master/${openDeal.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

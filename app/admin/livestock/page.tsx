@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Ban, MoreVertical, Pencil, Search, Trash } from "lucide-react";
+import { Ban, MoreVertical, Pencil, Search, Trash, Check, X } from "lucide-react";
 import Pagination from "@/components/pagination";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -44,15 +44,29 @@ export default function LiveStockList() {
 
   const [editStock, setEditStock] = useState<LiveStock | null>(null);
 
+  // Inline editing state
+  const [editingSpotPrice, setEditingSpotPrice] = useState<number | null>(null);
+  const [tempSpotPrice, setTempSpotPrice] = useState<string>("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetchStocks();
   }, [page, search]);
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (editingSpotPrice && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingSpotPrice]);
 
   const fetchStocks = async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/live-stocks/view-live-stockes?page=${page}&search=${search}`
+        `http://localhost:5000/api/live-stocks/view-live-stockes?page=${page}&search=${search}`
       );
       const data = await res.json();
       setStocks(data.data || []);
@@ -68,7 +82,7 @@ export default function LiveStockList() {
     if (!editStock) return;
 
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/update/${editStock.id}`, {
+      await fetch(`http://localhost:5000/api/live-stocks/update/${editStock.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spot_price: editStock.spot_price }),
@@ -79,6 +93,81 @@ export default function LiveStockList() {
     } catch (err) {
       console.error("Update failed", err);
     }
+  };
+
+  // Start inline editing
+  const startInlineEdit = (stock: LiveStock) => {
+    setEditingSpotPrice(stock.id);
+    setTempSpotPrice(stock.spot_price.toString());
+  };
+
+  // Save inline edit
+  const saveInlineEdit = async (stockId: number) => {
+    if (!tempSpotPrice || isUpdating) return;
+
+    const newPrice = parseFloat(tempSpotPrice);
+    if (isNaN(newPrice) || newPrice < 0) {
+      cancelInlineEdit();
+      return;
+    }
+
+    setIsUpdating(true);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/live-stocks/update/${stockId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ spot_price: newPrice }),
+      });
+
+      if (response.ok) {
+        // Update the local state immediately for better UX
+        setStocks(prevStocks =>
+          prevStocks.map(stock =>
+            stock.id === stockId
+              ? { ...stock, spot_price: newPrice }
+              : stock
+          )
+        );
+
+        // Show success feedback (you could add a toast notification here)
+        console.log("Spot price updated successfully");
+      } else {
+        throw new Error("Failed to update spot price");
+      }
+    } catch (err) {
+      console.error("Update failed", err);
+      // Revert on error - you could show an error toast here
+      fetchStocks();
+    } finally {
+      setIsUpdating(false);
+      cancelInlineEdit();
+    }
+  };
+
+  // Cancel inline edit
+  const cancelInlineEdit = () => {
+    setEditingSpotPrice(null);
+    setTempSpotPrice("");
+  };
+
+  // Handle key press in inline edit
+  const handleKeyPress = (e: React.KeyboardEvent, stockId: number) => {
+    if (e.key === 'Enter') {
+      saveInlineEdit(stockId);
+    } else if (e.key === 'Escape') {
+      cancelInlineEdit();
+    }
+  };
+
+  // Handle click outside to save
+  const handleBlur = (stockId: number) => {
+    // Small delay to allow button clicks to register
+    setTimeout(() => {
+      if (editingSpotPrice === stockId) {
+        saveInlineEdit(stockId);
+      }
+    }, 100);
   };
 
   return (
@@ -141,7 +230,54 @@ export default function LiveStockList() {
                   <td className="p-2">{stock.ProductNew?.gsm}</td>
                   <td className="p-2">{stock.ProductNew?.size}</td>
                   <td className="p-2">{stock.ProductNew?.stock_in_kg}</td>
-                  <td className="p-2">{stock.spot_price}</td>
+                  <td className="p-2">
+                    {editingSpotPrice === stock.id ? (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          ref={inputRef}
+                          type="number"
+                          value={tempSpotPrice}
+                          onChange={(e) => setTempSpotPrice(e.target.value)}
+                          onKeyDown={(e) => handleKeyPress(e, stock.id)}
+                          onBlur={() => handleBlur(stock.id)}
+                          className="w-20 h-7 text-sm"
+                          disabled={isUpdating}
+                          min="0"
+                          step="0.01"
+                        />
+                        {isUpdating ? (
+                          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0"
+                              onClick={() => saveInlineEdit(stock.id)}
+                            >
+                              <Check className="h-3 w-3 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0"
+                              onClick={cancelInlineEdit}
+                            >
+                              <X className="h-3 w-3 text-red-600" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => startInlineEdit(stock)}
+                        className="text-left hover:bg-blue-50 hover:text-blue-600 px-1 py-1 rounded transition-colors cursor-pointer"
+                        title="Click to edit spot price"
+                      >
+                        {stock.spot_price}
+                      </button>
+                    )}
+                  </td>
                   <td className="p-2">{stock.ProductNew?.price_per_kg}</td>
                   <td className="p-2">{stock.ProductNew?.quantity_in_kg}</td>
                   <td className="p-2">
@@ -170,7 +306,7 @@ export default function LiveStockList() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={async () => {
-                            await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/delete/${stock.id}`, {
+                            await fetch(`http://localhost:5000/api/live-stocks/delete/${stock.id}`, {
                               method: "DELETE",
                             });
                             fetchStocks();
@@ -180,7 +316,7 @@ export default function LiveStockList() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={async () => {
-                            await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/deactivate/${stock.id}`, {
+                            await fetch(`http://localhost:5000/api/live-stocks/deactivate/${stock.id}`, {
                               method: "PUT",
                             });
                             fetchStocks();

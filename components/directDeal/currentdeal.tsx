@@ -1,14 +1,17 @@
-'use client'
+"use client"
 import Pagination from "@/components/pagination"
+import { getCookie } from "@/hooks/use-cookies"
+import { getUserFromToken } from "@/hooks/use-token"
 import { Edit } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-
 
 type Deal = {
   dealId: number
   buyerId: number
   sellerId: number
+  buyerName: string
+  sellerName: string
   productDescription: string | null
   pricePerKg: number | string
   quantityInKg: number | string
@@ -25,6 +28,9 @@ const DealsTable: React.FC = () => {
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 })
   const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
+  const token = getCookie("token")
+  const user = getUserFromToken();
+  const userRole = user.user_role
 
   // Fetch deals with pagination
   useEffect(() => {
@@ -32,16 +38,25 @@ const DealsTable: React.FC = () => {
       try {
         setLoading(true)
         const res = await fetch(
-          `https://paper-deal-server.onrender.com/api/dashboard/current?page=${currentPage}&limit=10`
+          `http://localhost:5000/api/dashboard/current?page=${currentPage}&limit=10`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          }
         )
         if (!res.ok) throw new Error("Failed to fetch deals")
         const data = await res.json()
 
-        // map API snake_case → camelCase for frontend
         const mappedDeals: Deal[] = (data.deals || []).map((d: any) => ({
           dealId: d.deal_id,
           buyerId: d.buyer_id,
           sellerId: d.seller_id,
+          buyerName: d.buyerUser?.name || "-",
+          sellerName: d.sellerUser?.name || "-",
           productDescription: d.product_description,
           pricePerKg: d.price_per_kg,
           quantityInKg: d.quantity_in_kg,
@@ -62,12 +77,9 @@ const DealsTable: React.FC = () => {
     fetchDeals()
   }, [currentPage])
 
-
-
   const handleEdit = (id: number) => {
-    router.push(`/admin/directorder/Current/${id}`)
+    router.push(`/admin/directorder/${id}`)
   }
-
 
   if (loading) return <p>Loading...</p>
   if (error) return <p className="text-red-500">{error}</p>
@@ -80,8 +92,16 @@ const DealsTable: React.FC = () => {
         <thead>
           <tr className="bg-gray-100">
             <th className="border p-2">Deal ID</th>
-            <th className="border p-2">Buyer Id</th>
-            <th className="border p-2">Seller Id</th>
+
+            {/* 👇 Conditional Columns */}
+            {userRole === 2 && <th className="border p-2">Buyer Id</th>}
+            {userRole === 1 && (
+              <>
+                <th className="border p-2">Buyer Name</th>
+                <th className="border p-2">Seller Name</th>
+              </>
+            )}
+
             <th className="border p-2">Product Description</th>
             <th className="border p-2">Price in Kg</th>
             <th className="border p-2">Quantity in Kg</th>
@@ -89,7 +109,11 @@ const DealsTable: React.FC = () => {
             <th className="border p-2">Remarks</th>
             <th className="border p-2">Date</th>
             <th className="border p-2">Status</th>
-            <th className="border p-2">Action</th>
+            {userRole === 1 && (
+              <>
+                <th className="p-2 border border-gray-200">Action</th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -97,8 +121,18 @@ const DealsTable: React.FC = () => {
             deals.map((deal) => (
               <tr key={deal.dealId}>
                 <td className="border p-2">{deal.dealId}</td>
-                <td className="border p-2">{deal.buyerId}</td>
-                <td className="border p-2">{deal.sellerId}</td>
+
+                {/* 👇 Conditional Data */}
+                {userRole === 2 && (
+                  <td className="border p-2">KPDB_{deal.buyerId}</td>
+                )}
+                {userRole === 1 && (
+                  <>
+                    <td className="border p-2">{deal.buyerName}</td>
+                    <td className="border p-2">{deal.sellerName}</td>
+                  </>
+                )}
+
                 <td className="border p-2">{deal.productDescription || "-"}</td>
                 <td className="border p-2">{deal.pricePerKg}</td>
                 <td className="border p-2">{deal.quantityInKg}</td>
@@ -115,15 +149,18 @@ const DealsTable: React.FC = () => {
                     {deal.status}
                   </span>
                 </td>
-                <td className="border p-2 text-center">
-                  <button
-                    onClick={() => handleEdit(deal.dealId)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    <Edit className="w-5 h-5" />
-                  </button>
-                </td>
-
+                {userRole === 1 && (
+                  <>
+                    <td className="border p-2 text-center">
+                      <button
+                        onClick={() => handleEdit(deal.dealId)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))
           ) : (
@@ -136,7 +173,6 @@ const DealsTable: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Pagination */}
       <div className="mt-4 flex justify-center">
         <Pagination
           totalPages={pagination.pages}

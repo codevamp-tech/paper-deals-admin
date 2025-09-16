@@ -1,5 +1,6 @@
 "use client";
 
+import { getCookie } from "@/hooks/use-cookies";
 import { useState, useEffect } from "react";
 
 interface ChatUser {
@@ -26,7 +27,7 @@ export default function ChatUsersPage() {
   const [chatUsers, setChatUsers] = useState<ChatUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const token = getCookie("token")
   const [selectedThread, setSelectedThread] = useState<ChatUser | null>(null);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [convLoading, setConvLoading] = useState(false);
@@ -35,7 +36,16 @@ export default function ChatUsersPage() {
   useEffect(() => {
     const fetchChatThreads = async () => {
       try {
-        const res = await fetch("https://paper-deal-server.onrender.com/api/message/list");
+        const res = await fetch("http://localhost:5000/api/message/list",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          }
+        );
         if (!res.ok) throw new Error("Failed to fetch chat threads");
         const data = await res.json();
         setChatUsers(data);
@@ -55,7 +65,7 @@ export default function ChatUsersPage() {
     setConversation([]);
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/message/conversation?senderId=${thread.incoming_msg_id}&receiverId=${thread.outgoing_msg_id}`
+        `http://localhost:5000/api/message/conversation?senderId=${thread.incoming_msg_id}&receiverId=${thread.outgoing_msg_id}`
       );
       if (!res.ok) throw new Error("Failed to fetch conversation");
       const data = await res.json();

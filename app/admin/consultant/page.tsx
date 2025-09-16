@@ -42,7 +42,7 @@ export default function ConsultantsPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=5?page=${page}&limit=10`
+        `http://localhost:5000/api/users/getallsellers?user_type=5?page=${page}&limit=10`
       );
       const data = await res.json();
 
@@ -77,7 +77,7 @@ export default function ConsultantsPage() {
         if (value) body.append(key, value as any);
       });
 
-      const res = await fetch("https://paper-deal-server.onrender.com/api/users/consultants", {
+      const res = await fetch("http://localhost:5000/api/users/consultants", {
         method: "POST",
         body,
       });
@@ -131,7 +131,7 @@ export default function ConsultantsPage() {
         if (value) body.append(key, value as any);
       });
 
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/users/updateconsultant/${editData.id}?user_type=5`, {
+      const res = await fetch(`http://localhost:5000/api/users/updateconsultant/${editData.id}?user_type=5`, {
         method: "PUT",
         body,
       });
@@ -149,7 +149,7 @@ export default function ConsultantsPage() {
 
   const handleToggleStatus = async (id: number) => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/users/deactivateconsulatant/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/users/deactivateconsulatant/${id}`, {
         method: "PUT",
       });
 

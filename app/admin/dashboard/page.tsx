@@ -18,6 +18,7 @@ import TotalDealsCard from "@/components/ui/TotalDealsCard"
 import React, { useEffect, useState } from "react";
 import { fromJSON } from "postcss";
 import Pagination from "@/components/pagination";
+import { getUserFromToken } from "@/hooks/use-token";
 
 
 
@@ -93,12 +94,15 @@ export default function AdminDashboard() {
   const [paperCurrentPage, setPaperCurrentPage] = useState(1);
   const [paperTotalPages, setPaperTotalPages] = useState(1);
   const paperRowsPerPage = 10;
+  const user = getUserFromToken();
+  const userRole = user?.user_role;
 
 
   useEffect(() => {
+    if (userRole !== 1) return;
     const fetchOrders = async (page = 1) => {
       try {
-        const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard?page=${page}&limit=${rowsPerPage}`);
+        const res = await fetch(`http://localhost:5000/api/dashboard?page=${page}&limit=${rowsPerPage}`);
         const data = await res.json();
 
         // Map API fields to table fields
@@ -128,9 +132,10 @@ export default function AdminDashboard() {
 
   // Inside useEffect for paper deals
   useEffect(() => {
+    if (userRole !== 1) return;
     const fetchPaperDeals = async (page = 1) => {
       try {
-        const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
+        const res = await fetch(`http://localhost:5000/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
         const data = await res.json();
 
         const mappedDeals = data.deals.map((item: any, index: number) => ({
@@ -178,133 +183,110 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-        {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    {stat.title}
-                  </p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stat.value}
-                  </p>
-                  <p className="text-sm text-green-600">
-                    {stat.change} from last month
-                  </p>
-                </div>
-                <div className={`${stat.bgColor} p-3 rounded-full`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
+
+
+      {userRole === 1 && (
+        <>
+          {/* 📦 Recent Orders Table at Bottom */}
+          < Card className="mt-10">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <CardTitle>Recent Orders</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-200 text-sm">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border p-2">ID</th>
+                    <th className="border p-2">Deal ID</th>
+                    <th className="border p-2">Buyer</th>
+                    <th className="border p-2">Seller</th>
+                    <th className="border p-2">Mobile No.</th>
+                    <th className="border p-2">Email Id</th>
+                    <th className="border p-2">Deal Size</th>
+                    <th className="border p-2">Product Description</th>
+                    <th className="border p-2">Remarks</th>
+                    <th className="border p-2">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50">
+                      <td className="border p-2 text-center">{order.id}</td>
+                      <td className="border p-2 text-center">{order.dealId}</td>
+                      <td className="border p-2">{order.buyer}</td>
+                      <td className="border p-2">{order.seller}</td>
+                      <td className="border p-2 text-center">{order.mobile}</td>
+                      <td className="border p-2">{order.email}</td>
+                      <td className="border p-2 text-center">{order.size}</td>
+                      <td className="border p-2">{order.product}</td>
+                      <td className="border p-2">{order.remarks}</td>
+                      <td className="border p-2">{order.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={(page: number) => setCurrentPage(page)}
+              />
+
             </CardContent>
           </Card>
-        ))}
-      </div> */}
 
 
+          {/* 📄 Recent Paper Deals Table */}
+          <Card className="mt-10">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <CardTitle>Recent Paper Deals</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-200 text-sm">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border p-2">ID</th>
+                    <th className="border p-2">Deal ID</th>
+                    <th className="border p-2">PD Name</th>
+                    <th className="border p-2">Buyer</th>
+                    {/* <th className="border p-2">Contact Person</th> */}
+                    <th className="border p-2">Mobile No.</th>
+                    <th className="border p-2">Email Id</th>
+                    <th className="border p-2">Deal Size</th>
+                    <th className="border p-2">Product Description</th>
+                    <th className="border p-2">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paperDeals.map((deal) => (
+                    <tr key={deal.id} className="hover:bg-gray-50">
+                      <td className="border p-2 text-center">{deal.id}</td>
+                      <td className="border p-2 text-center">{deal.dealId}</td>
+                      <td className="border p-2">{deal.pdName}</td>
+                      <td className="border p-2">{deal.buyer}</td>
+                      {/* <td className="border p-2">{deal.contactPerson}</td> */}
+                      <td className="border p-2 text-center">{deal.mobile}</td>
+                      <td className="border p-2">{deal.email}</td>
+                      <td className="border p-2 text-center">{deal.dealSize}</td>
+                      <td className="border p-2">{deal.productDescription}</td>
+                      <td className="border p-2">{deal.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
 
-      {/* 📦 Recent Orders Table at Bottom */}
-      <Card className="mt-10">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>Recent Orders</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-200 text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border p-2">ID</th>
-                <th className="border p-2">Deal ID</th>
-                <th className="border p-2">Buyer</th>
-                <th className="border p-2">Seller</th>
-                <th className="border p-2">Mobile No.</th>
-                <th className="border p-2">Email Id</th>
-                <th className="border p-2">Deal Size</th>
-                <th className="border p-2">Product Description</th>
-                <th className="border p-2">Remarks</th>
-                <th className="border p-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="border p-2 text-center">{order.id}</td>
-                  <td className="border p-2 text-center">{order.dealId}</td>
-                  <td className="border p-2">{order.buyer}</td>
-                  <td className="border p-2">{order.seller}</td>
-                  <td className="border p-2 text-center">{order.mobile}</td>
-                  <td className="border p-2">{order.email}</td>
-                  <td className="border p-2 text-center">{order.size}</td>
-                  <td className="border p-2">{order.product}</td>
-                  <td className="border p-2">{order.remarks}</td>
-                  <td className="border p-2">{order.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </table>
 
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={(page: number) => setCurrentPage(page)}
-          />
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={(page: number) => setCurrentPage(page)}
+              />
 
-        </CardContent>
-      </Card>
-
-
-      {/* 📄 Recent Paper Deals Table */}
-      <Card className="mt-10">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>Recent Paper Deals</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-200 text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border p-2">ID</th>
-                <th className="border p-2">Deal ID</th>
-                <th className="border p-2">PD Name</th>
-                <th className="border p-2">Buyer</th>
-                {/* <th className="border p-2">Contact Person</th> */}
-                <th className="border p-2">Mobile No.</th>
-                <th className="border p-2">Email Id</th>
-                <th className="border p-2">Deal Size</th>
-                <th className="border p-2">Product Description</th>
-                <th className="border p-2">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paperDeals.map((deal) => (
-                <tr key={deal.id} className="hover:bg-gray-50">
-                  <td className="border p-2 text-center">{deal.id}</td>
-                  <td className="border p-2 text-center">{deal.dealId}</td>
-                  <td className="border p-2">{deal.pdName}</td>
-                  <td className="border p-2">{deal.buyer}</td>
-                  {/* <td className="border p-2">{deal.contactPerson}</td> */}
-                  <td className="border p-2 text-center">{deal.mobile}</td>
-                  <td className="border p-2">{deal.email}</td>
-                  <td className="border p-2 text-center">{deal.dealSize}</td>
-                  <td className="border p-2">{deal.productDescription}</td>
-                  <td className="border p-2">{deal.date}</td>
-                </tr>
-              ))}
-            </tbody>
-
-          </table>
-
-          <Pagination
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={(page: number) => setCurrentPage(page)}
-          />
-
-        </CardContent>
-      </Card>
-
-
-    </div>
+            </CardContent>
+          </Card>
+        </>
+      )
+      }
+    </div >
   );
 }
