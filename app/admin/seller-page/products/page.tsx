@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import StockManagementPage from "@/components/addProduct"
+import { getUserFromToken } from "@/hooks/use-token"
 
 export default function ProductPage() {
   const [products, setProducts] = useState<any[]>([])
@@ -26,6 +28,9 @@ export default function ProductPage() {
   const [editingProduct, setEditingProduct] = useState<any>(null)
   const [formData, setFormData] = useState<any>({})
   const [file, setFile] = useState<File | null>(null)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const user = getUserFromToken();
+  const userRole = user.user_role
 
   const fetchProducts = async (pageNumber: number) => {
     try {
@@ -52,7 +57,8 @@ export default function ProductPage() {
 
       const data = await res.json()
       setProducts(data.data || [])
-      setTotalPages(data.pagination?.totalPages || 0)
+      setTotalPages(data.totalPages || 0)   // <-- FIXED
+      setPage(data.page || 1)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -129,14 +135,25 @@ export default function ProductPage() {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-semibold">Products</h2>
-        {/* <Button className="flex items-center gap-2">Add Product</Button> */}
+        {userRole === 2 && (
+          <Button
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() => setShowAddForm((prev) => !prev)}
+          >
+            {showAddForm ? "Close Add Product" : "+ Add Product"}
+          </Button>
+        )}
       </div>
 
-      <Card>
-        <CardHeader>
-          {/* <CardTitle>Product List</CardTitle> */}
-        </CardHeader>
-        <CardContent>
+      {/* Show Add Product Form if seller clicked the button */}
+      {showAddForm && (
+        <div className="mb-6 border rounded p-4 bg-gray-50">
+          <h3 className="text-lg font-semibold mb-2">Add New Product</h3>
+          <StockManagementPage />
+        </div>
+      )}
+      <div>
+        <div>
           {loading ? (
             <p>Loading products...</p>
           ) : error ? (
@@ -203,8 +220,8 @@ export default function ProductPage() {
               </table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Pagination */}
       <Pagination

@@ -10,11 +10,13 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { getCookie } from "@/hooks/use-cookies";
 
 export default function TotalDealsCard() {
   const [filter, setFilter] = useState("Daily");
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const token = getCookie("token");
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -22,27 +24,39 @@ export default function TotalDealsCard() {
         setLoading(true);
 
         const [directRes, pdRes] = await Promise.all([
-          fetch("https://paper-deal-server.onrender.com/api/dashboard/stats").then((res) =>
-            res.json()
-          ),
-          fetch("https://paper-deal-server.onrender.com/api/pd-deals/graph").then((res) =>
-            res.json()
-          ),
+          fetch("https://paper-deal-server.onrender.com/api/dashboard/stats", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // ✅ added
+            },
+            credentials: "include",
+          }).then((res) => res.json()),
+
+          fetch("https://paper-deal-server.onrender.com/api/pd-deals/graph", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`, // ✅ added
+            },
+            credentials: "include",
+          }).then((res) => res.json()),
         ]);
 
         let directData: any[] = [];
         let pdData: any[] = [];
 
         if (filter === "Daily") {
-          directData = directRes.dayWise || [];
-          pdData = pdRes.dayWise || [];
+          directData = directRes.dayWise || directRes?.data?.dayWise || [];
+          pdData = pdRes.dayWise || pdRes?.data?.dayWise || [];
         } else if (filter === "Weekly") {
-          directData = directRes.weekWise || [];
-          pdData = pdRes.weekWise || [];
+          directData = directRes.weekWise || directRes?.data?.weekWise || [];
+          pdData = pdRes.weekWise || pdRes?.data?.weekWise || [];
         } else if (filter === "Monthly") {
-          directData = directRes.monthWise || [];
-          pdData = pdRes.monthWise || [];
+          directData = directRes.monthWise || directRes?.data?.monthWise || [];
+          pdData = pdRes.monthWise || pdRes?.data?.monthWise || [];
         }
+
 
         // 📌 Merge datasets by key (day/week/month)
         const map: Record<string, any> = {};

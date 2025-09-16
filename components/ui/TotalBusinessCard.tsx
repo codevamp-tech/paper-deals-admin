@@ -6,30 +6,48 @@ import {
   Cell,
   Legend,
   ResponsiveContainer,
-  Tooltip,   // 👈 import Tooltip
+  Tooltip,
 } from "recharts";
+import { getCookie } from "@/hooks/use-cookies";
 
 const COLORS = ["#f76c5e", "#f4a300"]; // Paper Deals (coral), Direct Order (orange)
 
 export default function TotalBusinessCard() {
   const [data, setData] = useState<{ name: string; value: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const token = getCookie("token");
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [directRes, paperRes] = await Promise.all([
-          fetch("https://paper-deal-server.onrender.com/api/dashboard/summary"),
-          fetch("https://paper-deal-server.onrender.com/api/pd-deals/stats"),
+          fetch("https://paper-deal-server.onrender.com/api/dashboard/summary", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          }),
+          fetch("https://paper-deal-server.onrender.com/api/pd-deals/stats", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          }),
         ]);
 
         const directData = await directRes.json();
         const paperData = await paperRes.json();
 
         const formattedData = [
-          { name: "Paper Deals", value: Number(paperData.sum) || 0 },
-          { name: "Direct Order", value: Number(directData.sum) || 0 },
+          { name: "Paper Deals", value: Number(paperData.sum || paperData.data?.sum) || 0 },
+          { name: "Direct Order", value: Number(directData.sum || directData.data?.sum) || 0 },
         ];
+
 
         setData(formattedData);
       } catch (error) {
@@ -40,7 +58,7 @@ export default function TotalBusinessCard() {
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
   const total = data.reduce((acc, item) => acc + item.value, 0);
 
