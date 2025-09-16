@@ -153,9 +153,9 @@ export default function SellerEditForm() {
         setLoading(true)
 
         const [personalRes, docRes, orgRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/personal/${userId}`),
-          fetch(`http://localhost:5000/api/document/${userId}`),
-          fetch(`http://localhost:5000/api/organizations/${userId}`)
+          fetch(`https://paper-deal-server.onrender.com/api/personal/${userId}`),
+          fetch(`https://paper-deal-server.onrender.com/api/document/${userId}`),
+          fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`)
         ])
 
         if (personalRes.ok) {
@@ -220,13 +220,13 @@ export default function SellerEditForm() {
       setLoading(true)
 
       // Check if data exists
-      const checkRes = await fetch(`http://localhost:5000/api/organizations/${userId}`)
+      const checkRes = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`)
       const exists = checkRes.ok
 
       const method = exists ? "PUT" : "POST"
 
       // Organization API
-      await fetch(`http://localhost:5000/api/organizations/${exists ? userId : ""}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/organizations/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -247,7 +247,7 @@ export default function SellerEditForm() {
       })
 
       // Personal API
-      await fetch(`http://localhost:5000/api/personal/${exists ? userId : ""}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/personal/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -258,7 +258,7 @@ export default function SellerEditForm() {
       })
 
       // Documents API
-      await fetch(`http://localhost:5000/api/document/${exists ? userId : ""}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/document/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -280,7 +280,7 @@ export default function SellerEditForm() {
     const fetchSeller = async () => {
       try {
         setLoading(true)
-        const res = await fetch(`http://localhost:5000/api/users/sellers/${userId}`)
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/users/sellers/${userId}`)
         if (res.ok) {
           const data = await res.json()
 

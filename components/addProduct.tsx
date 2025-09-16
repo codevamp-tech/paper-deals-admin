@@ -86,7 +86,7 @@ export default function StockManagementPage() {
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true)
-      const response = await fetch("http://localhost:5000/api/categiry")
+      const response = await fetch("https://paper-deal-server.onrender.com/api/categiry")
       const data = await response.json()
       const formatted = (data.categories || [])
         .filter((c: any) => c.status === 1 && c.name?.trim())
@@ -142,7 +142,7 @@ export default function StockManagementPage() {
       submitData.append("seller_id", String(sellerId))
       submitData.append("user_type", String(userRole))
 
-      const response = await fetch("http://localhost:5000/api/stocks", {
+      const response = await fetch("https://paper-deal-server.onrender.com/api/stocks", {
         method: "POST",
         body: submitData,
       })

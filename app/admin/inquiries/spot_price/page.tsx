@@ -17,7 +17,7 @@ export default function SpotPriceEnquiryPage() {
   const fetchEnquiries = async (page = currentPage) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/spotPriceEnqiry/get-spotenquiries?page=${page}&limit=${perPage}`
+        `https://paper-deal-server.onrender.com/api/spotPriceEnqiry/get-spotenquiries?page=${page}&limit=${perPage}`
       )
       const data = await res.json()
       setEnquiries(data.data || [])
@@ -39,7 +39,7 @@ export default function SpotPriceEnquiryPage() {
 
   const updateStatus = async () => {
     try {
-      await fetch(`http://localhost:5000/api/spotPriceEnqiry/${selectedEnquiry.id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/spotPriceEnqiry/${selectedEnquiry.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

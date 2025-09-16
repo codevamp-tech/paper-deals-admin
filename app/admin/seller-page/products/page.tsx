@@ -39,7 +39,7 @@ export default function ProductPage() {
       if (!token) throw new Error("No token in cookies")
 
       const res = await fetch(
-        `http://localhost:5000/api/stocks/get-products?user_type=seller&page=${pageNumber}&limit=10`,
+        `https://paper-deal-server.onrender.com/api/stocks/get-products?user_type=seller&page=${pageNumber}&limit=10`,
         {
           method: "GET",
           headers: {
@@ -102,7 +102,7 @@ export default function ProductPage() {
       }
 
       const res = await fetch(
-        `http://localhost:5000/api/stocks/${editingProduct.id}`,
+        `https://paper-deal-server.onrender.com/api/stocks/${editingProduct.id}`,
         {
           method: "PUT",
           body: form,
@@ -120,7 +120,7 @@ export default function ProductPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/stocks/${id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/stocks/${id}`, {
         method: "DELETE",
       })
 

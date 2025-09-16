@@ -102,7 +102,7 @@ export default function AdminDashboard() {
     if (userRole !== 1) return;
     const fetchOrders = async (page = 1) => {
       try {
-        const res = await fetch(`http://localhost:5000/api/dashboard?page=${page}&limit=${rowsPerPage}`);
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard?page=${page}&limit=${rowsPerPage}`);
         const data = await res.json();
 
         // Map API fields to table fields
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
     if (userRole !== 1) return;
     const fetchPaperDeals = async (page = 1) => {
       try {
-        const res = await fetch(`http://localhost:5000/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
         const data = await res.json();
 
         const mappedDeals = data.deals.map((item: any, index: number) => ({

@@ -279,8 +279,8 @@ export default function DealForm() {
       // 6️⃣ Construct the API URL
       const url =
         endpoint === "pd-deals"
-          ? `http://localhost:5000/api/pd-deals/${dealId}`
-          : `http://localhost:5000/api/${endpoint}`
+          ? `https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`
+          : `https://paper-deal-server.onrender.com/api/${endpoint}`
       console.log("options", options)
       // 7️⃣ Call the API
       const res = await fetch(url, options)
@@ -319,7 +319,7 @@ export default function DealForm() {
 
   const fetchDeal = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/pd-deals/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`)
       const result = await res.json()
       if (result.success && result.data) {
         setForm(mapApiToForm(result.data))  // ✅ pass actual deal object
@@ -333,7 +333,7 @@ export default function DealForm() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categiry")
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
       const data = await res.json()
       setCategories(data.categories || data.data || []) // <-- only array goes into state
       console.log("[v0] Categories loaded from API", data)

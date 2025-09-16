@@ -38,7 +38,7 @@ const DealsTable: React.FC = () => {
       try {
         setLoading(true)
         const res = await fetch(
-          `http://localhost:5000/api/dashboard/current?page=${currentPage}&limit=10`,
+          `https://paper-deal-server.onrender.com/api/dashboard/current?page=${currentPage}&limit=10`,
           {
             method: "GET",
             headers: {
