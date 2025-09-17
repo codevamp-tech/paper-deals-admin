@@ -32,7 +32,7 @@ export default function AdminSubscriptions() {
         }
 
         // ✅ Chat Payments
-        const chatRes = await fetch(`https://paper-deal-server.onrender.com/api/consultant-slots?user_id=${user.user_id}&user_role=${user.user_role}`);
+        const chatRes = await fetch(`https://paper-deal-server.onrender.com/api/consultant-slots?user_id=${user?.user_id}&user_role=${user?.user_role}`);
         const chatData = await chatRes.json();
         if (chatData.success) {
           setChatPayments(chatData.slots || []);

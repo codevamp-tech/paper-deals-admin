@@ -39,7 +39,7 @@ export default function CurrentPaperDealPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const user = getUserFromToken();
-  const userRole = user.user_role
+  const userRole = user?.user_role
   const router = useRouter();
 
   useEffect(() => {

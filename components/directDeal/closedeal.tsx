@@ -33,7 +33,7 @@ export default function CloseDealsPage() {
   const router = useRouter()
   const token = getCookie("token")
   const user = getUserFromToken();
-  const userRole = user.user_role
+  const userRole = user?.user_role
 
   // Fetch deals API
   useEffect(() => {
