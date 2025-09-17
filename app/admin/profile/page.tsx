@@ -145,7 +145,7 @@ export default function SellerEditForm() {
   const [fileUploads, setFileUploads] = useState<FileUploads>(initialFileUploads)
   const [loading, setLoading] = useState(false)
   const user = getUserFromToken()
-  const userId = user.user_id
+  const userId = user?.user_id
 
   useEffect(() => {
     const fetchData = async () => {

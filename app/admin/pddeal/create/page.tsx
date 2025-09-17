@@ -45,8 +45,8 @@ export default function CreatePaperDealPage() {
     if (user) {
       setForm((prev) => ({
         ...prev,
-        pdExecutive: user.user_name,
-        mobile: user.phone_no,
+        pdExecutive: user?.user_name,
+        mobile: user?.phone_no,
       }));
     }
   }, []);

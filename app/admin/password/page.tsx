@@ -9,7 +9,7 @@ export default function ChangePasswordPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
   const user = getUserFromToken();
-  const userId = user.user_id;
+  const userId = user?.user_id;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
