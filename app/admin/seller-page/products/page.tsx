@@ -30,7 +30,7 @@ export default function ProductPage() {
   const [file, setFile] = useState<File | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const user = getUserFromToken();
-  const userRole = user.user_role
+  const userRole = user?.user_role
 
   const fetchProducts = async (pageNumber: number) => {
     try {

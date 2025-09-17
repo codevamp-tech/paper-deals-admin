@@ -30,7 +30,7 @@ const DealsTable: React.FC = () => {
   const router = useRouter()
   const token = getCookie("token")
   const user = getUserFromToken();
-  const userRole = user.user_role
+  const userRole = user?.user_role
 
   // Fetch deals with pagination
   useEffect(() => {

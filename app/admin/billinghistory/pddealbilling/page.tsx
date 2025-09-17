@@ -51,7 +51,7 @@ export default function PdDealsBillingTable() {
             (d.contact_person && d.contact_person.toLowerCase().includes(search.toLowerCase())) ||
             (d.id && d.id.toString().includes(search)) ||
             (d.buyerUser?.name && d.buyerUser.name.toLowerCase().includes(search.toLowerCase())) ||
-            (d.user?.name && d.user.name.toLowerCase().includes(search.toLowerCase()))
+            (d.user?.name && d.user?.name.toLowerCase().includes(search.toLowerCase()))
         )
       )
     }

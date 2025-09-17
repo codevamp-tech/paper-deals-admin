@@ -48,8 +48,8 @@ export default function StockManagementPage() {
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
   const user = getUserFromToken();
-  const sellerId = user.user_id
-  const userRole = user.user_role
+  const sellerId = user?.user_id
+  const userRole = user?.user_role
 
   const [formData, setFormData] = useState<StockFormData>({
     category_id: "",

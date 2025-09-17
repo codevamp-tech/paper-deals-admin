@@ -113,7 +113,7 @@ export default function AdminSidebar({ onClose }) {
 
   const isActive = (href) => pathname === href
 
-  const isUserRole2 = user.user_role === 2;
+  const isUserRole2 = user?.user_role === 2;
 
   return (
     <div className="h-full flex flex-col p-4 text-white">
