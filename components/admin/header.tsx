@@ -12,7 +12,7 @@ export default function AdminHeader({ onMenuClick }: { onMenuClick: () => void }
       ? "Seller"
       : user?.user_role === 1 || user?.user_role === 4
         ? "Admin"
-        : "User";
+        : "Consultant";
 
   return (
     <header className="flex items-center justify-between bg-white px-4 py-3 shadow md:px-6 sticky top-0 z-20">

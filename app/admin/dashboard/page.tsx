@@ -19,6 +19,7 @@ import React, { useEffect, useState } from "react";
 import { fromJSON } from "postcss";
 import Pagination from "@/components/pagination";
 import { getUserFromToken } from "@/hooks/use-token";
+import { getCookie } from "@/hooks/use-cookies";
 
 
 
@@ -93,9 +94,12 @@ export default function AdminDashboard() {
   const [paperDeals, setPaperDeals] = useState<any[]>([]);
   const [paperCurrentPage, setPaperCurrentPage] = useState(1);
   const [paperTotalPages, setPaperTotalPages] = useState(1);
+  const [prevChats, setPrevChats] = useState<number>(0);
+  const [upcomingChats, setUpcomingChats] = useState<number>(0);
   const paperRowsPerPage = 10;
   const user = getUserFromToken();
   const userRole = user?.user_role;
+  const token = getCookie("token");
 
 
   useEffect(() => {
@@ -162,26 +166,67 @@ export default function AdminDashboard() {
     fetchPaperDeals(paperCurrentPage);
   }, [paperCurrentPage]);
 
+  // 📌 Fetch data for user_role = 5
+  useEffect(() => {
+    if (userRole !== 5) return;
+
+    const fetchStats = async () => {
+      try {
+        // Previous Chats
+        const resPrev = await fetch(`https://paper-deal-server.onrender.com/api/message/chatCount`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          });
+        const dataPrev = await resPrev.json();
+        setPrevChats(dataPrev.previousChats || 0);
+
+        // Upcoming Chats
+        const resUpcoming = await fetch(`https://paper-deal-server.onrender.com/api/dashboard/getcountforCons`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include",
+          });
+        const dataUpcoming = await resUpcoming.json();
+        setUpcomingChats(dataUpcoming.upcomingChats || 0);
+
+      } catch (err) {
+        console.error("Error fetching consultant stats:", err);
+      }
+    };
+
+    fetchStats();
+  }, [userRole]);
+
 
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4 py-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">
-          Welcome back! Here's what's happening with your business.
-        </p>
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <div className="h-full">
-          <TotalBusinessCard />
+      {/* Cards (only show if NOT consultant) */}
+      {userRole !== 5 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div className="h-full">
+            <TotalBusinessCard />
+          </div>
+          <div className="h-full">
+            <TotalDealsCard />
+          </div>
         </div>
-        <div className="h-full">
-          <TotalDealsCard />
-        </div>
-      </div>
+      )}
+
 
 
 
@@ -287,6 +332,32 @@ export default function AdminDashboard() {
         </>
       )
       }
+
+      {userRole === 5 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Previous Chats */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Previous Chats</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between">
+              <div className="text-4xl font-bold">{prevChats}</div>
+              <MessageSquare className="h-10 w-10 text-blue-600" />
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Chats */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Chats</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between">
+              <div className="text-4xl font-bold">{upcomingChats}</div>
+              <Award className="h-10 w-10 text-green-600" />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div >
   );
 }
