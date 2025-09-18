@@ -133,7 +133,7 @@ const initialFileUploads: FileUploads = {
 }
 
 const sections = [
-  { id: "seller-edit", title: "Seller Edit" },
+  { id: "seller-edit", title: "Profile" },
   { id: "company-info", title: "Company Information" },
   { id: "personal-info", title: "Personal Information (Owner)" },
   { id: "documents", title: "Documents Upload" },
@@ -217,20 +217,21 @@ export default function SellerEditForm() {
   // 👉 Save handler (create or update depending on existing record)
   const handleSubmit = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
 
-      // Check if data exists
-      const checkRes = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`)
-      const exists = checkRes.ok
+      // Check if organization exists
+      const checkRes = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`);
+      const exists = checkRes.ok;
 
-      const method = exists ? "PUT" : "POST"
+      const method = exists ? "PUT" : "POST";
 
       // Organization API
       await fetch(`https://paper-deal-server.onrender.com/api/organizations/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          organizations: formData.company,
+          user_id: userId,
+          organizations: formData.company, // was company
           contact_person: formData.contactPerson,
           email: formData.companyEmail,
           phone: formData.companyMobile,
@@ -240,47 +241,71 @@ export default function SellerEditForm() {
           state: formData.state,
           pincode: formData.pincode,
           production_capacity: formData.productionCapacity,
-          materials_used: formData.dealsIn,
-          organization_type: formData.typeOfSeller,
+          materials_used: formData.dealsIn, // was dealsIn
+          organization_type: formData.typeOfSeller, // was typeOfSeller
           description: formData.description,
+          price_range: "", // optional
+          production_specification: "", // optional
+          verified: 0,
+          vip: 0,
+          image_banner: fileUploads.logo ? fileUploads.logo.name : null,
+          status: 1,
         }),
-      })
+      });
 
       // Personal API
       await fetch(`https://paper-deal-server.onrender.com/api/personal/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: userId,
           per_name: formData.ownerName,
           designation: formData.designation,
           per_address: formData.ownerAddress,
+          per_status: 1,
         }),
-      })
+      });
 
-      // Documents API
+      // Document API
       await fetch(`https://paper-deal-server.onrender.com/api/document/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: userId,
           gst_number: formData.gstNumber,
           export_import_licence: formData.exportImportLicense,
+          pan_card_img: fileUploads.panCard ? fileUploads.panCard.name : null,
+          voter_id_img: null, // optional
+          cert_of_incorp: fileUploads.certificateOfIncorporation ? fileUploads.certificateOfIncorporation.name : null,
+          gst_cert: fileUploads.gstCertificate ? fileUploads.gstCertificate.name : null,
+          doc_status: 1,
         }),
-      })
+      });
 
-      alert(`Seller info ${exists ? "updated" : "created"} successfully!`)
+      alert(`Seller info ${exists ? "updated" : "created"} successfully!`);
     } catch (error) {
-      console.error("Error saving seller info:", error)
-      alert("Failed to save seller info.")
+      console.error("Error saving seller info:", error);
+      alert("Failed to save seller info.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   useEffect(() => {
     const fetchSeller = async () => {
       try {
         setLoading(true)
-        const res = await fetch(`https://paper-deal-server.onrender.com/api/users/sellers/${userId}`)
+        let url = "";
+        if (user?.user_role === 5) {
+          url = `https://paper-deal-server.onrender.com/api/users/consultant/${userId}`;
+        } else if (user?.user_role === 2) {
+          url = `https://paper-deal-server.onrender.com/api/users/sellers/${userId}`;
+        } else {
+          return; // not seller or consultant, exit
+        }
+        const res = await fetch(url);
+
         if (res.ok) {
           const data = await res.json()
 
@@ -329,7 +354,7 @@ export default function SellerEditForm() {
       {activeSection === "seller-edit" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Seller - Edit</CardTitle>
+            <CardTitle className="text-lg font-medium">Profile </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

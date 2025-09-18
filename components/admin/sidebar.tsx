@@ -44,6 +44,8 @@ import {
   Package,
   User,
   Star,
+  Book,
+  Notebook,
 } from "lucide-react"
 import { getUserFromToken } from "@/hooks/use-token";
 import { Button } from "@/components/ui/button"
@@ -114,6 +116,7 @@ export default function AdminSidebar({ onClose }) {
   const isActive = (href) => pathname === href
 
   const isUserRole2 = user?.user_role === 2;
+  const isUserRole5 = user?.user_role === 5;
 
   return (
     <div className="h-full flex flex-col p-4 text-white">
@@ -141,7 +144,54 @@ export default function AdminSidebar({ onClose }) {
           Dashboard
         </Link>
 
-        {isUserRole2 ? (
+        {isUserRole5 ? (
+          <>
+            {/* Profile */}
+            <Link
+              href="/admin/profile"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/profile")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <User className="mr-3 h-5 w-5" />
+              Profile
+            </Link>
+            <Link
+              href="/admin/consultantSlot"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultantSlot")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <Book className="mr-3 h-5 w-5" />
+              Create Consultant Slot
+            </Link>
+            <Link
+              href="/admin/bookedUser"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/bookedUser")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <Notebook className="mr-3 h-5 w-5" />
+              Booked Users
+            </Link>
+
+            {/* Chat History */}
+            <Link
+              href="/admin/chatHistory"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chatHistory")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <MessageSquareText className="mr-3 h-5 w-5" />
+              Chat History
+            </Link>
+
+          </>
+        ) : isUserRole2 ? (
           <>
             {/* Conditional links for user_role === 2 */}
             <DropdownMenu
@@ -155,7 +205,7 @@ export default function AdminSidebar({ onClose }) {
             />
 
             {/* Seller */}
-            <DropdownMenu
+            {/* <DropdownMenu
               title="Seller"
               icon={Store}
               isOpen={sellerOpen}
@@ -163,7 +213,18 @@ export default function AdminSidebar({ onClose }) {
               links={[
                 { name: "Products", href: "/admin/seller-page/products", icon: Package },
               ]}
-            />
+            /> */}
+
+            <Link
+              href="/admin/seller-page/products"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <Package className="mr-3 h-5 w-5" />
+              Products
+            </Link>
             {/* Direct Order */}
             <Link
               href="/admin/directorder"
