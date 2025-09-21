@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import Pagination from "@/components/pagination"
 import { getCookie } from "@/hooks/use-cookies"
+import { getUserFromToken } from "@/hooks/use-token"
 
 export default function EnquiryPage() {
   const [data, setData] = useState<any[]>([])
@@ -22,6 +23,9 @@ export default function EnquiryPage() {
   const [totalPages, setTotalPages] = useState(1)
   const limit = 10
   const token = getCookie("token");
+  const user = getUserFromToken();
+  const userRole = user?.user_role;
+  const isSellerView = userRole === 1 || userRole === 4
 
   // fetch enquiries
   useEffect(() => {
@@ -73,25 +77,30 @@ export default function EnquiryPage() {
 
   return (
     <div className="m-6">
-      <div className="flex flex-row items-center justify-between">
-        <div>Enquiry Show</div>
+      <div className="flex flex-col md:flex-row items-center justify-between mb-4  p-4">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-800">Enquiry Show</h2>
         <input
           type="text"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border rounded px-2 py-1 text-sm"
+          className="mt-2 md:mt-0 w-full md:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
         />
       </div>
+
       <div>
         <div className="overflow-x-auto">
           <table className="w-full border text-sm">
             <thead className="bg-gray-100">
               <tr>
                 <th className="border px-3 py-2">ID</th>
-                <th className="border px-3 py-2">Seller Id</th>
+                {isSellerView && (
+                  <th className="border px-3 py-2">Seller Id</th>
+                )}
                 <th className="border px-3 py-2">Buyer</th>
-                <th className="border px-3 py-2">Phone</th>
+                {isSellerView && (
+                  <th className="border px-3 py-2">Phone</th>
+                )}
                 <th className="border px-3 py-2">City</th>
                 <th className="border px-3 py-2">Category</th>
                 <th className="border px-3 py-2">Product</th>
@@ -108,17 +117,23 @@ export default function EnquiryPage() {
               {filtered.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{row.id}</td>
-                  <td className="border px-3 py-2">KPDS_{row.user_id}</td>
+                  {isSellerView && (
+                    <td className="border px-3 py-2">KPDS_{row.user_id}</td>
+                  )}
                   <td className="border px-3 py-2">
-                    {row.buyer?.name || "N/A"}
+                    {isSellerView
+                      ? row.buyer?.name || "N/A"
+                      : `KPDS_${row.buyer_id}`}
                   </td>
-                  <td className="border px-3 py-2">{row.phone}</td>
+                  {isSellerView && (
+                    <td className="border px-3 py-2">{row.phone}</td>
+                  )}
                   <td className="border px-3 py-2">{row.city}</td>
                   <td className="border px-3 py-2">{row.category?.name}</td>
                   <td className="border px-3 py-2">{row.product}</td>
                   <td className="border px-3 py-2">{row.gsm}</td>
                   <td className="border px-3 py-2">{row.shade}</td>
-                  <td className="border px-3 py-2">{row.weight}</td>
+                  <td className="border px-3 py-2">{row.quantity_in_kg}</td>
                   <td className="border px-3 py-2">{row.remarks}</td>
                   <td className="border px-3 py-2">
                     {new Date(row.created_at).toLocaleString()}
