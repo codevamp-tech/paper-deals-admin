@@ -86,6 +86,11 @@ interface FormData {
   // Documents
   gstNumber: string
   exportImportLicense: string
+
+  price: string
+  millsSupported: string
+  yearsOfExperience: string
+  consultantDescription: string
 }
 
 interface FileUploads {
@@ -122,6 +127,10 @@ const initialFormData: FormData = {
   ownerAddress: "",
   gstNumber: "",
   exportImportLicense: "",
+  price: "",
+  millsSupported: "",
+  yearsOfExperience: "",
+  consultantDescription: "",
 }
 
 const initialFileUploads: FileUploads = {
@@ -132,12 +141,7 @@ const initialFileUploads: FileUploads = {
   gstCertificate: null,
 }
 
-const sections = [
-  { id: "seller-edit", title: "Profile" },
-  { id: "company-info", title: "Company Information" },
-  { id: "personal-info", title: "Personal Information (Owner)" },
-  { id: "documents", title: "Documents Upload" },
-]
+
 
 export default function SellerEditForm() {
   const [activeSection, setActiveSection] = useState("seller-edit")
@@ -319,6 +323,11 @@ export default function SellerEditForm() {
             joinDate: validJoinDate,
             whatsappNo: data.whatsapp_no || "",
             status: data.approved === 1 ? "Pending" : "Approved",
+            price: data.consultant_price || "",
+            millsSupported: data.consultantPic?.mills_supported || "",
+            yearsOfExperience: data.consultantPic?.years_of_experience || "",
+            consultantDescription: data.consultantPic?.description || "",
+
           }))
         }
       } catch (error) {
@@ -330,6 +339,39 @@ export default function SellerEditForm() {
 
     if (userId) fetchSeller()
   }, [userId])
+
+  const handleConsultantSave = async () => {
+    try {
+      setLoading(true)
+      await fetch(`https://paper-deal-server.onrender.com/api/consultant-pic/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // price: formData.price,
+          mills_supported: formData.millsSupported,
+          years_of_experience: formData.yearsOfExperience,
+          description: formData.consultantDescription,
+        }),
+      })
+    } catch (error) {
+      console.error("Error updating consultant:", error)
+      alert("Failed to update consultant info.")
+    } finally {
+      setLoading(false)
+    }
+  }
+  const allSections = [
+    { id: "seller-edit", title: "Profile" },
+    { id: "company-info", title: "Company Information" },
+    { id: "personal-info", title: "Personal Information (Owner)" },
+    { id: "documents", title: "Documents Upload" },
+  ]
+
+  const sections = user?.user_role === 2
+    ? allSections
+    : user?.user_role === 5
+      ? allSections.filter(s => s.id === "seller-edit" || s.id === "company-info")
+      : []
 
 
   return (
@@ -354,67 +396,181 @@ export default function SellerEditForm() {
       {activeSection === "seller-edit" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Profile </CardTitle>
+            <CardTitle className="text-lg font-medium">Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" value={formData.name} disabled className="bg-gray-100" />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} disabled className="bg-gray-100" />
-              </div>
-              <div>
-                <Label htmlFor="mobile">Mobile</Label>
-                <Input id="mobile" value={formData.mobile} disabled className="bg-gray-100" />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>Join Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      disabled
-                      className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-100",
-                        !formData.joinDate && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.joinDate ? format(formData.joinDate, "dd-MM-yyyy") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={formData.joinDate} disabled />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <Label htmlFor="whatsapp">WhatsApp No.</Label>
-                <Input id="whatsapp" value={formData.whatsappNo} disabled className="bg-gray-100" />
-              </div>
-              <div>
-                <Label>Status</Label>
-                <Select value={formData.status} disabled>
-                  <SelectTrigger className="bg-gray-100">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            {/* Seller Profile (role 2) */}
+            {user?.user_role === 2 && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" value={formData.name} disabled className="bg-gray-100" />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" value={formData.email} disabled className="bg-gray-100" />
+                  </div>
+                  <div>
+                    <Label htmlFor="mobile">Mobile</Label>
+                    <Input id="mobile" value={formData.mobile} disabled className="bg-gray-100" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>Join Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          disabled
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-gray-100",
+                            !formData.joinDate && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData.joinDate ? format(formData.joinDate, "dd-MM-yyyy") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar mode="single" selected={formData.joinDate} disabled />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <Label htmlFor="whatsapp">WhatsApp No.</Label>
+                    <Input id="whatsapp" value={formData.whatsappNo} disabled className="bg-gray-100" />
+                  </div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select value={formData.status} disabled>
+                      <SelectTrigger className="bg-gray-100">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Approved">Approved</SelectItem>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Consultant Profile (role 5) */}
+            {user?.user_role === 5 && (
+              <>
+                {/* Basic Info (Read-Only) */}
+                <div className="mb-6">
+                  <div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="name">Name</Label>
+                        <Input id="name" value={formData.name} disabled className="bg-gray-100" />
+                      </div>
+                      <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" value={formData.email} disabled className="bg-gray-100" />
+                      </div>
+                      <div>
+                        <Label htmlFor="mobile">Mobile</Label>
+                        <Input id="mobile" value={formData.mobile} disabled className="bg-gray-100" />
+                      </div>
+                      <div>
+                        <Label>Join Date</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              disabled
+                              className={cn(
+                                "w-full justify-start text-left font-normal bg-gray-100",
+                                !formData.joinDate && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {formData.joinDate ? format(formData.joinDate, "dd-MM-yyyy") : "Pick a date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar mode="single" selected={formData.joinDate} disabled />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div>
+                        <Label htmlFor="whatsapp">WhatsApp No.</Label>
+                        <Input id="whatsapp" value={formData.whatsappNo} disabled className="bg-gray-100" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Consultant Editable Fields */}
+                <div>
+                  <div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="price">Price</Label>
+                        <Input
+                          id="price"
+                          value={formData.price}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, price: e.target.value }))}
+                          disabled
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="millsSupported">Mills Supported</Label>
+                        <Input
+                          id="millsSupported"
+                          value={formData.millsSupported}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, millsSupported: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="yearsOfExperience">Years of Experience</Label>
+                        <Input
+                          id="yearsOfExperience"
+                          value={formData.yearsOfExperience}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, yearsOfExperience: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <Label htmlFor="consultantDescription">Description</Label>
+                      <Textarea
+                        id="consultantDescription"
+                        value={formData.consultantDescription}
+                        onChange={(e) => setFormData((prev) => ({ ...prev, consultantDescription: e.target.value }))}
+                        rows={4}
+                        className="resize-none"
+                      />
+                    </div>
+
+                    <div className="flex justify-center pt-6">
+                      <Button
+                        onClick={handleConsultantSave}
+                        disabled={loading}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-8"
+                      >
+                        {loading ? "Saving..." : "Save"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
           </CardContent>
         </Card>
       )}
+
+
+
 
       {/* Company Information Section */}
       {activeSection === "company-info" && (
@@ -600,178 +756,181 @@ export default function SellerEditForm() {
           </CardContent>
         </Card>
       )}
-
-      {/* Personal Information Section */}
-      {activeSection === "personal-info" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium text-blue-600">Personal Information (Owner)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="ownerName">
-                  Name <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="ownerName"
-                  value={formData.ownerName}
-                  onChange={(e) => updateFormData("ownerName", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="designation">
-                  Designation <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="designation"
-                  value={formData.designation}
-                  onChange={(e) => updateFormData("designation", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="ownerAddress">
-                  Address <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="ownerAddress"
-                  value={formData.ownerAddress}
-                  onChange={(e) => updateFormData("ownerAddress", e.target.value)}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Documents Upload Section */}
-      {activeSection === "documents" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium text-blue-600">Documents Upload</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="gstNumber">
-                  GST Number <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="gstNumber"
-                  value={formData.gstNumber}
-                  onChange={(e) => updateFormData("gstNumber", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="exportImportLicense">
-                  Export Import License <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="exportImportLicense"
-                  value={formData.exportImportLicense}
-                  onChange={(e) => updateFormData("exportImportLicense", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>PAN Card (.png, .jpeg, .jpg Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    id="pan-upload"
-                    accept=".png,.jpeg,.jpg"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload("panCard", e.target.files?.[0] || null)}
-                  />
-                  <Button variant="outline" size="sm" onClick={() => document.getElementById("pan-upload")?.click()}>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose File
-                  </Button>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.panCard ? fileUploads.panCard.name : "No file chosen"}
-                  </p>
+      {user?.user_role === 2 && (
+        <>
+          {/* Personal Information Section */}
+          {activeSection === "personal-info" && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium text-blue-600">Personal Information (Owner)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="ownerName">
+                      Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="ownerName"
+                      value={formData.ownerName}
+                      onChange={(e) => updateFormData("ownerName", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="designation">
+                      Designation <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="designation"
+                      value={formData.designation}
+                      onChange={(e) => updateFormData("designation", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="ownerAddress">
+                      Address <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="ownerAddress"
+                      value={formData.ownerAddress}
+                      onChange={(e) => updateFormData("ownerAddress", e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+          )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>ISO Certificate (.pdf Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    id="iso-upload"
-                    accept=".pdf"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload("isocertificate", e.target.files?.[0] || null)}
-                  />
-                  <Button variant="outline" size="sm" onClick={() => document.getElementById("iso-upload")?.click()}>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose File
-                  </Button>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.isocertificate ? fileUploads.isocertificate.name : "No file chosen"}
-                  </p>
+          {/* Documents Upload Section */}
+          {activeSection === "documents" && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-medium text-blue-600">Documents Upload</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="gstNumber">
+                      GST Number <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="gstNumber"
+                      value={formData.gstNumber}
+                      onChange={(e) => updateFormData("gstNumber", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="exportImportLicense">
+                      Export Import License <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="exportImportLicense"
+                      value={formData.exportImportLicense}
+                      onChange={(e) => updateFormData("exportImportLicense", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>PAN Card (.png, .jpeg, .jpg Only)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        id="pan-upload"
+                        accept=".png,.jpeg,.jpg"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload("panCard", e.target.files?.[0] || null)}
+                      />
+                      <Button variant="outline" size="sm" onClick={() => document.getElementById("pan-upload")?.click()}>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose File
+                      </Button>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {fileUploads.panCard ? fileUploads.panCard.name : "No file chosen"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label>CERTIFICATE OF INCORPORATION (.pdf Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    id="incorporation-upload"
-                    accept=".pdf"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload("certificateOfIncorporation", e.target.files?.[0] || null)}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => document.getElementById("incorporation-upload")?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose File
-                  </Button>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.certificateOfIncorporation
-                      ? fileUploads.certificateOfIncorporation.name
-                      : "No file chosen"}
-                  </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>ISO Certificate (.pdf Only)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        id="iso-upload"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload("isocertificate", e.target.files?.[0] || null)}
+                      />
+                      <Button variant="outline" size="sm" onClick={() => document.getElementById("iso-upload")?.click()}>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose File
+                      </Button>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {fileUploads.isocertificate ? fileUploads.isocertificate.name : "No file chosen"}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>CERTIFICATE OF INCORPORATION (.pdf Only)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        id="incorporation-upload"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload("certificateOfIncorporation", e.target.files?.[0] || null)}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById("incorporation-upload")?.click()}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose File
+                      </Button>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {fileUploads.certificateOfIncorporation
+                          ? fileUploads.certificateOfIncorporation.name
+                          : "No file chosen"}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>GST CERTIFICATE (.pdf Only)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        id="gst-cert-upload"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload("gstCertificate", e.target.files?.[0] || null)}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => document.getElementById("gst-cert-upload")?.click()}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose File
+                      </Button>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {fileUploads.gstCertificate ? fileUploads.gstCertificate.name : "No file chosen"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label>GST CERTIFICATE (.pdf Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    id="gst-cert-upload"
-                    accept=".pdf"
-                    className="hidden"
-                    onChange={(e) => handleFileUpload("gstCertificate", e.target.files?.[0] || null)}
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => document.getElementById("gst-cert-upload")?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Choose File
+
+                <div className="flex justify-center pt-6">
+                  <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-8">
+                    {loading ? "Saving..." : "Save"}
                   </Button>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.gstCertificate ? fileUploads.gstCertificate.name : "No file chosen"}
-                  </p>
                 </div>
-              </div>
-            </div>
-
-            <div className="flex justify-center pt-6">
-              <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-8">
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            </div>
 
 
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   )

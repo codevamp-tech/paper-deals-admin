@@ -194,15 +194,18 @@ export default function AdminSidebar({ onClose }) {
         ) : isUserRole2 ? (
           <>
             {/* Conditional links for user_role === 2 */}
-            <DropdownMenu
-              title="Enquiry"
-              icon={HelpCircle}
-              isOpen={inquiryOpen}
-              toggle={() => setInquiryOpen(!inquiryOpen)}
-              links={[
-                { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: UserCircle },
-              ]}
-            />
+
+
+            <Link
+              href="/admin/inquiries/profile_enquiry"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/inquiries/profile_enquiry")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <UserCircle className="mr-3 h-5 w-5" />
+              Profile Enquiry
+            </Link>
 
             {/* Seller */}
             {/* <DropdownMenu
@@ -217,7 +220,7 @@ export default function AdminSidebar({ onClose }) {
 
             <Link
               href="/admin/seller-page/products"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/seller-page/products")
                 ? "bg-orange-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
@@ -239,7 +242,7 @@ export default function AdminSidebar({ onClose }) {
 
             <Link
               href="/admin/profile"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/profile")
                 ? "bg-orange-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
@@ -249,15 +252,17 @@ export default function AdminSidebar({ onClose }) {
             </Link>
 
             {/* PD/Bulk Deals */}
-            <DropdownMenu
-              title="PD/Bulk Deals"
-              icon={Handshake}
-              isOpen={pddealOpen}
-              toggle={() => setPdDealOpen(!pddealOpen)}
-              links={[
-                { name: "Paper Deals", href: "/admin/pddeal/current", icon: FileText },
-              ]}
-            />
+            <Link
+              href="/admin/pddeal/current"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/pddeal/current")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <FileText className="mr-3 h-5 w-5" />
+              PD/Bulk Deals
+            </Link>
+
             {/* Subscriptions */}
             <Link
               href="/admin/subscriptions"
@@ -269,6 +274,8 @@ export default function AdminSidebar({ onClose }) {
               <CreditCard className="mr-3 h-5 w-5" />
               Subscriptions
             </Link>
+
+
 
             {/* Chat History */}
             <Link
@@ -283,7 +290,7 @@ export default function AdminSidebar({ onClose }) {
             </Link>
             <Link
               href="/admin/password"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/password")
                 ? "bg-orange-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
@@ -371,33 +378,9 @@ export default function AdminSidebar({ onClose }) {
               ]}
             />
 
-            {/* Direct Report */}
-            <DropdownMenu
-              title="Direct Order Report"
-              icon={BarChart3}
-              isOpen={directreportOpen}
-              toggle={() => setdirectreportOpen(!directreportOpen)}
-              links={[
-                { name: "Direct Business Report", href: "/admin/directreport/business", icon: BarChart2 },
-                { name: "Direct Status Report", href: "/admin/directreport/status", icon: Activity },
-                { name: "Direct Process Report", href: "/admin/directreport/process", icon: Settings },
-                { name: "Direct Closer Report", href: "/admin/directreport/closer", icon: CheckCircle },
-              ]}
-            />
 
-            {/* Paper Deals Report */}
-            <DropdownMenu
-              title="Paper Deals Report"
-              icon={FileText}
-              isOpen={paperreportOpen}
-              toggle={() => setpaperreportOpen(!paperreportOpen)}
-              links={[
-                { name: "Business Report", href: "/admin/paperreport/business", icon: BarChart2 },
-                { name: "Status Report", href: "/admin/paperreport/status", icon: ListChecks },
-                { name: "Closure Report", href: "/admin/paperreport/closure", icon: FileCheck },
-                { name: "Process Report", href: "/admin/paperreport/process", icon: Workflow },
-              ]}
-            />
+
+
 
             {/* Live Stock */}
             <Link
@@ -423,17 +406,44 @@ export default function AdminSidebar({ onClose }) {
               Live Price
             </Link>
 
+
+
+            {/* Direct Report */}
+            <Link
+              href="/admin/directreport"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directreport")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <BarChart3 className="mr-3 h-5 w-5" />
+              Direct Order Report
+            </Link>
+
+
+            {/* Paper Deals Report */}
+            <Link
+              href="/admin/paperreport"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/paperreport")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <FileText className="mr-3 h-5 w-5" />
+              Paper Deals Report
+            </Link>
+
             {/* Billing History */}
-            <DropdownMenu
-              title="Billing History"
-              icon={History}
-              isOpen={billinghistoryOpen}
-              toggle={() => setbillinghistoryOpen(!billinghistoryOpen)}
-              links={[
-                { name: "Direct Deal Billing", href: "/admin/billinghistory/directdealbilling", icon: CreditCard },
-                { name: "PD Deal Billing", href: "/admin/billinghistory/pddealbilling", icon: FileText },
-              ]}
-            />
+            <Link
+              href="/admin/billinghistory"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/billinghistory")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <History className="mr-3 h-5 w-5" />
+              Billing History
+            </Link>
 
             {/* Consultant */}
             <Link
