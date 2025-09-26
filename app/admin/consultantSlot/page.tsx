@@ -41,7 +41,7 @@ export default function SlotPage() {
   // Fetch all slots (master list)
   const fetchAllSlots = async () => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/slot`);
+      const res = await fetch(`http://localhost:5000/api/slot`);
       const data = await res.json();
       setAllSlots(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -55,7 +55,7 @@ export default function SlotPage() {
     if (!userId) return;
     setLoading(true);
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${userId}`);
+      const res = await fetch(`http://localhost:5000/api/consultant/${userId}`);
       const data = await res.json();
       const arr = Array.isArray(data)
         ? data
@@ -93,7 +93,7 @@ export default function SlotPage() {
       user_id: userId,
     };
     try {
-      const res = await fetch("https://paper-deal-server.onrender.com/api/consultant/book", {
+      const res = await fetch("http://localhost:5000/api/consultant/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -146,7 +146,7 @@ export default function SlotPage() {
     };
 
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${editingId}`, {
+      const res = await fetch(`http://localhost:5000/api/consultant/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -165,7 +165,7 @@ export default function SlotPage() {
   // Delete slot
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/consultant/${id}`, {
         method: "DELETE",
       });
       if (res.ok) fetchSlots();

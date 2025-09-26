@@ -13,6 +13,7 @@ import {
 import Pagination from "@/components/pagination"
 import { getCookie } from "@/hooks/use-cookies"
 import { getUserFromToken } from "@/hooks/use-token"
+import { useRouter } from "next/navigation"
 
 export default function EnquiryPage() {
   const [data, setData] = useState<any[]>([])
@@ -21,6 +22,7 @@ export default function EnquiryPage() {
   const [status, setStatus] = useState<number>(0)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const router = useRouter();
   const limit = 10
   const token = getCookie("token");
   const user = getUserFromToken();
@@ -29,7 +31,7 @@ export default function EnquiryPage() {
 
   // fetch enquiries
   useEffect(() => {
-    fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`,
+    fetch(`http://localhost:5000/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`,
       {
         method: "GET",
         headers: {
@@ -50,7 +52,7 @@ export default function EnquiryPage() {
   const handleUpdate = async () => {
     if (!selected) return
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries/${selected.id}`, {
+      await fetch(`http://localhost:5000/api/enquiry/enquiries/${selected.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -157,10 +159,7 @@ export default function EnquiryPage() {
                   </td>
                   <td
                     className="border px-3 py-2 text-blue-600 cursor-pointer"
-                    onClick={() => {
-                      setSelected(row)
-                      setStatus(row.status)
-                    }}
+                    onClick={() => router.push(`/admin/inquiries/profile_enquiry/${row.id}`)}
                   >
                     View
                   </td>

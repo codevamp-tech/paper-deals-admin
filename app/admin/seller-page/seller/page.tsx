@@ -56,7 +56,7 @@ export default function SellerPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2&page=${page}`
+        `http://localhost:5000/api/users/getallsellers?user_type=2&page=${page}`
       )
       const data = await res.json()
       setSellers(data.data || [])
@@ -79,8 +79,8 @@ export default function SellerPage() {
   const handleSave = async () => {
     try {
       const url = isEdit
-        ? `https://paper-deal-server.onrender.com/api/users/updateseller/${editId}`
-        : "https://paper-deal-server.onrender.com/api/users/addseller"
+        ? `http://localhost:5000/api/users/updateseller/${editId}`
+        : "http://localhost:5000/api/users/addseller"
 
       const res = await fetch(url, {
         method: "POST",

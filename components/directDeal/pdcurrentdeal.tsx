@@ -52,7 +52,7 @@ export default function CurrentPaperDealPage() {
         if (!token) throw new Error("No token in cookies");
 
         const res = await fetch(
-          `https://paper-deal-server.onrender.com/api/pd-deals/?page=${page}&limit=10`,
+          `http://localhost:5000/api/pd-deals/?page=${page}&limit=10`,
           {
             headers: {
               "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export default function ImagePage() {
   // Fetch images
   const fetchImages = async (page = 1) => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/images?page=${page}&limit=${limit}`)
+      const res = await fetch(`http://localhost:5000/api/images?page=${page}&limit=${limit}`)
       const data = await res.json()
       if (data.success) {
         setImages(data.data)
@@ -58,7 +58,7 @@ export default function ImagePage() {
         })
       }
 
-      await fetch("https://paper-deal-server.onrender.com/api/images", {
+      await fetch("http://localhost:5000/api/images", {
         method: "POST",
         body: formData,
       })
@@ -75,7 +75,7 @@ export default function ImagePage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this image?")) return
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/images/${id}`, { method: "DELETE" })
+      await fetch(`http://localhost:5000/api/images/${id}`, { method: "DELETE" })
       fetchImages(page)
     } catch (err) {
       console.error("Error deleting image:", err)
@@ -101,7 +101,7 @@ export default function ImagePage() {
         })
       }
 
-      await fetch(`https://paper-deal-server.onrender.com/api/images/${editImage.id}`, {
+      await fetch(`http://localhost:5000/api/images/${editImage.id}`, {
         method: "PUT",
         body: formData,
       })

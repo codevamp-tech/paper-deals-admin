@@ -52,7 +52,7 @@ export default function AdvertisementPage() {
   useEffect(() => {
     const fetchAds = async () => {
       try {
-        const res = await fetch("https://paper-deal-server.onrender.com/api/advertisement")
+        const res = await fetch("http://localhost:5000/api/advertisement")
         const data = await res.json()
 
         const mapped = data.map((ad: any) => ({
@@ -86,7 +86,7 @@ export default function AdvertisementPage() {
 
     setLoading(true)
     try {
-      const res = await fetch("https://paper-deal-server.onrender.com/api/advertisement", {
+      const res = await fetch("http://localhost:5000/api/advertisement", {
         method: "POST",
         body: formData,
       })
@@ -139,7 +139,7 @@ export default function AdvertisementPage() {
     setEditLoading(true)
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/advertisement/${editingAd.id}`,
+        `http://localhost:5000/api/advertisement/${editingAd.id}`,
         {
           method: "PUT",
           body: formData,

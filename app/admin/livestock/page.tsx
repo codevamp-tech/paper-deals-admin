@@ -66,7 +66,7 @@ export default function LiveStockList() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/live-stocks/view-live-stockes?page=${page}&search=${search}`
+        `http://localhost:5000/api/live-stocks/view-live-stockes?page=${page}&search=${search}`
       );
       const data = await res.json();
       setStocks(data.data || []);
@@ -82,7 +82,7 @@ export default function LiveStockList() {
     if (!editStock) return;
 
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/update/${editStock.id}`, {
+      await fetch(`http://localhost:5000/api/live-stocks/update/${editStock.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spot_price: editStock.spot_price }),
@@ -114,7 +114,7 @@ export default function LiveStockList() {
     setIsUpdating(true);
 
     try {
-      const response = await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/update/${stockId}`, {
+      const response = await fetch(`http://localhost:5000/api/live-stocks/update/${stockId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ spot_price: newPrice }),
@@ -306,7 +306,7 @@ export default function LiveStockList() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={async () => {
-                            await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/delete/${stock.id}`, {
+                            await fetch(`http://localhost:5000/api/live-stocks/delete/${stock.id}`, {
                               method: "DELETE",
                             });
                             fetchStocks();
@@ -316,7 +316,7 @@ export default function LiveStockList() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={async () => {
-                            await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/deactivate/${stock.id}`, {
+                            await fetch(`http://localhost:5000/api/live-stocks/deactivate/${stock.id}`, {
                               method: "PUT",
                             });
                             fetchStocks();

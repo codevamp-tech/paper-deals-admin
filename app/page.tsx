@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Shield } from "lucide-react"
 import Link from "next/link"
 
-const Apilocalurl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com"
+const Apilocalurl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ export default function AdminLogin() {
     setError("")
 
     try {
-      const response = await fetch(`https://paper-deal-server.onrender.com/api/admin/login`, {
+      const response = await fetch(`http://localhost:5000/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,8 +84,8 @@ export default function AdminLogin() {
                 required
               >
                 <option value={1}>Admin</option>
+                <option value={4}>Super Admin</option>
                 <option value={2}>Seller</option>
-                <option value={3}>Buyer</option>
                 <option value={5}>Consultant</option>
               </select>
             </div>

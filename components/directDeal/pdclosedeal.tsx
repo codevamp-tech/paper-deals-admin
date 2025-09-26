@@ -45,7 +45,7 @@ export default function ClosedPdDealsPage() {
         if (!token) throw new Error("No token in cookies");
 
         const res = await fetch(
-          `https://paper-deal-server.onrender.com/api/pd-deals-master/closedpddeals?page=${page}&limit=${limit}`,
+          `http://localhost:5000/api/pd-deals-master/closedpddeals?page=${page}&limit=${limit}`,
           {
             method: "GET",
             headers: {
@@ -119,7 +119,7 @@ export default function ClosedPdDealsPage() {
                 {filteredDeals.map((d, index) => (
                   <tr key={d.id} className="border-b hover:bg-gray-50">
                     <td className="p-2 border">{(page - 1) * limit + index + 1}</td>
-                    <td className="p-2 border">{d.deal_id || "-"}</td>
+                    <td className="p-2 border">00{d.id || "-"}</td>
                     <td className="p-2 border">{d.user?.name || "-"}</td>
                     <td className="p-2 border">{d.user?.phone_no || "-"}</td>
                     <td className="p-2 border">{d.buyerUser?.name || "-"}</td>

@@ -39,7 +39,7 @@ export default function MainLogoPage() {
   // ✅ Fetch logos dynamically
   const fetchLogos = async (pageNum = 1) => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/site-logos/getall-logo?page=${pageNum}&limit=10`);
+      const res = await fetch(`http://localhost:5000/api/site-logos/getall-logo?page=${pageNum}&limit=10`);
       const data = await res.json();
       setLogos(data.data);
       setTotalPages(data.totalPages);
@@ -65,7 +65,7 @@ export default function MainLogoPage() {
     formData.append("logo_name", newLogoName);
 
     try {
-      await fetch("https://paper-deal-server.onrender.com/api/site-logos/create", {
+      await fetch("http://localhost:5000/api/site-logos/create", {
         method: "POST",
         body: formData,
       });
@@ -94,7 +94,7 @@ export default function MainLogoPage() {
       }
       formData.append("status", String(selectedLogo.status ?? 1));
 
-      await fetch(`https://paper-deal-server.onrender.com/api/site-logos/update/${selectedLogo.id}`, {
+      await fetch(`http://localhost:5000/api/site-logos/update/${selectedLogo.id}`, {
         method: "PUT",
         body: formData,
       });
@@ -110,7 +110,7 @@ export default function MainLogoPage() {
   // ✅ Delete
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/site-logos/delete/${id}`, { method: "DELETE" });
+      await fetch(`http://localhost:5000/api/site-logos/delete/${id}`, { method: "DELETE" });
       fetchLogos(page);
     } catch (err) {
       console.error("Delete failed:", err);

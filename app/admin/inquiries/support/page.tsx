@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import ExportActions from "@/components/exportAction"
 
 type Support = {
   id: number
@@ -46,7 +47,7 @@ export default function SupportPage() {
   const fetchSupports = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/support?page=${page}&limit=${limit}`)
+      const res = await fetch(`http://localhost:5000/api/support?page=${page}&limit=${limit}`)
       const data = await res.json()
       setSupports(data.supports || [])  // <- only the array
       setTotalPages(data.totalPages || 1)
@@ -116,7 +117,7 @@ export default function SupportPage() {
   const handleUpdate = async () => {
     if (!selectedTicket) return
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/support/${selectedTicket.id}`, {
+      await fetch(`http://localhost:5000/api/support/${selectedTicket.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
@@ -131,7 +132,7 @@ export default function SupportPage() {
   // Delete support
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/support/${id}`, {
+      await fetch(`http://localhost:5000/api/support/${id}`, {
         method: "DELETE",
       })
       fetchSupports()
@@ -185,6 +186,7 @@ export default function SupportPage() {
         <div className="p-6 border-b flex justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">Support</h1>
           <div className="flex items-center gap-2">
+            <ExportActions data={filteredData} fileName="support-tickets" />
             <label htmlFor="search" className="text-sm font-medium text-gray-700">
               Search:
             </label>

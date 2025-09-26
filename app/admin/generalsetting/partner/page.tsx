@@ -44,7 +44,7 @@ export default function AssociationPartnersPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/bottom-logo?page=${page}&limit=${limit}`
+        `http://localhost:5000/api/bottom-logo?page=${page}&limit=${limit}`
       )
       const data = await res.json()
 
@@ -63,7 +63,7 @@ export default function AssociationPartnersPage() {
   // ✅ Create new partner
   const handleCreate = async (formData: FormData) => {
     try {
-      await fetch("https://paper-deal-server.onrender.com/api/bottom-logo/create", {
+      await fetch("http://localhost:5000/api/bottom-logo/create", {
         method: "POST",
         body: formData,
       })
@@ -89,7 +89,7 @@ export default function AssociationPartnersPage() {
       formData.append("status", "1")
       if (file) formData.append("logo_picture", file)
 
-      await fetch(`https://paper-deal-server.onrender.com/api/bottom-logo/update/${selected.id}`, {
+      await fetch(`http://localhost:5000/api/bottom-logo/update/${selected.id}`, {
         method: "PUT",
         body: formData,
       })
@@ -105,7 +105,7 @@ export default function AssociationPartnersPage() {
   // ✅ Delete
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/bottom-logo/${id}`, {
+      await fetch(`http://localhost:5000/api/bottom-logo/${id}`, {
         method: "DELETE",
       })
       fetchPartners(currentPage)

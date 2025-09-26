@@ -106,7 +106,7 @@ export default function AdminDashboard() {
     if (userRole !== 1) return;
     const fetchOrders = async (page = 1) => {
       try {
-        const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard?page=${page}&limit=${rowsPerPage}`);
+        const res = await fetch(`http://localhost:5000/api/dashboard?page=${page}&limit=${rowsPerPage}`);
         const data = await res.json();
 
         // Map API fields to table fields
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
     if (userRole !== 1) return;
     const fetchPaperDeals = async (page = 1) => {
       try {
-        const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
+        const res = await fetch(`http://localhost:5000/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
         const data = await res.json();
 
         const mappedDeals = data.deals.map((item: any, index: number) => ({
@@ -173,7 +173,7 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         // Previous Chats
-        const resPrev = await fetch(`https://paper-deal-server.onrender.com/api/message/chatCount`,
+        const resPrev = await fetch(`http://localhost:5000/api/message/chatCount`,
           {
             method: "GET",
             headers: {
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
         setPrevChats(dataPrev.previousChats || 0);
 
         // Upcoming Chats
-        const resUpcoming = await fetch(`https://paper-deal-server.onrender.com/api/dashboard/getcountforCons`,
+        const resUpcoming = await fetch(`http://localhost:5000/api/dashboard/getcountforCons`,
           {
             method: "GET",
             headers: {

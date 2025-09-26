@@ -46,6 +46,8 @@ import {
   Star,
   Book,
   Notebook,
+  UserPlus,
+  Layers,
 } from "lucide-react"
 import { getUserFromToken } from "@/hooks/use-token";
 import { Button } from "@/components/ui/button"
@@ -117,6 +119,8 @@ export default function AdminSidebar({ onClose }) {
 
   const isUserRole2 = user?.user_role === 2;
   const isUserRole5 = user?.user_role === 5;
+  const isUserRole4 = user?.user_role === 4;
+
 
   return (
     <div className="h-full flex flex-col p-4 text-white">
@@ -176,6 +180,16 @@ export default function AdminSidebar({ onClose }) {
             >
               <Notebook className="mr-3 h-5 w-5" />
               Booked Users
+            </Link>
+            <Link
+              href="/admin/chat"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chat")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <MessageSquareText className="mr-3 h-5 w-5" />
+              Chat
             </Link>
 
             {/* Chat History */}
@@ -279,14 +293,14 @@ export default function AdminSidebar({ onClose }) {
 
             {/* Chat History */}
             <Link
-              href="/admin/chatHistory"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chatHistory")
+              href="/admin/chat"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chat")
                 ? "bg-orange-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
               <MessageSquareText className="mr-3 h-5 w-5" />
-              Chat History
+              Chat
             </Link>
             <Link
               href="/admin/password"
@@ -298,6 +312,102 @@ export default function AdminSidebar({ onClose }) {
               <Star className="mr-3 h-5 w-5" />
               Change Password
             </Link>
+          </>
+        ) : isUserRole4 ? (
+          <>
+            {/* Conditional links for user_role === 4 */}
+
+
+            <Link
+              href="/admin/seller-page/seller"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/seller-page/seller")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <UserCircle className="mr-3 h-5 w-5" />
+              Seller
+            </Link>
+
+            <Link
+              href="/admin/Buyer/buyerPage"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/Buyer/buyerPage")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <UserCircle className="mr-3 h-5 w-5" />
+              Buyer
+            </Link>
+
+            {/* Direct Order */}
+            <Link
+              href="/admin/directorder"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <ClipboardList className="mr-3 h-5 w-5" />
+              Direct/Single Order
+            </Link>
+
+            {/* PD/Bulk Deals */}
+            <Link
+              href="/admin/pddeal/current"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/pddeal/current")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <FileText className="mr-3 h-5 w-5" />
+              PD/Bulk Deals
+            </Link>
+            <Link
+              href="/admin/billinghistory"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/billinghistory")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <History className="mr-3 h-5 w-5" />
+              Billing History
+            </Link>
+
+            {/* Subscriptions */}
+            <DropdownMenu
+              title="Subscriptions"
+              icon={CreditCard}
+              isOpen={subscriptionOpen}
+              toggle={() => setsubscriptionsOpen(!subscriptionOpen)}
+              links={[
+                { name: "Subscriptions", href: "/admin/subscriptions", icon: Star },
+                { name: "Subscription Plan", href: "/admin/subscriptions/subscriptionPlan", icon: Layers },
+              ]}
+
+            />
+
+            <Link
+              href="/admin/password"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/password")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <Star className="mr-3 h-5 w-5" />
+              Change Password
+            </Link>
+            <Link
+              href="/admin/Add-admin"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/Add-admin")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <UserPlus className="mr-3 h-5 w-5" />
+              Add Admin
+            </Link>
+
           </>
         ) : (
           <>
