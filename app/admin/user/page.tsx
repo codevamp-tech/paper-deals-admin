@@ -58,7 +58,7 @@ export default function UsersPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/alluser?page=${page}&limit=10`
+        `https://paper-deal-server.onrender.com/api/users/alluser?page=${page}&limit=10`
       );
       const data = await res.json();
 

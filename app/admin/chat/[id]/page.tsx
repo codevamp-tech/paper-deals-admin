@@ -9,7 +9,7 @@ import { useParams } from "next/navigation";
 import { getUserFromToken } from "@/hooks/use-token";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:5000"); // Backend URL
+const socket = io("https://paper-deal-server.onrender.com"); // Backend URL
 
 interface ChatMessage {
   id: number;
@@ -36,7 +36,7 @@ export default function ChatInterface() {
     const fetchPreviousMessages = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/message/conversation?senderId=${userId}&receiverId=${buyerId}`
+          `https://paper-deal-server.onrender.com/api/message/conversation?senderId=${userId}&receiverId=${buyerId}`
         );
         if (!response.ok) throw new Error("Failed to fetch messages");
 

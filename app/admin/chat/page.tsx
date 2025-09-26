@@ -28,7 +28,7 @@ export default function UserList() {
   const [totalPages, setTotalPages] = useState(1)
 
   const user = getUserFromToken();
-  const userRole = user.user_role
+  const userRole = user?.user_role
 
   useEffect(() => {
     async function fetchUsers() {
@@ -37,11 +37,11 @@ export default function UserList() {
       try {
         let url = ""
         if (activeTab === "buyer") {
-          url = `http://localhost:5000/api/users/getBuyer?page=${currentPage}&limit=9`
+          url = `https://paper-deal-server.onrender.com/api/users/getBuyer?page=${currentPage}&limit=9`
         } else if (activeTab === "seller") {
-          url = `http://localhost:5000/api/users/getallsellers?user_type=2?page=${currentPage}&limit=9`
+          url = `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2?page=${currentPage}&limit=9`
         } else if (activeTab === "consultant") {
-          url = `http://localhost:5000/api/users/getallsellers?user_type=5?page=${currentPage}&limit=9`
+          url = `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=5?page=${currentPage}&limit=9`
         }
 
         const response = await fetch(url)

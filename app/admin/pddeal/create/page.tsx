@@ -55,7 +55,7 @@ export default function CreatePaperDealPage() {
   useEffect(() => {
     const fetchBuyers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users/getBuyer");
+        const res = await fetch("https://paper-deal-server.onrender.com/api/users/getBuyer");
         const data = await res.json();
         setBuyers(data?.data || []);
       } catch (error) {
@@ -106,7 +106,7 @@ export default function CreatePaperDealPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/pd-deals-master/create", {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/pd-deals-master/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

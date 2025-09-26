@@ -26,7 +26,7 @@ export default function PdDealsBillingTable() {
 
   const fetchDeals = async (pageNumber: number = 1) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/pd-deals-master/getPdDealBilling?page=${pageNumber}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals-master/getPdDealBilling?page=${pageNumber}`)
       const data = await res.json()
       setDeals(data.data || [])
       setFiltered(data.data || [])

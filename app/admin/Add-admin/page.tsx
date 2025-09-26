@@ -19,7 +19,7 @@ export default function AddAdminPage() {
   // Fetch Admins
   const fetchAdmins = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/users/getAdmins");
+      const res = await fetch("https://paper-deal-server.onrender.com/api/users/getAdmins");
       const data = await res.json();
       if (res.ok) {
         setAdmins(data?.data || []);
@@ -45,7 +45,7 @@ export default function AddAdminPage() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/CreateAdmin", {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/users/CreateAdmin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -246,8 +246,8 @@ export default function DealForm() {
       // 6️⃣ Construct the API URL
       const url =
         endpoint === "dashboard"
-          ? `http://localhost:5000/api/dashboard/${dealId}`
-          : `http://localhost:5000/api/${endpoint}`
+          ? `https://paper-deal-server.onrender.com/api/dashboard/${dealId}`
+          : `https://paper-deal-server.onrender.com/api/${endpoint}`
       console.log("options", options)
       // 7️⃣ Call the API
       const res = await fetch(url, options)
@@ -286,7 +286,7 @@ export default function DealForm() {
 
   const fetchDeal = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/dashboard/dealbyid/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard/dealbyid/${dealId}`)
       const data = await res.json()
       setForm(mapApiToForm(data))
       console.log("[v0] Deal data loaded from API")
@@ -297,7 +297,7 @@ export default function DealForm() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categiry")
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
       const data = await res.json()
       setCategories(data.categories || data.data || []) // <-- only array goes into state
       console.log("[v0] Categories loaded from API", data)
@@ -309,8 +309,8 @@ export default function DealForm() {
   const fetchBuyersAndSellers = async () => {
     try {
       const [buyerRes, sellerRes] = await Promise.all([
-        fetch("http://localhost:5000/api/users/getBuyer"),
-        fetch("http://localhost:5000/api/users/getallsellers?user_type=2"),
+        fetch("https://paper-deal-server.onrender.com/api/users/getBuyer"),
+        fetch("https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2"),
       ])
       const buyersData = await buyerRes.json()
       const sellersData = await sellerRes.json()

@@ -17,7 +17,7 @@ const SubscriptionPlansPage: React.FC = () => {
   // Fetch plans
   const fetchPlans = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/subscription-plans");
+      const res = await fetch("https://paper-deal-server.onrender.com/api/subscription-plans");
       const data = await res.json();
       setPlans(data.plans || []);
     } catch (error) {
@@ -37,8 +37,8 @@ const SubscriptionPlansPage: React.FC = () => {
     try {
       const method = editId ? "PUT" : "POST";
       const url = editId
-        ? `http://localhost:5000/api/subscription-plans/${editId}`
-        : "http://localhost:5000/api/subscription-plans";
+        ? `https://paper-deal-server.onrender.com/api/subscription-plans/${editId}`
+        : "https://paper-deal-server.onrender.com/api/subscription-plans";
 
       await fetch(url, {
         method,
@@ -58,7 +58,7 @@ const SubscriptionPlansPage: React.FC = () => {
   // Delete plan
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/api/subscription-plans/${id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/subscription-plans/${id}`, {
         method: "DELETE",
       });
       fetchPlans();

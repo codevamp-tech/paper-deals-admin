@@ -23,7 +23,7 @@ export default function ChangePasswordPage() {
       setLoading(true)
       setMessage("")
 
-      const response = await fetch("http://localhost:5000/api/users/change-password", {
+      const response = await fetch("https://paper-deal-server.onrender.com/api/users/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
