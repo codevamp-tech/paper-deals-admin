@@ -53,6 +53,8 @@
     "jose": "^6.0.12",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "latest",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "jwt-decode": "^4.0.0",
     "kerberos": "latest",
     "lucide-react": "^0.454.0",
@@ -68,11 +70,13 @@
     "react-resizable-panels": "^2.1.7",
     "recharts": "^2.15.0",
     "snappy": "latest",
+    "socket.io-client": "^4.8.1",
     "socks": "latest",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.1"
   },
   "devDependencies": {

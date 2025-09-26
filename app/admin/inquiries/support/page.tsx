@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import ExportActions from "@/components/exportAction"
 
 type Support = {
   id: number
@@ -185,6 +186,7 @@ export default function SupportPage() {
         <div className="p-6 border-b flex justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">Support</h1>
           <div className="flex items-center gap-2">
+            <ExportActions data={filteredData} fileName="support-tickets" />
             <label htmlFor="search" className="text-sm font-medium text-gray-700">
               Search:
             </label>

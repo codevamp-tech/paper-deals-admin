@@ -84,8 +84,8 @@ export default function AdminLogin() {
                 required
               >
                 <option value={1}>Admin</option>
+                <option value={4}>Super Admin</option>
                 <option value={2}>Seller</option>
-                <option value={3}>Buyer</option>
                 <option value={5}>Consultant</option>
               </select>
             </div>
