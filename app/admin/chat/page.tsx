@@ -66,12 +66,7 @@ export default function UserList() {
     <div className="w-full space-y-6">
       {/* Tab Buttons */}
       <div className="flex justify-center space-x-4">
-        <Button
-          variant={activeTab === "buyer" ? "default" : "outline"}
-          onClick={() => setActiveTab("buyer")}
-        >
-          Buyer
-        </Button>
+
         {userRole !== 2 && (
           <Button
             variant={activeTab === "seller" ? "default" : "outline"}
@@ -81,12 +76,20 @@ export default function UserList() {
           </Button>
         )}
         {userRole !== 5 && (
-          <Button
-            variant={activeTab === "consultant" ? "default" : "outline"}
-            onClick={() => setActiveTab("consultant")}
-          >
-            Consultant
-          </Button>
+          <>
+            <Button
+              variant={activeTab === "buyer" ? "default" : "outline"}
+              onClick={() => setActiveTab("buyer")}
+            >
+              Buyer
+            </Button>
+            <Button
+              variant={activeTab === "consultant" ? "default" : "outline"}
+              onClick={() => setActiveTab("consultant")}
+            >
+              Consultant
+            </Button>
+          </>
         )}
       </div>
 

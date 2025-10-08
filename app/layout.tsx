@@ -7,9 +7,8 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Admin Panel - IndiaManufacture",
+  title: "Admin Panel",
   description: "Admin panel for managing manufacturer website content",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({

@@ -265,6 +265,17 @@ export default function AdminSidebar({ onClose }) {
               Profile
             </Link>
 
+            <Link
+              href="/admin/stocks"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/stocks")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <Package className="mr-3 h-5 w-5" />
+              Stocks
+            </Link>
+
             {/* PD/Bulk Deals */}
             <Link
               href="/admin/pddeal/current"

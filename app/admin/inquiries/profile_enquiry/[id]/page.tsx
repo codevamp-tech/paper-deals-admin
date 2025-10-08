@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { getCookie } from "@/hooks/use-cookies"
 import { Button } from "@/components/ui/button"
+import { getUserFromToken } from "@/hooks/use-token"
 
 // Modal Component
 const MessagePopup = ({ isOpen, onClose, sentSellerIds, enquiryProduct }: {
@@ -51,6 +52,8 @@ export default function EnquiryDetailPage() {
   const [showPopup, setShowPopup] = useState<boolean>(false)
   const [sentSellerIds, setSentSellerIds] = useState<number[]>([])
   const token = getCookie("token")
+  const user = getUserFromToken();
+  const userRole = user?.user_role
 
   useEffect(() => {
     fetch(`https://paper-deal-server.onrender.com/api/enquiry/getbyId/${id}`, {
@@ -290,137 +293,140 @@ export default function EnquiryDetailPage() {
           <Button onClick={handleUpdate}>Update Status</Button>
         </div>
       </div>
+      {userRole !== 2 && (
+        <>
+          {/* Seller Enquiries List */}
+          <div className="bg-white shadow-md rounded-xl p-6">
+            <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+              Seller Enquiries List
+            </h2>
 
-      {/* Seller Enquiries List */}
-      <div className="bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-lg font-semibold mb-4 border-b pb-2">
-          Seller Enquiries List
-        </h2>
-
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
-            <thead className="bg-gray-50 text-gray-700">
-              <tr>
-                <th className="border p-3 text-left">ID</th>
-                <th className="border p-3 text-left">Company Name</th>
-                <th className="border p-3 text-left">City</th>
-                <th className="border p-3 text-center">Select</th>
-              </tr>
-            </thead>
-            <tbody>
-              {enquiries.map((item: any, idx) => (
-                <tr
-                  key={item.id}
-                  className={`hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/70"
-                    }`}
-                >
-                  <td className="border p-3">{item.seller?.organization?.id}</td>
-                  <td className="border p-3">{item.seller?.organization?.organizations}</td>
-                  <td className="border p-3">{item.seller?.organization?.city}</td>
-                  <td className="border p-3 text-center">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4"
-                      checked={selectedIds.includes(item.seller_id)}
-                      onChange={() => handleCheckboxChange(item.seller_id)}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {selectedIds.length > 0 && (
-          <div className="mt-4 flex items-center justify-between">
-            <Button variant="default" onClick={handleSendMessages}>
-              Proceed
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Enquiry Messages */}
-      <div className="bg-white shadow-md rounded-xl p-6">
-        <h2 className="text-lg font-semibold mb-4 border-b pb-2">
-          Enquiry Messages
-        </h2>
-
-        {messages.length === 0 ? (
-          <p className="text-gray-500">No messages found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
-              <thead className="bg-gray-50 text-gray-700">
-                <tr>
-                  <th className="border p-3 text-left">ID</th>
-                  <th className="border p-3 text-left">Contact Person</th>
-                  <th className="border p-3 text-left">Buyer Name</th>
-                  <th className="border p-3 text-left">Buyer Phone</th>
-                  <th className="border p-3 text-left">Seller Id</th>
-                  <th className="border p-3 text-left">Seller Phone</th>
-                  <th className="border p-3 text-left">Category</th>
-                  <th className="border p-3 text-left">Product</th>
-                  <th className="border p-3 text-left">City</th>
-                  <th className="border p-3 text-left">Shade</th>
-                  <th className="border p-3 text-left">GSM</th>
-                  <th className="border p-3 text-left">Remarks</th>
-                  <th className="border p-3 text-left">Created At</th>
-                  <th className="border p-3 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {messages.map((msg: any, idx) => (
-                  <tr
-                    key={msg.id}
-                    className={`hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/70"
-                      }`}
-                  ><td className="border p-3">
-                      {msg.id}
-                    </td>
-                    <td className="border p-3">
-                      {msg.enquiry?.name || ''}
-                    </td>
-                    <td className="border p-3">
-                      {msg.enquiry?.buyer?.name || ''}
-                    </td>
-                    <td className="border p-3">
-                      {msg.enquiry?.buyer?.phone_no || ''}
-                    </td>
-                    <td className="border p-3">KPDS_{msg.seller_id || ''}</td>
-                    <td className="border p-3">{msg.seller?.phone_no || ''}</td>
-                    <td className="border p-3">
-                      {msg.enquiry?.category?.name || msg.enquiry?.category_id || ''}
-                    </td>
-                    <td className="border p-3">{msg.product || msg.enquiry?.product || ''}</td>
-                    <td className="border p-3">{msg.enquiry?.city || ''}</td>
-                    <td className="border p-3">{msg.enquiry?.shade || ''}</td>
-                    <td className="border p-3">{msg.enquiry?.gsm || ''}</td>
-                    <td className="border p-3">{msg.enquiry?.remarks || ''}</td>
-                    <td className="border p-3">
-                      {msg.created_at ? new Date(msg.created_at).toLocaleString() : ''}
-                    </td>
-                    <td className="border p-3">
-                      <span className={`px-2 py-1 rounded-full text-xs ${msg.status === 1
-                        ? "bg-green-100 text-green-800"
-                        : msg.status === 2
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                        }`}>
-                        {msg.status === 1
-                          ? "Completed"
-                          : msg.status === 2
-                            ? "Rejected"
-                            : "Pending"}
-                      </span>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
+                <thead className="bg-gray-50 text-gray-700">
+                  <tr>
+                    <th className="border p-3 text-left">ID</th>
+                    <th className="border p-3 text-left">Company Name</th>
+                    <th className="border p-3 text-left">City</th>
+                    <th className="border p-3 text-center">Select</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {enquiries.map((item: any, idx) => (
+                    <tr
+                      key={item.id}
+                      className={`hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/70"
+                        }`}
+                    >
+                      <td className="border p-3">{item.seller?.organization?.id}</td>
+                      <td className="border p-3">{item.seller?.organization?.organizations}</td>
+                      <td className="border p-3">{item.seller?.organization?.city}</td>
+                      <td className="border p-3 text-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={selectedIds.includes(item.seller_id)}
+                          onChange={() => handleCheckboxChange(item.seller_id)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {selectedIds.length > 0 && (
+              <div className="mt-4 flex items-center justify-between">
+                <Button variant="default" onClick={handleSendMessages}>
+                  Proceed
+                </Button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Enquiry Messages */}
+          <div className="bg-white shadow-md rounded-xl p-6">
+            <h2 className="text-lg font-semibold mb-4 border-b pb-2">
+              Enquiry Messages
+            </h2>
+
+            {messages.length === 0 ? (
+              <p className="text-gray-500">No messages found.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
+                  <thead className="bg-gray-50 text-gray-700">
+                    <tr>
+                      <th className="border p-3 text-left">ID</th>
+                      <th className="border p-3 text-left">Contact Person</th>
+                      <th className="border p-3 text-left">Buyer Name</th>
+                      <th className="border p-3 text-left">Buyer Phone</th>
+                      <th className="border p-3 text-left">Seller Id</th>
+                      <th className="border p-3 text-left">Seller Phone</th>
+                      <th className="border p-3 text-left">Category</th>
+                      <th className="border p-3 text-left">Product</th>
+                      <th className="border p-3 text-left">City</th>
+                      <th className="border p-3 text-left">Shade</th>
+                      <th className="border p-3 text-left">GSM</th>
+                      <th className="border p-3 text-left">Remarks</th>
+                      <th className="border p-3 text-left">Created At</th>
+                      <th className="border p-3 text-left">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {messages.map((msg: any, idx) => (
+                      <tr
+                        key={msg.id}
+                        className={`hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/70"
+                          }`}
+                      ><td className="border p-3">
+                          {msg.id}
+                        </td>
+                        <td className="border p-3">
+                          {msg.enquiry?.name || ''}
+                        </td>
+                        <td className="border p-3">
+                          {msg.enquiry?.buyer?.name || ''}
+                        </td>
+                        <td className="border p-3">
+                          {msg.enquiry?.buyer?.phone_no || ''}
+                        </td>
+                        <td className="border p-3">KPDS_{msg.seller_id || ''}</td>
+                        <td className="border p-3">{msg.seller?.phone_no || ''}</td>
+                        <td className="border p-3">
+                          {msg.enquiry?.category?.name || msg.enquiry?.category_id || ''}
+                        </td>
+                        <td className="border p-3">{msg.product || msg.enquiry?.product || ''}</td>
+                        <td className="border p-3">{msg.enquiry?.city || ''}</td>
+                        <td className="border p-3">{msg.enquiry?.shade || ''}</td>
+                        <td className="border p-3">{msg.enquiry?.gsm || ''}</td>
+                        <td className="border p-3">{msg.enquiry?.remarks || ''}</td>
+                        <td className="border p-3">
+                          {msg.created_at ? new Date(msg.created_at).toLocaleString() : ''}
+                        </td>
+                        <td className="border p-3">
+                          <span className={`px-2 py-1 rounded-full text-xs ${msg.status === 1
+                            ? "bg-green-100 text-green-800"
+                            : msg.status === 2
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                            }`}>
+                            {msg.status === 1
+                              ? "Completed"
+                              : msg.status === 2
+                                ? "Rejected"
+                                : "Pending"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

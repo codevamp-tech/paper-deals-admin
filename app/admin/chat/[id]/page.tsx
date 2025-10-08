@@ -21,6 +21,7 @@ interface ChatMessage {
 export default function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [error, setError] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const params = useParams();
@@ -42,7 +43,7 @@ export default function ChatInterface() {
 
         const data = await response.json();
         // Map backend messages to ChatMessage
-        const formattedMessages = data.map((msg: any, index: number) => ({
+        const formattedMessages = data.map((msg: any) => ({
           id: msg.msg_id,
           senderId: msg.outgoing_msg_id,
           receiverId: msg.incoming_msg_id,
@@ -66,7 +67,12 @@ export default function ChatInterface() {
     socket.on("receiveMessage", (message: any) => {
       setMessages((prev) => [
         ...prev,
-        { id: prev.length + 1, senderId: message.senderId, receiverId: message.receiverId, text: message.text }
+        {
+          id: message.id || Date.now(),
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          text: message.text
+        }
       ]);
     });
 
@@ -85,15 +91,43 @@ export default function ChatInterface() {
   const handleSendMessage = () => {
     if (!input.trim() || !userId || !buyerId) return;
 
-    const message = { senderId: userId, receiverId: buyerId, text: input };
+    // Check if message contains any number with more than 4 digits
+    const words = input.trim().split(/\s+/);
+    const numbersWithMoreThan4Digits = words.filter((word) => {
+      // Remove common punctuation and check if it's numeric
+      const cleaned = word.replace(/[.,!?;:()'"]/g, '');
+      // Check if it's a number and has more than 4 digits
+      return /^\d+$/.test(cleaned) && cleaned.length > 4;
+    });
+
+    console.log("Words:", words);
+    console.log("Numbers with >4 digits:", numbersWithMoreThan4Digits);
+
+    if (numbersWithMoreThan4Digits.length > 0) {
+      setError(`Cannot send numbers with more than 4 digits. Found: ${numbersWithMoreThan4Digits.join(', ')}`);
+      setTimeout(() => setError(""), 5000);
+      return;
+    }
+
+    const message = {
+      id: Date.now(),
+      senderId: userId,
+      receiverId: buyerId,
+      text: input
+    };
+
+    // Add message to local state immediately for instant feedback
+    setMessages((prev) => [...prev, message]);
+
+    // Emit to socket
     socket.emit("sendMessage", message);
 
-    setInput(""); // 👈 clear only, don’t add to state
+    setInput(""); // clear input
+    setError(""); // clear any previous error
   };
 
-
   return (
-    <Card className="w-full h-[600px] flex flex-col">
+    <Card className="w-full h-[500px] flex flex-col">
       <CardHeader>
         <CardTitle>Chat</CardTitle>
       </CardHeader>
@@ -122,17 +156,24 @@ export default function ChatInterface() {
           )}
         </ScrollArea>
       </CardContent>
-      <CardFooter className="flex p-4 border-t">
-        <Input
-          placeholder="Type your message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") handleSendMessage();
-          }}
-          className="flex-1 mr-2"
-        />
-        <Button onClick={handleSendMessage}>Send</Button>
+      <CardFooter className="flex flex-col p-4 border-t gap-2">
+        {error && (
+          <div className="w-full text-sm text-red-500 bg-red-50 p-2 rounded">
+            {error}
+          </div>
+        )}
+        <div className="flex w-full">
+          <Input
+            placeholder="Type your message..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") handleSendMessage();
+            }}
+            className="flex-1 mr-2"
+          />
+          <Button onClick={handleSendMessage}>Send</Button>
+        </div>
       </CardFooter>
     </Card>
   );

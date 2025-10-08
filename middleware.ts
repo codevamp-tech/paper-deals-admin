@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin/dashboard", request.url));
   }
 
-  // ✅ If authenticated, attach user data in headers for backend
+  //  If authenticated, attach user data in headers for backend
   const response = NextResponse.next();
   if (isAuthenticated) {
     response.headers.set("x-user", JSON.stringify(isAuthenticated.data));
