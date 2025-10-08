@@ -219,6 +219,11 @@ export default function DealForm() {
   const [categories, setCategories] = useState<any[]>([])
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+  const [givenQuantity, setGivenQuantity] = useState<number>(0);
+  const [remainingQuantity, setRemainingQuantity] = useState<number>(0);
+  const [deliveries, setDeliveries] = useState<number[]>([]);
+  const [partialChecked, setPartialChecked] = useState(false);
+
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }))
@@ -299,6 +304,11 @@ export default function DealForm() {
     }
   }
 
+  useEffect(() => {
+    if (form?.quantityKg) {
+      setRemainingQuantity(form.quantityKg);
+    }
+  }, [form.quantityKg]);
 
 
   const goToStep = (stepIndex: number) => {
@@ -342,7 +352,69 @@ export default function DealForm() {
     }
   }
 
+  const fetchDeliveries = async () => {
+    try {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/dealQuantity/deal-quantities/${dealId}`);
+      const data = await res.json();
+      if (res.ok && data) {
+        setDeliveries(data.deliveries || []);
+        const totalDelivered = (data.deliveries || []).reduce((sum, d) => sum + d.quantity, 0);
+        setRemainingQuantity(form.quantityKg - totalDelivered);
+      }
+    } catch (error) {
+      console.log("Failed to load deal quantities", error);
+    }
+  };
 
+  useEffect(() => {
+    if (form?.quantityKg) {
+      fetchDeliveries();
+    }
+  }, [form.quantityKg]);
+
+
+  const handleDeliverySubmit = async () => {
+    if (!givenQuantity || givenQuantity <= 0) {
+      toast.error("Please enter a valid delivery quantity");
+      return;
+    }
+    if (givenQuantity > remainingQuantity) {
+      toast.error("Delivered quantity cannot exceed remaining quantity");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/dealQuantity/deal-quantities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deal_id: dealId,
+          given_quantity: givenQuantity,
+          remaining_quantity: remainingQuantity - givenQuantity,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Delivered ${givenQuantity} Kg`);
+        setDeliveries([...deliveries, { quantity: givenQuantity }]);
+        const newRemaining = remainingQuantity - givenQuantity;
+        setRemainingQuantity(newRemaining);
+        setGivenQuantity(0);
+
+        if (newRemaining === 0) {
+          toast.success("All quantities delivered. Deal Closed!");
+          setCompletedSteps((prev) => new Set([...prev, FORM_STEPS.length - 1]));
+          setCurrentStep(FORM_STEPS.length - 1);
+        }
+      } else {
+        throw new Error(data.error || "Failed to save delivery");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error submitting delivery");
+    }
+  };
 
   useEffect(() => {
     fetchDeal()
@@ -841,6 +913,45 @@ export default function DealForm() {
               <label className="block text-sm font-medium mb-2">Distance</label>
               <Input onChange={(e) => handleChange("distance", e.target.value)} />
             </div>
+            <div className="mt-6 border p-4 rounded-md">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={partialChecked}
+                  onChange={(e) => setPartialChecked(e.target.checked)}
+                />
+                Allow Partial Delivery
+              </label>
+
+              {partialChecked && (
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium">Given Quantity (Kg)</label>
+                    <Input
+                      type="number"
+                      value={givenQuantity}
+                      onChange={(e) => setGivenQuantity(parseInt(e.target.value) || 0)}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Remaining Quantity: <strong>{remainingQuantity}</strong> Kg
+                  </p>
+                  <Button onClick={handleDeliverySubmit}>Submit Delivery</Button>
+
+                  {deliveries.length > 0 && (
+                    <div className="mt-3">
+                      <h4 className="font-semibold text-sm">Delivery History</h4>
+                      <ul className="list-disc list-inside text-sm">
+                        {deliveries.map((d, i) => (
+                          <li key={i}>Delivered {d.quantity} Kg</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
           </div>
         )
 

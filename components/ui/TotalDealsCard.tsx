@@ -113,7 +113,7 @@ export default function TotalDealsCard() {
     <div className="bg-white shadow-md rounded-lg overflow-hidden w-full max-w-3xl">
       {/* Header */}
       <div className="bg-cyan-700 px-4 py-2 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-red-600">Total Deals</h2>
+        <h2 className="text-xl font-semibold text-white">Total Deals</h2>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}

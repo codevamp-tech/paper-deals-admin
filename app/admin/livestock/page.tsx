@@ -66,7 +66,7 @@ export default function LiveStockList() {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/live-stocks/view-live-stockes?page=${page}&search=${search}`
+        `https://paper-deal-server.onrender.com/api/live-stocks/view-live-stock?page=${page}&search=${search}`
       );
       const data = await res.json();
       setStocks(data.data || []);
@@ -301,9 +301,6 @@ export default function LiveStockList() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => setEditStock(stock)}>
-                          <Pencil className="h-4 w-4 mr-2" /> Edit
-                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={async () => {
                             await fetch(`https://paper-deal-server.onrender.com/api/live-stocks/delete/${stock.id}`, {

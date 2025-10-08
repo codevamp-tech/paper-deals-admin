@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Eye, Plus } from "lucide-react"
+import { Edit, Eye, MoreVertical, Plus, XCircle } from "lucide-react"
 import Pagination from "@/components/pagination"
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 type Seller = {
   id: number
@@ -129,6 +130,21 @@ export default function SellerPage() {
     setOpen(true)
   }
 
+  const handleToggleStatus = async (id: number) => {
+    try {
+      const res = await fetch(
+        `https://paper-deal-server.onrender.com/api/users/sellers/${id}/toggle-status`,
+        { method: "PUT" }
+      )
+      if (res.ok) {
+        fetchSellers(currentPage) // refresh table
+      }
+    } catch (error) {
+      console.error("Error toggling seller status:", error)
+    }
+  }
+
+
   return (
     <div className="p-2">
       <div className="flex items-center justify-between mb-4">
@@ -155,7 +171,7 @@ export default function SellerPage() {
                 <th className="px-4 py-2 border">City</th>
                 <th className="px-4 py-2 border">Deals In</th>
                 <th className="px-4 py-2 border">Status</th>
-                <th className="px-4 py-2 border">Edit</th>
+                <th className="px-4 py-2 border">Action</th>
                 <th className="px-4 py-2 border">View</th>
 
               </tr>
@@ -163,7 +179,7 @@ export default function SellerPage() {
             <tbody>
               {sellers.map((seller) => (
                 <tr key={seller.id} className="border-t">
-                  <td className="px-4 py-2 border">{seller.id}</td>
+                  <td className="px-4 py-2 border">KPDS_{seller.id}</td>
                   <td className="px-4 py-2 border">
                     {seller.organization?.organizations || "-"}
                   </td>
@@ -187,13 +203,35 @@ export default function SellerPage() {
                       {seller.active_status === 1 ? "Active" : "Inactive"}
                     </Badge>
                   </td>
-                  <td className="px-4 py-2 border">
-                    <button
-                      onClick={() => handleEdit(seller)}
-                    >
-                      <Edit size={22} />
-
-                    </button>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleEdit(seller)} className="cursor-pointer">
+                            Edit Seller
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleStatus(seller.id)} className="cursor-pointer">
+                            {seller.active_status === 1 ? (
+                              <>
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                Activate
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </td>
                   <td className="px-4 py-2 border">
                     <button
