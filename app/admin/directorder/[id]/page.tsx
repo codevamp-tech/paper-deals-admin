@@ -118,6 +118,10 @@ const mapClearancePayload = (form: any) => ({
   clearance_date: form.clearanceDate,
   product_price: form.productPrice,
   remarks: form.clearanceRemarks,
+  purchase_order: form.purchaseOrder,
+  details_doc: form.detailsDoc,
+  document_3: form.document3,
+  document_4: form.document4,
 })
 
 // Payment
@@ -130,6 +134,7 @@ const mapPaymentPayload = (form: any) => ({
   bank: form.bank,
   branch: form.branch,
   amount: form.amount,
+  payment_doc: form.paymentDoc,
 })
 
 // Transportation
@@ -142,6 +147,10 @@ const mapTransportationPayload = (form: any) => ({
   freight: form.freight,
   bill_no: form.billNo,
   distance: form.distance,
+  upload_bill: form.uploadBill,
+  upload_eway_bill: form.uploadEwayBill,
+  upload_stock_statement: form.uploadStockStatement,
+  upload_bill_t: form.uploadBillT,
 })
 
 // Closed
@@ -153,6 +162,7 @@ const mapClosePayload = (form: any) => ({
   product_received_by: form.productReceivedBy,
   commission: form.commission,
 })
+
 
 // Dynamic mapper
 const getStepPayload = (step: number, form: any) => {
@@ -333,80 +343,137 @@ export default function DealForm() {
       case 0: // Deal Details
         return (
           <div className="space-y-6">
+            {/* PD Deal Details */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <h3 className="text-lg font-semibold mb-4">PD Deal Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Deal Id</label>
-                  <Input value={form.dealId || ""} onChange={(e) => handleChange("dealId", e.target.value)} />
+                  <Input
+                    value={form.dealId || ""}
+                    onChange={(e) => handleChange("dealId", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Buyer</label>
-                  <Select value={form.buyerId || ""} onValueChange={(v) => handleChange("buyerId", v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Buyer" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {buyers.map((b) => (
-                        <SelectItem key={b.id} value={b.id}>
-                          {b.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={form.buyerName || ""}
+                    onChange={(e) => handleChange("buyerName", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Seller</label>
-                  <Select value={form.sellerId || ""} onValueChange={(v) => handleChange("sellerId", v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Seller" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sellers.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Contact Person</label>
                   <Input
-                    value={form.contactPerson || ""}
-                    onChange={(e) => handleChange("contactPerson", e.target.value)}
+                    value={form.buyerContact || ""}
+                    onChange={(e) => handleChange("buyerContact", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Mobile No.</label>
+                  <Input
+                    value={form.buyerMobile || ""}
+                    onChange={(e) => handleChange("buyerMobile", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">PD Executive</label>
+                  <Input
+                    value={form.pdExecutive || ""}
+                    onChange={(e) => handleChange("pdExecutive", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Mobile Number</label>
-                  <Input value={form.mobile || ""} onChange={(e) => handleChange("mobile", e.target.value)} />
+                  <Input
+                    value={form.pdExecutiveMobile || ""}
+                    onChange={(e) => handleChange("pdExecutiveMobile", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Email</label>
-                  <Input value={form.email || ""} onChange={(e) => handleChange("email", e.target.value)} />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Remarks</label>
-                  <Input value={form.remarks || ""} onChange={(e) => handleChange("remarks", e.target.value)} />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Technical Data Sheet</label>
                   <Input
-                    type="file"
-                    onChange={(e) => handleChange("technicalDataSheet", e.target.files?.[0] || null)}
+                    value={form.email || ""}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Seller</label>
+                  <Input
+                    value={form.sellerName || ""}
+                    onChange={(e) => handleChange("sellerName", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Contact Person</label>
+                  <Input
+                    value={form.sellerContact || ""}
+                    onChange={(e) => handleChange("sellerContact", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Mobile No.</label>
+                  <Input
+                    value={form.sellerMobile || ""}
+                    onChange={(e) => handleChange("sellerMobile", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Quantity in Kg</label>
+                  <Input
+                    value={form.quantityKg || ""}
+                    onChange={(e) => handleChange("quantityKg", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Deal Amount</label>
+                  <Input
+                    value={form.dealAmount || ""}
+                    onChange={(e) => handleChange("dealAmount", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-2">Remarks</label>
+                  <Input
+                    value={form.remarks || ""}
+                    onChange={(e) => handleChange("remarks", e.target.value)}
+                    disabled
+                    className="bg-gray-100"
                   />
                 </div>
               </div>
@@ -418,7 +485,10 @@ export default function DealForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Category</label>
-                  <Select value={form.category || ""} onValueChange={(v) => handleChange("category", v)}>
+                  <Select
+                    value={form.category || ""}
+                    onValueChange={(v) => handleChange("category", v)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
@@ -438,97 +508,144 @@ export default function DealForm() {
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Product</label>
-                  <Input value={form.product || ""} onChange={(e) => handleChange("product", e.target.value)} />
+                  <Input
+                    value={form.product || ""}
+                    onChange={(e) => handleChange("product", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Sub Product</label>
-                  <Input value={form.subProduct || ""} onChange={(e) => handleChange("subProduct", e.target.value)} />
+                  <Input
+                    value={form.subProduct || ""}
+                    onChange={(e) => handleChange("subProduct", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Brightness</label>
-                  <Input value={form.brightness || ""} onChange={(e) => handleChange("brightness", e.target.value)} />
+                  <Input
+                    value={form.brightness || ""}
+                    onChange={(e) => handleChange("brightness", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Gsm</label>
-                  <Input value={form.gsm || ""} onChange={(e) => handleChange("gsm", e.target.value)} />
+                  <Input
+                    value={form.gsm || ""}
+                    onChange={(e) => handleChange("gsm", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">BF</label>
-                  <Input value={form.bf || ""} onChange={(e) => handleChange("bf", e.target.value)} />
+                  <Input
+                    value={form.bf || ""}
+                    onChange={(e) => handleChange("bf", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Shade</label>
-                  <Input value={form.shade || ""} onChange={(e) => handleChange("shade", e.target.value)} />
+                  <Input
+                    value={form.shade || ""}
+                    onChange={(e) => handleChange("shade", e.target.value)}
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">HSN No.</label>
-                  <Input value={form.hsnNo || ""} onChange={(e) => handleChange("hsnNo", e.target.value)} />
+                  <label className="block text-sm font-medium mb-2">Hsn No.</label>
+                  <Input
+                    value={form.hsnNo || ""}
+                    onChange={(e) => handleChange("hsnNo", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Grain</label>
-                  <Input value={form.grain || ""} onChange={(e) => handleChange("grain", e.target.value)} />
+                  <Input
+                    value={form.grain || ""}
+                    onChange={(e) => handleChange("grain", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Sheet</label>
-                  <Input value={form.sheet || ""} onChange={(e) => handleChange("sheet", e.target.value)} />
+                  <Input
+                    value={form.sheet || ""}
+                    onChange={(e) => handleChange("sheet", e.target.value)}
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">W*L</label>
-                  <Input value={form.wl || ""} onChange={(e) => handleChange("wl", e.target.value)} />
+                  <label className="block text-sm font-medium mb-2">W * L</label>
+                  <Input
+                    value={form.wl || ""}
+                    onChange={(e) => handleChange("wl", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">No of Bundle</label>
-                  <Input value={form.noOfBundle || ""} onChange={(e) => handleChange("noOfBundle", e.target.value)} />
+                  <Input
+                    value={form.noOfBundle || ""}
+                    onChange={(e) => handleChange("noOfBundle", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">No of Rim</label>
-                  <Input value={form.noOfRim || ""} onChange={(e) => handleChange("noOfRim", e.target.value)} />
+                  <Input
+                    value={form.noOfRim || ""}
+                    onChange={(e) => handleChange("noOfRim", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Rim Weight</label>
-                  <Input value={form.rimWeight || ""} onChange={(e) => handleChange("rimWeight", e.target.value)} />
+                  <Input
+                    value={form.rimWeight || ""}
+                    onChange={(e) => handleChange("rimWeight", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Size in inch</label>
-                  <Input value={form.sizeInch || ""} onChange={(e) => handleChange("sizeInch", e.target.value)} />
+                  <Input
+                    value={form.sizeInch || ""}
+                    onChange={(e) => handleChange("sizeInch", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Stock in Kg</label>
-                  <Input value={form.stockKg || ""} onChange={(e) => handleChange("stockKg", e.target.value)} />
+                  <Input
+                    value={form.stockKg || ""}
+                    onChange={(e) => handleChange("stockKg", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Quantity in Kg</label>
-                  <Input value={form.quantityKg || ""} onChange={(e) => handleChange("quantityKg", e.target.value)} />
+                  <Input
+                    value={form.quantityKg || ""}
+                    onChange={(e) => handleChange("quantityKg", e.target.value)}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Price in Kg</label>
-                  <Input value={form.priceKg || ""} onChange={(e) => handleChange("priceKg", e.target.value)} />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Total Amount</label>
-                  <Input value={form.totalAmount || ""} onChange={(e) => handleChange("totalAmount", e.target.value)} />
+                  <Input
+                    value={form.priceKg || ""}
+                    onChange={(e) => handleChange("priceKg", e.target.value)}
+                  />
                 </div>
               </div>
             </div>
           </div>
         )
+
 
       case 1: // Sampling
         return (
@@ -645,6 +762,38 @@ export default function DealForm() {
               <label className="block text-sm font-medium mb-2">Remarks</label>
               <Input onChange={(e) => handleChange("remarks", e.target.value)} />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Purchase Order (PO)</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("purchaseOrder", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Details</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("detailsDoc", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Document 3</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("document3", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Document 4</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("document4", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
           </div>
         )
 
@@ -679,6 +828,14 @@ export default function DealForm() {
               <label className="block text-sm font-medium mb-2">Amount</label>
               <Input onChange={(e) => handleChange("amount", e.target.value)} />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Document</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("paymentDoc", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
           </div>
         )
 
@@ -710,9 +867,43 @@ export default function DealForm() {
               <Input onChange={(e) => handleChange("billNo", e.target.value)} />
             </div>
             <div>
+              <label className="block text-sm font-medium mb-2">Upload Bill</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadBill", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Eway Bill</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadEwayBill", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Stock Statement</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadStockStatement", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Bill T</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadBillT", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium mb-2">Distance</label>
               <Input onChange={(e) => handleChange("distance", e.target.value)} />
             </div>
+
+
           </div>
         )
 
@@ -746,6 +937,7 @@ export default function DealForm() {
         return null
     }
   }
+
 
   const getStepEndpoint = () => {
     const endpoints = ["dashboard", "samplings", "validation", "clearance", "payment", "transportation", "close"]

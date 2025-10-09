@@ -153,6 +153,10 @@ const mapClearancePayload = (form: any) => ({
   clearance_date: form.clearanceDate,
   product_price: form.productPrice,
   remarks: form.clearanceRemarks,
+  purchase_order: form.purchaseOrder,
+  details_doc: form.detailsDoc,
+  document_3: form.document3,
+  document_4: form.document4,
 })
 
 // Payment
@@ -165,6 +169,7 @@ const mapPaymentPayload = (form: any) => ({
   bank: form.bank,
   branch: form.branch,
   amount: form.amount,
+  payment_doc: form.paymentDoc,
 })
 
 // Transportation
@@ -177,6 +182,10 @@ const mapTransportationPayload = (form: any) => ({
   freight: form.freight,
   bill_no: form.billNo,
   distance: form.distance,
+  upload_bill: form.uploadBill,
+  upload_eway_bill: form.uploadEwayBill,
+  upload_stock_statement: form.uploadStockStatement,
+  upload_bill_t: form.uploadBillT,
 })
 
 // Closed
@@ -243,7 +252,10 @@ export default function DealForm() {
         Boolean(
           (currentStep === 0 && form.technicalDataSheet) ||
           (currentStep === 1 && form.uploadDocument) ||
-          (currentStep === 2 && form.verificationDoc)   // ✅ added verification step
+          (currentStep === 2 && form.verificationDoc) ||
+          (currentStep === 3 && (form.purchaseOrder || form.detailsDoc || form.document3 || form.document4)) ||
+          (currentStep === 4 && form.paymentDoc) ||
+          (currentStep === 5 && (form.uploadBill || form.uploadEwayBill || form.uploadStockStatement || form.uploadBillT))
         );
 
 
@@ -266,6 +278,24 @@ export default function DealForm() {
 
         if (currentStep === 2 && form.verificationDoc) {
           fd.append("upload_docu", form.verificationDoc); // ✅ match model field
+        }
+
+        if (currentStep === 3) {
+          if (form.purchaseOrder) fd.append("purchase_order", form.purchaseOrder);
+          if (form.detailsDoc) fd.append("details_doc", form.detailsDoc);
+          if (form.document3) fd.append("document_3", form.document3);
+          if (form.document4) fd.append("document_4", form.document4);
+        }
+
+        if (currentStep === 4 && form.paymentDoc) {
+          fd.append("payment_doc", form.paymentDoc);
+        }
+
+        if (currentStep === 5) {
+          if (form.uploadBill) fd.append("upload_bill", form.uploadBill);
+          if (form.uploadEwayBill) fd.append("upload_eway_bill", form.uploadEwayBill);
+          if (form.uploadStockStatement) fd.append("upload_stock_statement", form.uploadStockStatement);
+          if (form.uploadBillT) fd.append("upload_bill_t", form.uploadBillT);
         }
 
         options = {
@@ -845,6 +875,38 @@ export default function DealForm() {
               <label className="block text-sm font-medium mb-2">Remarks</label>
               <Input onChange={(e) => handleChange("remarks", e.target.value)} />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Purchase Order (PO)</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("purchaseOrder", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Details</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("detailsDoc", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Document 3</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("document3", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Document 4</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("document4", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
           </div>
         )
 
@@ -879,6 +941,14 @@ export default function DealForm() {
               <label className="block text-sm font-medium mb-2">Amount</label>
               <Input onChange={(e) => handleChange("amount", e.target.value)} />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Document</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("paymentDoc", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
           </div>
         )
 
@@ -910,10 +980,42 @@ export default function DealForm() {
               <Input onChange={(e) => handleChange("billNo", e.target.value)} />
             </div>
             <div>
+              <label className="block text-sm font-medium mb-2">Upload Bill</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadBill", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Eway Bill</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadEwayBill", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Stock Statement</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadStockStatement", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Upload Bill T</label>
+              <Input
+                type="file"
+                onChange={(e) => handleChange("uploadBillT", e.target.files?.[0] || null)}
+                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium mb-2">Distance</label>
               <Input onChange={(e) => handleChange("distance", e.target.value)} />
             </div>
-            <div className="mt-6 border p-4 rounded-md">
+            <div className="col-span-full mt-6 border p-4 rounded-md">
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
