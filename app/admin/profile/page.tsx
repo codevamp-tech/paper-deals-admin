@@ -13,6 +13,8 @@ import { CalendarIcon, Upload } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { getUserFromToken } from "@/hooks/use-token"
+import { Circle } from "lucide-react"
+import { motion } from "framer-motion"
 
 const states = [
   { id: "1", name: "Andaman and Nicobar Islands" },
@@ -373,23 +375,68 @@ export default function SellerEditForm() {
       ? allSections.filter(s => s.id === "seller-edit" || s.id === "company-info")
       : []
 
+  // Define required fields for profile completion
+  const requiredFields = [
+    "company", "contactPerson", "companyEmail", "companyMobile",
+    "address", "city", "state", "pincode",
+    "ownerName", "designation", "ownerAddress",
+    "gstNumber", "exportImportLicense"
+  ]
+
+  // Calculate filled fields
+  const filledCount = requiredFields.filter(field => {
+    const value = formData[field as keyof FormData]
+    return value !== "" && value !== null && value !== undefined
+  }).length
+
+  const completionPercent = Math.round((filledCount / requiredFields.length) * 100)
+
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
       {/* Navigation */}
       <div className="mb-6">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {sections.map((section) => (
-            <Button
-              key={section.id}
-              variant={activeSection === section.id ? "default" : "outline"}
-              onClick={() => setActiveSection(section.id)}
-              className="text-sm"
-            >
-              {section.title}
-            </Button>
-          ))}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap gap-2">
+            {sections.map((section) => (
+              <Button
+                key={section.id}
+                variant={activeSection === section.id ? "default" : "outline"}
+                onClick={() => setActiveSection(section.id)}
+                className="text-sm"
+              >
+                {section.title}
+              </Button>
+            ))}
+          </div>
+
+          {/* Profile Completion Circle */}
+          <div className="relative flex items-center justify-center w-16 h-16">
+            <svg className="w-16 h-16 transform -rotate-90">
+              <circle
+                cx="32"
+                cy="32"
+                r="28"
+                stroke="#e5e7eb"
+                strokeWidth="6"
+                fill="transparent"
+              />
+              <motion.circle
+                cx="32"
+                cy="32"
+                r="28"
+                stroke="#3b82f6"
+                strokeWidth="6"
+                fill="transparent"
+                strokeDasharray="175"
+                strokeDashoffset={175 - (175 * completionPercent) / 100}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="absolute text-sm font-semibold text-blue-600">{completionPercent}%</span>
+          </div>
         </div>
+
       </div>
 
       {/* Seller Edit Section */}

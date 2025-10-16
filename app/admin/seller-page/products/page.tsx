@@ -39,7 +39,7 @@ export default function ProductPage() {
       if (!token) throw new Error("No token in cookies")
 
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/stocks/get-products?user_type=seller&page=${pageNumber}&limit=10`,
+        `https://paper-deal-server.onrender.com/api/product/get?page=${pageNumber}&limit=10`,
         {
           method: "GET",
           headers: {
@@ -102,7 +102,7 @@ export default function ProductPage() {
       }
 
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/stocks/${editingProduct.id}`,
+        `https://paper-deal-server.onrender.com/api/product/edit/${editingProduct.id}`,
         {
           method: "PUT",
           body: form,
@@ -120,7 +120,7 @@ export default function ProductPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/stocks/${id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/product/delete/${id}`, {
         method: "DELETE",
       })
 
@@ -167,8 +167,8 @@ export default function ProductPage() {
                     <th className="px-4 py-2 border">Seller Name</th>
                     <th className="px-4 py-2 border">Product Name</th>
                     <th className="px-4 py-2 border">Price</th>
-                    <th className="px-4 py-2 border">Sub Product</th>
-                    <th className="px-4 py-2 border">Category</th>
+                    <th className="px-4 py-2 border">Weight </th>
+                    <th className="px-4 py-2 border">Stock</th>
                     <th className="px-4 py-2 border">Shade</th>
                     <th className="px-4 py-2 border">Created At</th>
                     <th className="px-4 py-2 border">Edit</th>
@@ -183,8 +183,8 @@ export default function ProductPage() {
                         <td className="px-4 py-2 border">{product.seller?.name || "Seller not found"}</td>
                         <td className="px-4 py-2 border">{product.product_name || "-"}</td>
                         <td className="px-4 py-2 border">{product.price_per_kg || "-"}</td>
-                        <td className="px-4 py-2 border">{product.sub_product || "-"}</td>
-                        <td className="px-4 py-2 border">{product.category_id || "-"}</td>
+                        <td className="px-4 py-2 border">{product.weights || "-"}</td>
+                        <td className="px-4 py-2 border">{product.stock_in_kg || "-"}</td>
                         <td className="px-4 py-2 border">{product.shade || "-"}</td>
                         <td className="px-4 py-2 border">
                           {new Date(product.created_at).toLocaleString()}
@@ -241,34 +241,43 @@ export default function ProductPage() {
             <div className="grid grid-cols-2 gap-4">
               {[
                 "product_name",
-                "sub_product",
-                "category_id",
-                "gsm",
+                "product_unit",
+                "unit_size",
+                "price",
+                "select_tax_type",
+                "tax",
+                "hsn_number",
+                "city",
+                "mill",
                 "shade",
-                "bf",
-                "size",
-                "sheet",
-                "w_l",
-                "no_of_bundle",
-                "no_of_rim",
-                "rim_weight",
+                "gsm",
+                "sizes",
+                "weights",
                 "stock_in_kg",
-                "quantity_in_kg",
                 "price_per_kg",
-                "hsn_no",
-                "grain",
-                "weight",
-                "other",
+                "quantity_in_kg",
+                "description",
+                "status",
               ].map((field) => (
                 <div key={field}>
-                  <Label className="capitalize">
-                    {field.replace(/_/g, " ")}
-                  </Label>
-                  <Input
-                    name={field}
-                    value={formData[field] || ""}
-                    onChange={handleChange}
-                  />
+                  <Label className="capitalize">{field.replace(/_/g, " ")}</Label>
+                  {field === "status" ? (
+                    <select
+                      name={field}
+                      value={formData[field] || 1}
+                      onChange={handleChange}
+                      className="w-full border rounded p-2"
+                    >
+                      <option value={1}>Active</option>
+                      <option value={0}>Inactive</option>
+                    </select>
+                  ) : (
+                    <Input
+                      name={field}
+                      value={formData[field] || ""}
+                      onChange={handleChange}
+                    />
+                  )}
                 </div>
               ))}
 
@@ -295,6 +304,7 @@ export default function ProductPage() {
           </div>
         </DialogContent>
       </Dialog>
+
     </div>
   )
 }

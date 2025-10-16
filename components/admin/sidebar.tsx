@@ -151,7 +151,7 @@ export default function AdminSidebar({ onClose }) {
         {isUserRole5 ? (
           <>
             {/* Profile */}
-            <Link
+            {/* <Link
               href="/admin/profile"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/profile")
                 ? "bg-orange-600 text-white"
@@ -160,7 +160,7 @@ export default function AdminSidebar({ onClose }) {
             >
               <User className="mr-3 h-5 w-5" />
               Profile
-            </Link>
+            </Link> */}
             <Link
               href="/admin/consultantSlot"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultantSlot")
@@ -181,7 +181,7 @@ export default function AdminSidebar({ onClose }) {
               <Notebook className="mr-3 h-5 w-5" />
               Booked Users
             </Link>
-            <Link
+            {/* <Link
               href="/admin/chat"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chat")
                 ? "bg-orange-600 text-white"
@@ -190,7 +190,7 @@ export default function AdminSidebar({ onClose }) {
             >
               <MessageSquareText className="mr-3 h-5 w-5" />
               Chat
-            </Link>
+            </Link> */}
 
             {/* Chat History */}
             <Link
@@ -218,19 +218,10 @@ export default function AdminSidebar({ onClose }) {
                 }`}
             >
               <UserCircle className="mr-3 h-5 w-5" />
-              Profile Enquiry
+              Enquiry
             </Link>
 
-            {/* Seller */}
-            {/* <DropdownMenu
-              title="Seller"
-              icon={Store}
-              isOpen={sellerOpen}
-              toggle={() => setSellerOpen(!sellerOpen)}
-              links={[
-                { name: "Products", href: "/admin/seller-page/products", icon: Package },
-              ]}
-            /> */}
+
 
             <Link
               href="/admin/seller-page/products"
@@ -251,10 +242,10 @@ export default function AdminSidebar({ onClose }) {
                 }`}
             >
               <ClipboardList className="mr-3 h-5 w-5" />
-              Direct/Single Order
+              B2C
             </Link>
 
-            <Link
+            {/* <Link
               href="/admin/profile"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/profile")
                 ? "bg-orange-600 text-white"
@@ -263,7 +254,7 @@ export default function AdminSidebar({ onClose }) {
             >
               <User className="mr-3 h-5 w-5" />
               Profile
-            </Link>
+            </Link> */}
 
             <Link
               href="/admin/stocks"
@@ -289,7 +280,7 @@ export default function AdminSidebar({ onClose }) {
             </Link>
 
             {/* Subscriptions */}
-            <Link
+            {/* <Link
               href="/admin/subscriptions"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/subscriptions")
                 ? "bg-orange-600 text-white"
@@ -298,12 +289,12 @@ export default function AdminSidebar({ onClose }) {
             >
               <CreditCard className="mr-3 h-5 w-5" />
               Subscriptions
-            </Link>
+            </Link> */}
 
 
 
             {/* Chat History */}
-            <Link
+            {/* <Link
               href="/admin/chat"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chat")
                 ? "bg-orange-600 text-white"
@@ -312,8 +303,8 @@ export default function AdminSidebar({ onClose }) {
             >
               <MessageSquareText className="mr-3 h-5 w-5" />
               Chat
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               href="/admin/password"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/password")
                 ? "bg-orange-600 text-white"
@@ -322,7 +313,7 @@ export default function AdminSidebar({ onClose }) {
             >
               <Star className="mr-3 h-5 w-5" />
               Change Password
-            </Link>
+            </Link> */}
           </>
         ) : isUserRole4 ? (
           <>
@@ -360,7 +351,7 @@ export default function AdminSidebar({ onClose }) {
                 }`}
             >
               <ClipboardList className="mr-3 h-5 w-5" />
-              Direct/Single Order
+              B2C
             </Link>
 
             {/* PD/Bulk Deals */}
@@ -483,7 +474,7 @@ export default function AdminSidebar({ onClose }) {
                 }`}
             >
               <ClipboardList className="mr-3 h-5 w-5" />
-              Direct/Single Order
+              B2C
             </Link>
 
             {/* PD/Bulk Deals */}
@@ -538,7 +529,7 @@ export default function AdminSidebar({ onClose }) {
                 }`}
             >
               <BarChart3 className="mr-3 h-5 w-5" />
-              Direct Order Report
+              B2C
             </Link>
 
 
