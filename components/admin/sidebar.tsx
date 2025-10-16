@@ -429,6 +429,17 @@ export default function AdminSidebar({ onClose }) {
               ]}
             />
 
+            <Link
+              href="/admin/rquarments"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/rquarments")
+                ? "bg-orange-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <HelpCircle className="mr-3 h-5 w-5" />
+              Requarement
+            </Link>
+
             {/* Advertisement */}
             <Link
               href="/admin/advertisement"
@@ -489,9 +500,6 @@ export default function AdminSidebar({ onClose }) {
                 { name: "Paper Deals", href: "/admin/pddeal/current", icon: FileText },
               ]}
             />
-
-
-
 
 
             {/* Live Stock */}
