@@ -125,14 +125,7 @@ export default function AdminLogin() {
               )}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <Link href="/signup" className="text-sm text-center">
-              Create your Account ?
-              <button className=" pl-2 text-orange-600 hover:underline hover:text-orange-600 ">
-                SignUp
-              </button>
-            </Link>
-          </div>
+
         </CardContent>
       </Card>
     </div>
