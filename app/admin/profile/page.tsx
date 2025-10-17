@@ -15,6 +15,9 @@ import { cn } from "@/lib/utils"
 import { getUserFromToken } from "@/hooks/use-token"
 import { Circle } from "lucide-react"
 import { motion } from "framer-motion"
+import { Badge } from "@/components/ui/badge"
+import { X } from "lucide-react"
+
 
 const states = [
   { id: "1", name: "Andaman and Nicobar Islands" },
@@ -152,6 +155,25 @@ export default function SellerEditForm() {
   const [loading, setLoading] = useState(false)
   const user = getUserFromToken()
   const userId = user?.user_id
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([])
+
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
+        if (res.ok) {
+          const data = await res.json()
+          setCategories(data.categories)
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error)
+      }
+    }
+    fetchCategories()
+  }, [])
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -382,6 +404,11 @@ export default function SellerEditForm() {
     "ownerName", "designation", "ownerAddress",
     "gstNumber", "exportImportLicense"
   ]
+
+  useEffect(() => {
+    updateFormData("dealsIn", selectedCategories) // send IDs array to backend
+  }, [selectedCategories])
+
 
   // Calculate filled fields
   const filledCount = requiredFields.filter(field => {
@@ -736,13 +763,52 @@ export default function SellerEditForm() {
                 />
               </div>
               <div>
-                <Label htmlFor="dealsIn">Deals in</Label>
-                <Input
-                  id="dealsIn"
-                  value={formData.dealsIn}
-                  onChange={(e) => updateFormData("dealsIn", e.target.value)}
-                />
+                <Label htmlFor="dealsIn">Deals In (Select Multiple)</Label>
+                <Select
+                  onValueChange={(value) => {
+                    const id = parseInt(value)
+                    setSelectedCategories((prev) =>
+                      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+                    )
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {selectedCategories.includes(cat.id) ? "✅ " : ""} {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Show selected category badges */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedCategories.map((id) => {
+                    const cat = categories.find((c) => c.id === id)
+                    if (!cat) return null
+                    return (
+                      <Badge
+                        key={id}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        {cat.name}
+                        <X
+                          className="w-3 h-3 cursor-pointer"
+                          onClick={() =>
+                            setSelectedCategories((prev) => prev.filter((v) => v !== id))
+                          }
+                        />
+                      </Badge>
+                    )
+                  })}
+                </div>
               </div>
+
+
 
             </div>
 
