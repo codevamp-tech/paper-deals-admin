@@ -7,18 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useParams } from "next/navigation"
-import { ChevronLeft, ChevronRight, Check } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Trash2, Download } from "lucide-react"
 import { toast } from "sonner"
-
-interface Buyer {
-  id: string
-  name: string
-}
-
-interface Seller {
-  id: string
-  name: string
-}
+import { getUserFromToken } from "@/hooks/use-token"
 
 const FORM_STEPS = [
   { id: "deal-details", title: "Deal Details", description: "Basic deal information and contacts" },
@@ -60,10 +51,9 @@ const mapApiToForm = (data: any) => ({
   buyerCommission: data.buyer_commission,
   sellerCommission: data.seller_commission,
 
-  category: data.categoryInfo?.id?.toString() || "",
+  category: data.category?.toString() || "",
   categoryName: data.categoryInfo?.name || "",
 
-  // product details
   product: data.product_description,
   subProduct: data.sub_product,
   brightness: data.brightness,
@@ -82,21 +72,15 @@ const mapApiToForm = (data: any) => ({
   priceKg: data.price_per_kg,
 })
 
-
-
-
-// helpers
 const mapDealPayload = (form: any) => ({
   deal_id: form.dealId,
-  user_id: form.userId, // PD Executive (if needed)
+  user_id: form.userId,
   buyer_id: form.buyerId,
   seller_id: form.sellerId,
-
-  contact_person: form.buyerContact, // Fixed mapping
-  mobile_no: form.buyerMobile, // Fixed mapping
+  contact_person: form.buyerContact,
+  mobile_no: form.buyerMobile,
   mobile_no2: form.mobileAlt || null,
   email_id: form.email,
-
   product_description: form.product,
   deal_size: form.sizeInch,
   deal_amount: form.dealAmount,
@@ -115,18 +99,13 @@ const mapDealPayload = (form: any) => ({
   price_per_kg: form.priceKg,
   quantity_in_kg: form.quantityKg,
   stock_in_kg: form.stockKg,
-
   category: form.category,
   commission: form.commission,
   buyer_commission: form.buyerCommission,
   seller_commission: form.sellerCommission,
-
   remarks: form.remarks,
 })
 
-
-
-// Sampling
 const mapSamplingPayload = (form: any) => ({
   deal_id: form.dealId,
   dos: form.dateOfSample,
@@ -134,61 +113,49 @@ const mapSamplingPayload = (form: any) => ({
   lab_report: form.labReport,
   remarks: form.samplingRemarks,
   status: form.samplingStatus,
+  type: 2,
 })
 
-
-// Verification
 const mapVerificationPayload = (form: any) => ({
   deal_id: form.dealId,
-  dov: form.dov,                           // matches model
-  sample: form.sample,                     // matches model
-  stock_approve: form.stockApproved,       // ✅ match model "stock_approve"
-  upload_docu: form.verificationDoc,       // ✅ match model "upload_docu"
+  dov: form.dov,
+  sample: form.sample,
+  stock_approve: form.stockApproved,
+  type: 2,
 })
 
-
-// Order Confirmation
 const mapClearancePayload = (form: any) => ({
   deal_id: form.dealId,
-  clearance_date: form.clearanceDate,
-  product_price: form.productPrice,
+  doc: form.clearanceDate,
+  product: form.productPrice,
   remarks: form.clearanceRemarks,
-  purchase_order: form.purchaseOrder,
-  details_doc: form.detailsDoc,
-  document_3: form.document3,
-  document_4: form.document4,
+  type: 2,
 })
 
-// Payment
 const mapPaymentPayload = (form: any) => ({
   deal_id: form.dealId,
   transaction_date: form.transactionDate,
-  transaction_id: form.transactionId,
-  detail: form.detail,
-  account_number: form.accountNumber,
+  product: form.transactionId,
+  details: form.detail,
+  acc_no: form.accountNumber,
   bank: form.bank,
   branch: form.branch,
-  amount: form.amount,
-  payment_doc: form.paymentDoc,
+  ammount: form.amount,
+  type: 2,
 })
 
-// Transportation
 const mapTransportationPayload = (form: any) => ({
   deal_id: form.dealId,
   transportation_date: form.transportationDate,
   transporter_name: form.transporterName,
-  mode_of_transport: form.modeOfTransport,
+  mot: form.modeOfTransport,
   vehicle_no: form.vehicleNo,
-  freight: form.freight,
-  bill_no: form.billNo,
+  ammount_incured: form.freight,
+  bill_or_lading: form.billNo,
   distance: form.distance,
-  upload_bill: form.uploadBill,
-  upload_eway_bill: form.uploadEwayBill,
-  upload_stock_statement: form.uploadStockStatement,
-  upload_bill_t: form.uploadBillT,
+  type: 2,
 })
 
-// Closed
 const mapClosePayload = (form: any) => ({
   deal_id: form.dealId,
   closed_date: form.closedDate,
@@ -198,25 +165,16 @@ const mapClosePayload = (form: any) => ({
   commission: form.commission,
 })
 
-// Dynamic mapper
 const getStepPayload = (step: number, form: any) => {
   switch (step) {
-    case 0:
-      return mapDealPayload(form)
-    case 1:
-      return mapSamplingPayload(form)
-    case 2:
-      return mapVerificationPayload(form)
-    case 3:
-      return mapClearancePayload(form)
-    case 4:
-      return mapPaymentPayload(form)
-    case 5:
-      return mapTransportationPayload(form)
-    case 6:
-      return mapClosePayload(form)
-    default:
-      return {}
+    case 0: return mapDealPayload(form)
+    case 1: return mapSamplingPayload(form)
+    case 2: return mapVerificationPayload(form)
+    case 3: return mapClearancePayload(form)
+    case 4: return mapPaymentPayload(form)
+    case 5: return mapTransportationPayload(form)
+    case 6: return mapClosePayload(form)
+    default: return {}
   }
 }
 
@@ -228,146 +186,138 @@ export default function DealForm() {
   const [categories, setCategories] = useState<any[]>([])
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
-  const [givenQuantity, setGivenQuantity] = useState<number>(0);
-  const [remainingQuantity, setRemainingQuantity] = useState<number>(0);
-  const [deliveries, setDeliveries] = useState<number[]>([]);
-  const [partialChecked, setPartialChecked] = useState(false);
+  const [givenQuantity, setGivenQuantity] = useState<number>(0)
+  const [remainingQuantity, setRemainingQuantity] = useState<number>(0)
+  const [deliveries, setDeliveries] = useState<any[]>([])
+  const [partialChecked, setPartialChecked] = useState(false)
 
+  // Listings for payment and transportation
+  const [paymentList, setPaymentList] = useState<any[]>([])
+  const [transportList, setTransportList] = useState<any[]>([])
 
+  const user = getUserFromToken();
+  const user_role = user?.user_role
   const handleChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async () => {
     try {
-      // 1️⃣ Determine the endpoint for the current step
       const endpoints = ["pd-deals", "pdSampling", "pdValidation", "pdClearance", "pdPayment", "pdTransportations", "pdClose"]
       const endpoint = endpoints[currentStep] || "pd-deals"
-
-      // 2️⃣ Build the payload based on the current step
       const payload = getStepPayload(currentStep, form)
 
-      // 3️⃣ Detect if the step has file upload
-      const hasFile =
-        Boolean(
-          (currentStep === 0 && form.technicalDataSheet) ||
-          (currentStep === 1 && form.uploadDocument) ||
-          (currentStep === 2 && form.verificationDoc) ||
-          (currentStep === 3 && (form.purchaseOrder || form.detailsDoc || form.document3 || form.document4)) ||
-          (currentStep === 4 && form.paymentDoc) ||
-          (currentStep === 5 && (form.uploadBill || form.uploadEwayBill || form.uploadStockStatement || form.uploadBillT))
-        );
-
+      const hasFile = Boolean(
+        (currentStep === 1 && form.uploadDocument) ||
+        (currentStep === 2 && form.verificationDoc) ||
+        (currentStep === 3 && (form.purchaseOrder || form.detailsDoc || form.document3 || form.document4)) ||
+        (currentStep === 4 && form.paymentDoc) ||
+        (currentStep === 5 && (form.uploadBill || form.uploadEwayBill || form.uploadStockStatement || form.uploadBillT))
+      )
 
       let options: RequestInit
-      console.log("hasFile", hasFile)
+
       if (hasFile) {
-        // 4️⃣ Handle FormData for file upload
         const fd = new FormData()
         Object.entries(payload).forEach(([k, v]) => {
           if (v !== null && v !== undefined && typeof v !== "object") fd.append(k, v as string)
         })
 
-        if (currentStep === 0 && form.technicalDataSheet) {
-          fd.append("tds", form.technicalDataSheet);
-        }
-
-        if (currentStep === 1 && form.uploadDocument) {
-          fd.append("upload_doc", form.uploadDocument);
-        }
-
-        if (currentStep === 2 && form.verificationDoc) {
-          fd.append("upload_docu", form.verificationDoc); // ✅ match model field
-        }
-
+        if (currentStep === 1 && form.uploadDocument) fd.append("upload_doc", form.uploadDocument)
+        if (currentStep === 2 && form.verificationDoc) fd.append("upload_docu", form.verificationDoc)
         if (currentStep === 3) {
-          if (form.purchaseOrder) fd.append("purchase_order", form.purchaseOrder);
-          if (form.detailsDoc) fd.append("details_doc", form.detailsDoc);
-          if (form.document3) fd.append("document_3", form.document3);
-          if (form.document4) fd.append("document_4", form.document4);
+          if (form.purchaseOrder) fd.append("bill", form.purchaseOrder)
+          if (form.detailsDoc) fd.append("ewaybill", form.detailsDoc)
+          if (form.document3) fd.append("stock_statement", form.document3)
+          if (form.document4) fd.append("bill_t", form.document4)
         }
-
-        if (currentStep === 4 && form.paymentDoc) {
-          fd.append("payment_doc", form.paymentDoc);
-        }
-
+        if (currentStep === 4 && form.paymentDoc) fd.append("upload_docume", form.paymentDoc)
         if (currentStep === 5) {
-          if (form.uploadBill) fd.append("upload_bill", form.uploadBill);
-          if (form.uploadEwayBill) fd.append("upload_eway_bill", form.uploadEwayBill);
-          if (form.uploadStockStatement) fd.append("upload_stock_statement", form.uploadStockStatement);
-          if (form.uploadBillT) fd.append("upload_bill_t", form.uploadBillT);
+          if (form.uploadBill) fd.append("bill", form.uploadBill)
+          if (form.uploadEwayBill) fd.append("ewaybill", form.uploadEwayBill)
+          if (form.uploadStockStatement) fd.append("stock_statement", form.uploadStockStatement)
+          if (form.uploadBillT) fd.append("bill_t", form.uploadBillT)
         }
 
-        options = {
-          method: endpoint === "pd-deals" ? "PUT" : "POST",
-          body: fd,
-        }
+        options = { method: "POST", body: fd }
       } else {
-        // 5️⃣ Normal JSON payload
         options = {
-          method: endpoint === "pd-deals" ? "PUT" : "POST",
+          method: currentStep === 0 ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       }
 
-      // 6️⃣ Construct the API URL
-      const url =
-        endpoint === "pd-deals"
-          ? `https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`
-          : `https://paper-deal-server.onrender.com/api/${endpoint}`
-      console.log("options", options)
-      // 7️⃣ Call the API
+      const url = currentStep === 0
+        ? `https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`
+        : `https://paper-deal-server.onrender.com/api/${endpoint}`
+
       const res = await fetch(url, options)
       const data = await res.json()
 
-      // 8️⃣ Handle response
       if (res.ok) {
-        toast.success(`Step updated successfully: ${FORM_STEPS[currentStep].title}`)
+        toast.success(`${FORM_STEPS[currentStep].title} saved successfully!`)
         setCompletedSteps((prev) => new Set([...prev, currentStep]))
+
+        // Refresh listings
+        if (currentStep === 4) fetchPaymentList()
+        if (currentStep === 5) fetchTransportList()
+
+        // Clear form after successful submission
+        resetStepForm()
       } else {
         throw new Error(data.message || "Unknown error")
       }
     } catch (err) {
       console.error(err)
-      toast.error(`Failed to update step: ${FORM_STEPS[currentStep].title}`)
+      toast.error(`Failed to save: ${FORM_STEPS[currentStep].title}`)
     }
   }
 
-  useEffect(() => {
-    if (form?.quantityKg) {
-      setRemainingQuantity(form.quantityKg);
+  const resetStepForm = () => {
+    if (currentStep === 4) {
+      setForm(prev => ({
+        ...prev,
+        transactionDate: "",
+        transactionId: "",
+        detail: "",
+        accountNumber: "",
+        bank: "",
+        branch: "",
+        amount: "",
+        paymentDoc: null
+      }))
+    } else if (currentStep === 5) {
+      setForm(prev => ({
+        ...prev,
+        transportationDate: "",
+        transporterName: "",
+        modeOfTransport: "",
+        vehicleNo: "",
+        freight: "",
+        billNo: "",
+        distance: "",
+        uploadBill: null,
+        uploadEwayBill: null,
+        uploadStockStatement: null,
+        uploadBillT: null
+      }))
     }
-  }, [form.quantityKg]);
-
-
-  const goToStep = (stepIndex: number) => {
-    setCurrentStep(stepIndex)
   }
 
-  const nextStep = () => {
-    if (currentStep < FORM_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1)
-    }
-  }
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
-    }
-  }
+  const goToStep = (stepIndex: number) => setCurrentStep(stepIndex)
+  const nextStep = () => { if (currentStep < FORM_STEPS.length - 1) setCurrentStep(currentStep + 1) }
+  const prevStep = () => { if (currentStep > 0) setCurrentStep(currentStep - 1) }
 
   const fetchDeal = async () => {
     try {
       const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`)
       const result = await res.json()
       if (result.success && result.data) {
-        setForm(mapApiToForm(result.data))  // ✅ pass actual deal object
-        console.log("[v0] Deal data loaded from API", result.data)
+        setForm(mapApiToForm(result.data))
       }
-      console.log("[v0] Deal data loaded from API")
     } catch (error) {
-      console.log("API unavailable")
+      console.error("Failed to fetch deal", error)
     }
   }
 
@@ -375,42 +325,58 @@ export default function DealForm() {
     try {
       const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
       const data = await res.json()
-      setCategories(data.categories || data.data || []) // <-- only array goes into state
-      console.log("[v0] Categories loaded from API", data)
+      setCategories(data.categories || data.data || [])
     } catch (error) {
-      console.log("API unavailable,")
+      console.error("Failed to fetch categories", error)
     }
   }
 
   const fetchDeliveries = async () => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/dealQuantity/deal-quantities/${dealId}`);
-      const data = await res.json();
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/dealQuantity/deal-quantities/${dealId}`)
+      const data = await res.json()
       if (res.ok && data) {
-        setDeliveries(data.deliveries || []);
-        const totalDelivered = (data.deliveries || []).reduce((sum, d) => sum + d.quantity, 0);
-        setRemainingQuantity(form.quantityKg - totalDelivered);
+        setDeliveries(data.deliveries || [])
+        const totalDelivered = (data.deliveries || []).reduce((sum, d) => sum + d.quantity, 0)
+        setRemainingQuantity(form.quantityKg - totalDelivered)
       }
     } catch (error) {
-      console.log("Failed to load deal quantities", error);
+      console.error("Failed to load deliveries", error)
     }
-  };
+  }
 
-  useEffect(() => {
-    if (form?.quantityKg) {
-      fetchDeliveries();
+  const fetchPaymentList = async () => {
+    try {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdPayment/payment/${dealId}`)
+      const data = await res.json()
+      if (data.success && data.data) {
+        setPaymentList(data.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch payments", error)
     }
-  }, [form.quantityKg]);
+  }
 
+  const fetchTransportList = async () => {
+    try {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdTransportations/transportation/${dealId}`)
+      const data = await res.json()
+      if (data.success && data.data) {
+        setTransportList(data.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch transportations", error)
+    }
+  }
 
   const handleDeliverySubmit = async () => {
     if (!givenQuantity || givenQuantity <= 0) {
-      toast.error("Please enter a valid delivery quantity");
-      return;
+      toast.error("Please enter a valid delivery quantity")
+      return
     }
     if (givenQuantity > remainingQuantity) {
-      toast.error("Delivered quantity cannot exceed remaining quantity");
-      return;
+      toast.error("Delivered quantity cannot exceed remaining quantity")
+      return
     }
 
     try {
@@ -422,606 +388,554 @@ export default function DealForm() {
           given_quantity: givenQuantity,
           remaining_quantity: remainingQuantity - givenQuantity,
         }),
-      });
+      })
 
-      const data = await res.json();
+      const data = await res.json()
       if (res.ok) {
-        toast.success(`Delivered ${givenQuantity} Kg`);
-        setDeliveries([...deliveries, { quantity: givenQuantity }]);
-        const newRemaining = remainingQuantity - givenQuantity;
-        setRemainingQuantity(newRemaining);
-        setGivenQuantity(0);
-
-        if (newRemaining === 0) {
-          toast.success("All quantities delivered. Deal Closed!");
-          setCompletedSteps((prev) => new Set([...prev, FORM_STEPS.length - 1]));
-          setCurrentStep(FORM_STEPS.length - 1);
-        }
+        toast.success(`Delivered ${givenQuantity} Kg`)
+        fetchDeliveries()
+        setGivenQuantity(0)
       } else {
-        throw new Error(data.error || "Failed to save delivery");
+        throw new Error(data.error || "Failed to save delivery")
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Error submitting delivery");
+      console.error(error)
+      toast.error("Error submitting delivery")
     }
-  };
+  }
+
+  const mapStepDataToForm = (stepIndex: number, data: any) => {
+    if (!data) return {}
+
+    // Get first item if it's an array
+    const item = Array.isArray(data) ? data[0] : data
+    if (!item) return {}
+
+    switch (stepIndex) {
+      case 1:
+        return {
+          dateOfSample: item.dos || "",
+          sampleVerification: item.sample_verification || "",
+          labReport: item.lab_report || "",
+          samplingRemarks: item.remarks || "",
+          samplingStatus: item.status || "",
+        }
+      case 2:
+        return {
+          dov: item.dov || "",
+          sample: item.sample || "",
+          stockApproved: item.stock_approve || "",
+        }
+      case 3:
+        return {
+          clearanceDate: item.doc || "",
+          productPrice: item.product || "",
+          clearanceRemarks: item.remarks || "",
+        }
+      case 4:
+        return {
+          transactionDate: item.transaction_date || "",
+          transactionId: item.product || "",
+          detail: item.details || "",
+          accountNumber: item.acc_no || "",
+          bank: item.bank || "",
+          branch: item.branch || "",
+          amount: item.ammount || "",
+        }
+      case 5:
+        return {
+          transportationDate: item.transportation_date || "",
+          transporterName: item.transporter_name || "",
+          modeOfTransport: item.mot || "",
+          vehicleNo: item.vehicle_no || "",
+          freight: item.ammount_incured || "",
+          billNo: item.bill_or_lading || "",
+          distance: item.distance || "",
+        }
+      case 6:
+        return {
+          closedDate: item.closed_date || "",
+          product: item.product || "",
+          closeRemarks: item.remarks || "",
+          productReceivedBy: item.product_received_by || "",
+          commission: item.commission || "",
+        }
+      default:
+        return {}
+    }
+  }
+
+  const fetchStepData = async (stepIndex: number) => {
+    if (!dealId) return null
+
+    const endpoints = [
+      null,
+      `https://paper-deal-server.onrender.com/api/pdSampling/sampling/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdValidation/validation/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdClearance/clearance/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdPayment/payment/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdTransportations/transportation/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdClose/close/${dealId}`
+    ]
+
+    if (!endpoints[stepIndex]) return null
+
+    try {
+      const res = await fetch(endpoints[stepIndex]!)
+      if (res.ok) {
+        const result = await res.json()
+        return result.data || result
+      }
+      return null
+    } catch (error) {
+      console.error(`Error fetching step ${stepIndex} data:`, error)
+      return null
+    }
+  }
 
   useEffect(() => {
-    fetchDeal()
     fetchCategories()
-  }, [dealId])
+  }, [])
+
+  useEffect(() => {
+    if (form?.quantityKg) {
+      fetchDeliveries()
+    }
+  }, [form.quantityKg])
+
+  useEffect(() => {
+    const loadStepData = async () => {
+      await fetchDeal()
+
+      if (currentStep > 0) {
+        const stepData = await fetchStepData(currentStep)
+        if (stepData) {
+          const mappedData = mapStepDataToForm(currentStep, stepData)
+          setForm(prev => ({ ...prev, ...mappedData }))
+        }
+      }
+
+      // Load listings
+      if (currentStep === 4) fetchPaymentList()
+      if (currentStep === 5) fetchTransportList()
+    }
+
+    if (dealId) {
+      loadStepData()
+    }
+  }, [dealId, currentStep])
+
+  const deletePayment = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this payment?")) return
+
+    try {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdPayment/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        toast.success("Payment deleted")
+        fetchPaymentList()
+      }
+    } catch (error) {
+      toast.error("Failed to delete payment")
+    }
+  }
+
+  const deleteTransport = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this transportation?")) return
+
+    try {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdTransportations/${id}`, { method: "DELETE" })
+      if (res.ok) {
+        toast.success("Transportation deleted")
+        fetchTransportList()
+      }
+    } catch (error) {
+      toast.error("Failed to delete transportation")
+    }
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 0: // Deal Details
+      case 0:
         return (
           <div className="space-y-6">
-            {/* PD Deal Details */}
             <div>
               <h3 className="text-lg font-semibold mb-4">PD Deal Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Deal Id</label>
-                  <Input
-                    value={form.dealId || ""}
-                    onChange={(e) => handleChange("dealId", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.dealId || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Buyer</label>
-                  <Input
-                    value={form.buyerName || ""}
-                    onChange={(e) => handleChange("buyerName", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.buyerName || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Contact Person</label>
-                  <Input
-                    value={form.buyerContact || ""}
-                    onChange={(e) => handleChange("buyerContact", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.buyerContact || ""} onChange={(e) => handleChange("buyerContact", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Mobile No.</label>
-                  <Input
-                    value={form.buyerMobile || ""}
-                    onChange={(e) => handleChange("buyerMobile", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.buyerMobile || ""} onChange={(e) => handleChange("buyerMobile", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">PD Executive</label>
-                  <Input
-                    value={form.pdExecutive || ""}
-                    onChange={(e) => handleChange("pdExecutive", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.pdExecutive || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Mobile Number</label>
-                  <Input
-                    value={form.pdExecutiveMobile || ""}
-                    onChange={(e) => handleChange("pdExecutiveMobile", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.pdExecutiveMobile || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Email</label>
-                  <Input
-                    value={form.email || ""}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.email || ""} onChange={(e) => handleChange("email", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Seller</label>
-                  <Input
-                    value={form.sellerName || ""}
-                    onChange={(e) => handleChange("sellerName", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.sellerName || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Contact Person</label>
-                  <Input
-                    value={form.sellerContact || ""}
-                    onChange={(e) => handleChange("sellerContact", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.sellerContact || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Mobile No.</label>
-                  <Input
-                    value={form.sellerMobile || ""}
-                    onChange={(e) => handleChange("sellerMobile", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.sellerMobile || ""} disabled className="bg-gray-100" />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Quantity in Kg</label>
-                  <Input
-                    value={form.quantityKg || ""}
-                    onChange={(e) => handleChange("quantityKg", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.quantityKg || ""} onChange={(e) => handleChange("quantityKg", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Deal Amount</label>
-                  <Input
-                    value={form.dealAmount || ""}
-                    onChange={(e) => handleChange("dealAmount", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.dealAmount || ""} onChange={(e) => handleChange("dealAmount", e.target.value)} />
                 </div>
-
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-2">Remarks</label>
-                  <Input
-                    value={form.remarks || ""}
-                    onChange={(e) => handleChange("remarks", e.target.value)}
-                    disabled
-                    className="bg-gray-100"
-                  />
+                  <Input value={form.remarks || ""} onChange={(e) => handleChange("remarks", e.target.value)} />
                 </div>
               </div>
             </div>
 
-            {/* Products Details */}
             <div>
               <h3 className="text-lg font-semibold mb-4">Products Details</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Category</label>
-                  <Select
-                    value={form.category || ""}
-                    onValueChange={(v) => handleChange("category", v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Category" />
-                    </SelectTrigger>
+                  <Select value={form.category || ""} onValueChange={(v) => handleChange("category", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
                     <SelectContent>
-                      {Array.isArray(categories) && categories.length > 0 ? (
-                        categories.map((c: any) => (
-                          <SelectItem key={c.id} value={c.id.toString()}>
-                            {c.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="p-2 text-gray-500">No categories found</div>
-                      )}
+                      {categories.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Product</label>
-                  <Input
-                    value={form.product || ""}
-                    onChange={(e) => handleChange("product", e.target.value)}
-                  />
+                  <Input value={form.product || ""} onChange={(e) => handleChange("product", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Sub Product</label>
-                  <Input
-                    value={form.subProduct || ""}
-                    onChange={(e) => handleChange("subProduct", e.target.value)}
-                  />
+                  <Input value={form.subProduct || ""} onChange={(e) => handleChange("subProduct", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Brightness</label>
-                  <Input
-                    value={form.brightness || ""}
-                    onChange={(e) => handleChange("brightness", e.target.value)}
-                  />
+                  <Input value={form.brightness || ""} onChange={(e) => handleChange("brightness", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Gsm</label>
-                  <Input
-                    value={form.gsm || ""}
-                    onChange={(e) => handleChange("gsm", e.target.value)}
-                  />
+                  <Input value={form.gsm || ""} onChange={(e) => handleChange("gsm", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">BF</label>
-                  <Input
-                    value={form.bf || ""}
-                    onChange={(e) => handleChange("bf", e.target.value)}
-                  />
+                  <Input value={form.bf || ""} onChange={(e) => handleChange("bf", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Shade</label>
-                  <Input
-                    value={form.shade || ""}
-                    onChange={(e) => handleChange("shade", e.target.value)}
-                  />
+                  <Input value={form.shade || ""} onChange={(e) => handleChange("shade", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Hsn No.</label>
-                  <Input
-                    value={form.hsnNo || ""}
-                    onChange={(e) => handleChange("hsnNo", e.target.value)}
-                  />
+                  <Input value={form.hsnNo || ""} onChange={(e) => handleChange("hsnNo", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Grain</label>
-                  <Input
-                    value={form.grain || ""}
-                    onChange={(e) => handleChange("grain", e.target.value)}
-                  />
+                  <Input value={form.grain || ""} onChange={(e) => handleChange("grain", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Sheet</label>
-                  <Input
-                    value={form.sheet || ""}
-                    onChange={(e) => handleChange("sheet", e.target.value)}
-                  />
+                  <Input value={form.sheet || ""} onChange={(e) => handleChange("sheet", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">W * L</label>
-                  <Input
-                    value={form.wl || ""}
-                    onChange={(e) => handleChange("wl", e.target.value)}
-                  />
+                  <Input value={form.wl || ""} onChange={(e) => handleChange("wl", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">No of Bundle</label>
-                  <Input
-                    value={form.noOfBundle || ""}
-                    onChange={(e) => handleChange("noOfBundle", e.target.value)}
-                  />
+                  <Input value={form.noOfBundle || ""} onChange={(e) => handleChange("noOfBundle", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">No of Rim</label>
-                  <Input
-                    value={form.noOfRim || ""}
-                    onChange={(e) => handleChange("noOfRim", e.target.value)}
-                  />
+                  <Input value={form.noOfRim || ""} onChange={(e) => handleChange("noOfRim", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Rim Weight</label>
-                  <Input
-                    value={form.rimWeight || ""}
-                    onChange={(e) => handleChange("rimWeight", e.target.value)}
-                  />
+                  <Input value={form.rimWeight || ""} onChange={(e) => handleChange("rimWeight", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Size in inch</label>
-                  <Input
-                    value={form.sizeInch || ""}
-                    onChange={(e) => handleChange("sizeInch", e.target.value)}
-                  />
+                  <Input value={form.sizeInch || ""} onChange={(e) => handleChange("sizeInch", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Stock in Kg</label>
-                  <Input
-                    value={form.stockKg || ""}
-                    onChange={(e) => handleChange("stockKg", e.target.value)}
-                  />
+                  <Input value={form.stockKg || ""} onChange={(e) => handleChange("stockKg", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Quantity in Kg</label>
-                  <Input
-                    value={form.quantityKg || ""}
-                    onChange={(e) => handleChange("quantityKg", e.target.value)}
-                  />
+                  <Input value={form.quantityKg || ""} onChange={(e) => handleChange("quantityKg", e.target.value)} />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-2">Price in Kg</label>
-                  <Input
-                    value={form.priceKg || ""}
-                    onChange={(e) => handleChange("priceKg", e.target.value)}
-                  />
+                  <Input value={form.priceKg || ""} onChange={(e) => handleChange("priceKg", e.target.value)} />
                 </div>
               </div>
             </div>
           </div>
         )
 
-
-      case 1: // Sampling
+      case 1:
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Date Of Sample</label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={form.dateOfSample || ""}
-                    onChange={(e) => handleChange("dateOfSample", e.target.value)}
-                    className="pr-10"
-                  />
-                </div>
+                <Input type="date" value={form.dateOfSample || ""} onChange={(e) => handleChange("dateOfSample", e.target.value)} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">Sample Verification</label>
-                <Input
-                  placeholder="Sample Verification"
-                  value={form.sampleVerification || ""}
-                  onChange={(e) => handleChange("sampleVerification", e.target.value)}
-                />
+                <Input value={form.sampleVerification || ""} onChange={(e) => handleChange("sampleVerification", e.target.value)} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">Lab Report</label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={form.labReport || ""}
-                    onChange={(e) => handleChange("labReport", e.target.value)}
-                    className="pr-10"
-                  />
-                </div>
+                <Input type="date" value={form.labReport || ""} onChange={(e) => handleChange("labReport", e.target.value)} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">Remarks</label>
-                <Input
-                  placeholder="Remarks"
-                  value={form.samplingRemarks || ""}
-                  onChange={(e) => handleChange("samplingRemarks", e.target.value)}
-                />
+                <Input value={form.samplingRemarks || ""} onChange={(e) => handleChange("samplingRemarks", e.target.value)} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">Upload Document</label>
-                <div className="relative">
-                  <Input
-                    type="file"
-                    onChange={(e) => handleChange("uploadDocument", e.target.files?.[0] || null)}
-                    className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-
-                </div>
+                <Input type="file" onChange={(e) => handleChange("uploadDocument", e.target.files?.[0] || null)} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-2">Sampling Status</label>
-                <select
-                  value={form.samplingStatus || 0}
-                  onChange={(e) => handleChange("samplingStatus", parseInt(e.target.value))}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                >
-                  <option value={0}>Pending</option>
-                  <option value={1}>Approved</option>
-                </select>
+                <Input value={form.samplingStatus || ""} onChange={(e) => handleChange("samplingStatus", e.target.value)} />
               </div>
             </div>
           </div>
         )
 
-
-      case 2: // Verification
+      case 2:
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Date of Validation</label>
-              <Input type="date" onChange={(e) => handleChange("dov", e.target.value)} />
+              <Input type="date" value={form.dov || ""} onChange={(e) => handleChange("dov", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Sample</label>
-              <Input onChange={(e) => handleChange("sample", e.target.value)} />
+              <Input value={form.sample || ""} onChange={(e) => handleChange("sample", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Stock Approved</label>
-              <Input onChange={(e) => handleChange("stockApproved", e.target.value)} />
+              <Input value={form.stockApproved || ""} onChange={(e) => handleChange("stockApproved", e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2"> Upload Document</label>
-              <Input
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => handleChange("verificationDoc", e.target.files?.[0] || null)}
-              />
+              <label className="block text-sm font-medium mb-2">Upload Document</label>
+              <Input type="file" onChange={(e) => handleChange("verificationDoc", e.target.files?.[0] || null)} />
             </div>
           </div>
         )
 
-      case 3: // Order Confirmation
+      case 3:
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Clearance Date</label>
-              <Input type="date" onChange={(e) => handleChange("clearanceDate", e.target.value)} />
+              <Input type="date" value={form.clearanceDate || ""} onChange={(e) => handleChange("clearanceDate", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Product Price</label>
-              <Input onChange={(e) => handleChange("productPrice", e.target.value)} />
+              <Input value={form.productPrice || ""} onChange={(e) => handleChange("productPrice", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Remarks</label>
-              <Input onChange={(e) => handleChange("remarks", e.target.value)} />
+              <Input value={form.clearanceRemarks || ""} onChange={(e) => handleChange("clearanceRemarks", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Purchase Order (PO)</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("purchaseOrder", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+              <Input type="file" onChange={(e) => handleChange("purchaseOrder", e.target.files?.[0] || null)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Details</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("detailsDoc", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+              <Input type="file" onChange={(e) => handleChange("detailsDoc", e.target.files?.[0] || null)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Document 3</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("document3", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+              <Input type="file" onChange={(e) => handleChange("document3", e.target.files?.[0] || null)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Document 4</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("document4", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+              <Input type="file" onChange={(e) => handleChange("document4", e.target.files?.[0] || null)} />
             </div>
           </div>
         )
 
-      case 4: // Payment
+      case 4:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Transaction Date</label>
-              <Input type="date" onChange={(e) => handleChange("transactionDate", e.target.value)} />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Transaction Date</label>
+                <Input type="date" value={form.transactionDate || ""} onChange={(e) => handleChange("transactionDate", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Transaction Id</label>
+                <Input value={form.transactionId || ""} onChange={(e) => handleChange("transactionId", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Detail</label>
+                <Input value={form.detail || ""} onChange={(e) => handleChange("detail", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Account Number</label>
+                <Input value={form.accountNumber || ""} onChange={(e) => handleChange("accountNumber", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Bank</label>
+                <Input value={form.bank || ""} onChange={(e) => handleChange("bank", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Branch</label>
+                <Input value={form.branch || ""} onChange={(e) => handleChange("branch", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Amount</label>
+                <Input value={form.amount || ""} onChange={(e) => handleChange("amount", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Document</label>
+                <Input type="file" onChange={(e) => handleChange("paymentDoc", e.target.files?.[0] || null)} />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Transaction Id</label>
-              <Input onChange={(e) => handleChange("transactionId", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Detail</label>
-              <Input onChange={(e) => handleChange("detail", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Account Number</label>
-              <Input onChange={(e) => handleChange("accountNumber", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Bank</label>
-              <Input onChange={(e) => handleChange("bank", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Branch</label>
-              <Input onChange={(e) => handleChange("branch", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Amount</label>
-              <Input onChange={(e) => handleChange("amount", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Document</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("paymentDoc", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+
+            {/* Payment Listing */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Payment History</h3>
+              {paymentList.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Transaction ID</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Details</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Bank</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Branch</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Amount</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Document</th>
+                        <th className="border border-gray-300 px-4 py-2 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paymentList.map((payment) => (
+                        <tr key={payment.id} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 px-4 py-2">{payment.transaction_date}</td>
+                          <td className="border border-gray-300 px-4 py-2">{payment.product}</td>
+                          <td className="border border-gray-300 px-4 py-2">{payment.details}</td>
+                          <td className="border border-gray-300 px-4 py-2">{payment.bank}</td>
+                          <td className="border border-gray-300 px-4 py-2">{payment.branch}</td>
+                          <td className="border border-gray-300 px-4 py-2">₹{payment.ammount}</td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {payment.upload_docume ? (
+                              <a href={payment.upload_docume} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                                <Download className="w-4 h-4" /> View
+                              </a>
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2 text-center">
+                            <Button variant="destructive" size="sm" onClick={() => deletePayment(payment.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-4">No payment records found</p>
+              )}
             </div>
           </div>
         )
 
-      case 5: // Transportation
+      case 5:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Transportation Date</label>
-              <Input type="date" onChange={(e) => handleChange("transportationDate", e.target.value)} />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Transportation Date</label>
+                <Input type="date" value={form.transportationDate || ""} onChange={(e) => handleChange("transportationDate", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Transporter Name</label>
+                <Input value={form.transporterName || ""} onChange={(e) => handleChange("transporterName", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Mode Of Transport</label>
+                <Input value={form.modeOfTransport || ""} onChange={(e) => handleChange("modeOfTransport", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Vehicle No</label>
+                <Input value={form.vehicleNo || ""} onChange={(e) => handleChange("vehicleNo", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Freight</label>
+                <Input value={form.freight || ""} onChange={(e) => handleChange("freight", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Bill/Lading/LR No</label>
+                <Input value={form.billNo || ""} onChange={(e) => handleChange("billNo", e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Bill</label>
+                <Input type="file" onChange={(e) => handleChange("uploadBill", e.target.files?.[0] || null)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Eway Bill</label>
+                <Input type="file" onChange={(e) => handleChange("uploadEwayBill", e.target.files?.[0] || null)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Stock Statement</label>
+                <Input type="file" onChange={(e) => handleChange("uploadStockStatement", e.target.files?.[0] || null)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Bill T</label>
+                <Input type="file" onChange={(e) => handleChange("uploadBillT", e.target.files?.[0] || null)} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Distance</label>
+                <Input value={form.distance || ""} onChange={(e) => handleChange("distance", e.target.value)} />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Transporter Name</label>
-              <Input onChange={(e) => handleChange("transporterName", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Mode Of Transport</label>
-              <Input onChange={(e) => handleChange("modeOfTransport", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Vehicle No</label>
-              <Input onChange={(e) => handleChange("vehicleNo", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Freight</label>
-              <Input onChange={(e) => handleChange("freight", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Bill/Lading/LR No</label>
-              <Input onChange={(e) => handleChange("billNo", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Bill</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("uploadBill", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Eway Bill</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("uploadEwayBill", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Stock Statement</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("uploadStockStatement", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Upload Bill T</label>
-              <Input
-                type="file"
-                onChange={(e) => handleChange("uploadBillT", e.target.files?.[0] || null)}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Distance</label>
-              <Input onChange={(e) => handleChange("distance", e.target.value)} />
-            </div>
+
+            {/* Partial Delivery */}
             <div className="col-span-full mt-6 border p-4 rounded-md">
               <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={partialChecked}
-                  onChange={(e) => setPartialChecked(e.target.checked)}
-                />
+                <input type="checkbox" checked={partialChecked} onChange={(e) => setPartialChecked(e.target.checked)} />
                 Allow Partial Delivery
               </label>
 
@@ -1029,11 +943,7 @@ export default function DealForm() {
                 <div className="mt-4 space-y-3">
                   <div>
                     <label className="block text-sm font-medium">Given Quantity (Kg)</label>
-                    <Input
-                      type="number"
-                      value={givenQuantity}
-                      onChange={(e) => setGivenQuantity(parseInt(e.target.value) || 0)}
-                    />
+                    <Input type="number" value={givenQuantity} onChange={(e) => setGivenQuantity(parseInt(e.target.value) || 0)} />
                   </div>
                   <p className="text-sm text-gray-600">
                     Remaining Quantity: <strong>{remainingQuantity}</strong> Kg
@@ -1054,32 +964,97 @@ export default function DealForm() {
               )}
             </div>
 
+            {/* Transportation Listing */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Transportation History</h3>
+              {transportList.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Transporter</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Vehicle No</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Mode</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Distance</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Freight</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Documents</th>
+                        <th className="border border-gray-300 px-4 py-2 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transportList.map((transport) => (
+                        <tr key={transport.id} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 px-4 py-2">{transport.transportation_date}</td>
+                          <td className="border border-gray-300 px-4 py-2">{transport.transporter_name}</td>
+                          <td className="border border-gray-300 px-4 py-2">{transport.vehicle_no}</td>
+                          <td className="border border-gray-300 px-4 py-2">{transport.mot}</td>
+                          <td className="border border-gray-300 px-4 py-2">{transport.distance}</td>
+                          <td className="border border-gray-300 px-4 py-2">₹{transport.ammount_incured}</td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <div className="flex flex-col gap-1">
+                              {transport.bill && (
+                                <a href={transport.bill} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs flex items-center gap-1">
+                                  <Download className="w-3 h-3" /> Bill
+                                </a>
+                              )}
+                              {transport.ewaybill && (
+                                <a href={transport.ewaybill} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs flex items-center gap-1">
+                                  <Download className="w-3 h-3" /> E-way
+                                </a>
+                              )}
+                              {transport.stock_statement && (
+                                <a href={transport.stock_statement} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs flex items-center gap-1">
+                                  <Download className="w-3 h-3" /> Stock
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2 text-center">
+                            <Button variant="destructive" size="sm" onClick={() => deleteTransport(transport.id)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-4">No transportation records found</p>
+              )}
+            </div>
           </div>
         )
 
-      case 6: // Closed
+      case 6:
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Closed Date</label>
-              <Input type="date" onChange={(e) => handleChange("closedDate", e.target.value)} />
+              <Input type="date" value={form.closedDate || ""} onChange={(e) => handleChange("closedDate", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Product</label>
-              <Input onChange={(e) => handleChange("product", e.target.value)} />
+              <Input value={form.product || ""} onChange={(e) => handleChange("product", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Remarks</label>
-              <Input onChange={(e) => handleChange("remarks", e.target.value)} />
+              <Input value={form.closeRemarks || ""} onChange={(e) => handleChange("closeRemarks", e.target.value)} />
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Product Received By</label>
-              <Input onChange={(e) => handleChange("productReceivedBy", e.target.value)} />
+              <Input value={form.productReceivedBy || ""} onChange={(e) => handleChange("productReceivedBy", e.target.value)} />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Commission (Amount)</label>
-              <Input onChange={(e) => handleChange("commission", e.target.value)} />
-            </div>
+            {user_role !== 2 && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Commission (Amount)</label>
+                <Input
+                  value={form.commission || ""}
+                  onChange={(e) => handleChange("commission", e.target.value)}
+                />
+              </div>
+            )}
           </div>
         )
 
@@ -1088,22 +1063,14 @@ export default function DealForm() {
     }
   }
 
-  const getStepEndpoint = () => {
-    const endpoints = ["pd-deals", "pdSampling", "pdValidation", "pdClearance", "pdPayment", "pdTransportations", "pdClose"]
-    return endpoints[currentStep] || "pd-deals"
-  }
-
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Deal Management</h1>
-          <Badge variant="outline">
-            Step {currentStep + 1} of {FORM_STEPS.length}
-          </Badge>
+          <Badge variant="outline">Step {currentStep + 1} of {FORM_STEPS.length}</Badge>
         </div>
 
-        {/* Step indicators */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-4">
           {FORM_STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center">
@@ -1116,16 +1083,10 @@ export default function DealForm() {
                     : "border-gray-300 bg-white text-gray-500 hover:border-gray-400"
                   }`}
               >
-                {completedSteps.has(index) ? (
-                  <Check className="w-5 h-5" />
-                ) : (
-                  <span className="text-sm font-medium">{index + 1}</span>
-                )}
+                {completedSteps.has(index) ? <Check className="w-5 h-5" /> : <span className="text-sm font-medium">{index + 1}</span>}
               </button>
               <div className="ml-3 min-w-0 flex-1">
-                <p className={`text-sm font-medium ${index === currentStep ? "text-blue-600" : "text-gray-900"}`}>
-                  {step.title}
-                </p>
+                <p className={`text-sm font-medium ${index === currentStep ? "text-blue-600" : "text-gray-900"}`}>{step.title}</p>
                 <p className="text-xs text-gray-500 hidden sm:block">{step.description}</p>
               </div>
               {index < FORM_STEPS.length - 1 && <div className="w-8 h-px bg-gray-300 mx-4" />}
@@ -1143,22 +1104,16 @@ export default function DealForm() {
           {renderStepContent()}
 
           <div className="flex items-center justify-between mt-8 pt-6 border-t">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 0}
-              className="flex items-center bg-transparent"
-            >
+            <Button variant="outline" onClick={prevStep} disabled={currentStep === 0} className="flex items-center bg-transparent">
               <ChevronLeft className="w-4 h-4 mr-2" />
               Previous
             </Button>
 
             <div className="flex items-center space-x-3">
-              <Button onClick={handleSubmit}>
-                Update {FORM_STEPS[currentStep].title}
-              </Button>
-
-
+              {!(currentStep === 6 && user_role === 2) && (
+                <Button onClick={handleSubmit}>Save {FORM_STEPS[currentStep].title}</Button>
+              )}
+              {/* <Button onClick={handleSubmit}>Save {FORM_STEPS[currentStep].title}</Button> */}
               <Button onClick={nextStep} disabled={currentStep === FORM_STEPS.length - 1} className="flex items-center">
                 Next
                 <ChevronRight className="w-4 h-4 ml-2" />
