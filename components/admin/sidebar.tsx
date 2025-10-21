@@ -75,7 +75,7 @@ function DropdownMenu({ title, icon: Icon, isOpen, toggle, links }) {
               key={link.href}
               href={link.href}
               className={`block px-2 py-2 rounded-md text-sm font-medium ${isActive(link.href)
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -126,7 +126,7 @@ export default function AdminSidebar({ onClose }) {
     <div className="h-full flex flex-col p-4 text-white">
       {/* Logo */}
       <div className="hidden md:flex items-center space-x-2 mb-8">
-        <div className="bg-orange-600 text-white p-2 rounded-lg font-bold text-xl">PD</div>
+        <div className="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">PD</div>
         <div>
           <div className="font-bold text-lg">Admin Panel</div>
           <div className="text-sm text-gray-400">Paper Deals</div>
@@ -140,7 +140,7 @@ export default function AdminSidebar({ onClose }) {
         <Link
           href="/admin/dashboard"
           className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/dashboard")
-            ? "bg-orange-600 text-white"
+            ? "bg-blue-600 text-white"
             : "text-gray-300 hover:bg-gray-800 hover:text-white"
             }`}
         >
@@ -154,7 +154,7 @@ export default function AdminSidebar({ onClose }) {
             {/* <Link
               href="/admin/profile"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/profile")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -164,7 +164,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/consultantSlot"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultantSlot")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -174,7 +174,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/bookedUser"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/bookedUser")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -184,7 +184,7 @@ export default function AdminSidebar({ onClose }) {
             {/* <Link
               href="/admin/chat"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chat")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -196,7 +196,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/chatHistory"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chatHistory")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -213,7 +213,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/inquiries/profile_enquiry"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/inquiries/profile_enquiry")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -226,7 +226,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/seller-page/products"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/seller-page/products")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -237,7 +237,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/directorder"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -248,7 +248,7 @@ export default function AdminSidebar({ onClose }) {
             {/* <Link
               href="/admin/profile"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/profile")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -259,7 +259,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/stocks"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/stocks")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -271,7 +271,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/pddeal/current"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/pddeal/current")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -283,7 +283,7 @@ export default function AdminSidebar({ onClose }) {
             {/* <Link
               href="/admin/subscriptions"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/subscriptions")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -297,7 +297,7 @@ export default function AdminSidebar({ onClose }) {
             {/* <Link
               href="/admin/chat"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chat")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -307,7 +307,7 @@ export default function AdminSidebar({ onClose }) {
             {/* <Link
               href="/admin/password"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/password")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -323,7 +323,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/seller-page/seller"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/seller-page/seller")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -334,7 +334,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/Buyer/buyerPage"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/Buyer/buyerPage")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -346,7 +346,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/directorder"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -358,7 +358,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/pddeal/current"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/pddeal/current")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -368,7 +368,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/billinghistory"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/billinghistory")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -392,7 +392,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/password"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/password")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -402,7 +402,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/Add-admin"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/Add-admin")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -432,7 +432,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/rquarments"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/rquarments")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -444,7 +444,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/advertisement"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/advertisement")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -480,7 +480,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/directorder"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -506,7 +506,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/livestock"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -518,7 +518,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/livePrice"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -532,7 +532,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/directreport"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directreport")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -545,7 +545,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/paperreport"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/paperreport")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -557,7 +557,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/billinghistory"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/billinghistory")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -569,7 +569,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/consultant"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultant")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -581,7 +581,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/subscriptions"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultant")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -610,7 +610,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/chatHistory"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/chatHistory")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >
@@ -622,7 +622,7 @@ export default function AdminSidebar({ onClose }) {
             <Link
               href="/admin/user"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/user")
-                ? "bg-orange-600 text-white"
+                ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
             >

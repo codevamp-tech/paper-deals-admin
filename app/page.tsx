@@ -57,15 +57,25 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto bg-orange-600 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-            <Shield className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-green-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-lg border-0">
+        <CardHeader className="flex flex-col items-center text-center space-y-4 pb-6">
+          <div className="w-full flex justify-center">
+            <img
+              className="h-12 w-auto"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-iqQ8i8AeGTX6s8TUIw84zuo7SWs3uS.png"
+              alt="Paper Deals Logo"
+            />
           </div>
-          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
-          <p className="text-gray-600">Sign in to manage your manufacturer website</p>
+
+          <div className="space-y-2">
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+              Admin Panel
+            </CardTitle>
+            <p className="text-gray-500 text-sm">Sign in to manage your Paper Deals</p>
+          </div>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -98,7 +108,7 @@ export default function AdminLogin() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder="admin@indiamanufacture.com"
+                placeholder="test@gmail.com"
               />
             </div>
 
@@ -114,7 +124,11 @@ export default function AdminLogin() {
               />
             </div>
 
-            <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full mt-6 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold py-2.5 rounded-lg transition-all duration-200"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

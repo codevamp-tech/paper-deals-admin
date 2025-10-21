@@ -1,7 +1,7 @@
 "use client";
 
 import { getUserFromToken } from "@/hooks/use-token";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,11 @@ import {
 import Image from "next/image";
 import Cookies from "js-cookie";
 
-export default function AdminHeader({ onMenuClick }: { onMenuClick: () => void }) {
+interface AdminHeaderProps {
+  onMenuClick: () => void;
+  sidebarOpen?: boolean;
+}
+export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderProps) {
   const user = getUserFromToken();
 
   const roleName =
@@ -32,14 +36,17 @@ export default function AdminHeader({ onMenuClick }: { onMenuClick: () => void }
 
   return (
     <header className="flex items-center justify-between bg-white px-4 py-3 shadow md:px-6 sticky top-0 z-20">
-      {/* Mobile menu button */}
-      <button className="md:hidden" onClick={onMenuClick}>
-        <Menu className="w-6 h-6 text-gray-700" />
-      </button>
 
+      <button className="md:hidden" onClick={onMenuClick}>
+        {sidebarOpen ? (
+          <X className="w-6 h-6 text-gray-700" /> // Close icon
+        ) : (
+          <Menu className="w-6 h-6 text-gray-700" /> // Menu icon
+        )}
+      </button>
       {/* Dashboard title */}
       <div className="text-lg font-semibold text-gray-700">
-        {roleName} Dashboard
+        {roleName} Panel
       </div>
 
       {/* Profile dropdown */}
@@ -83,7 +90,8 @@ export default function AdminHeader({ onMenuClick }: { onMenuClick: () => void }
             <DropdownMenuItem onClick={() => (window.location.href = "/admin/password")}>
               Change Password
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem className="text-red-500 hover:!text-red-600 " onClick={handleLogout}>
+              <LogOut />
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

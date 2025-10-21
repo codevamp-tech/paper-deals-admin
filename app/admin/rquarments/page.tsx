@@ -119,9 +119,9 @@ export default function RquarmentList() {
                   <td className="p-2 border">{item.email}</td>
                   <td className="p-2 border">
                     {item.status === 1 ? (
-                      <span className="text-green-600 font-medium">Active</span>
+                      <span className="text-green-600 font-medium">Accepted</span>
                     ) : (
-                      <span className="text-red-600 font-medium">Inactive</span>
+                      <span className="text-red-600 font-medium">Rejected</span>
                     )}
                   </td>
                   <td className="p-2 border">
@@ -172,8 +172,8 @@ export default function RquarmentList() {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">Active</SelectItem>
-                  <SelectItem value="0">Inactive</SelectItem>
+                  <SelectItem value="1">Accepted</SelectItem>
+                  <SelectItem value="0">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -22,6 +22,7 @@ type Category = {
   id: number
   name: string
   status: number // 0 = Active, 1 = Inactive
+  image?: string
 }
 
 export default function CategoriesPage() {
@@ -39,6 +40,7 @@ export default function CategoriesPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [currentId, setCurrentId] = useState<number | null>(null)
   const [categoryName, setCategoryName] = useState("")
+  const [categoryImage, setCategoryImage] = useState<File | null>(null)
 
   // Search state
   const [search, setSearch] = useState("")
@@ -77,24 +79,28 @@ export default function CategoriesPage() {
     }
   }, [search, categories])
 
-  // Add or Update category
+  // Add or Update category with image
   const handleSave = async () => {
     try {
+      const formData = new FormData()
+      formData.append("name", categoryName)
+      if (categoryImage) formData.append("image", categoryImage)
+
       if (isEditing && currentId !== null) {
         await fetch(`https://paper-deal-server.onrender.com/api/categiry/${currentId}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: categoryName }),
+          body: formData,
         })
       } else {
         await fetch("https://paper-deal-server.onrender.com/api/categiry", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: categoryName }),
+          body: formData,
         })
       }
+
       setOpen(false)
       setCategoryName("")
+      setCategoryImage(null)
       setIsEditing(false)
       setCurrentId(null)
       fetchCategories(page)
@@ -126,13 +132,12 @@ export default function CategoriesPage() {
             setOpen(true)
             setIsEditing(false)
             setCategoryName("")
+            setCategoryImage(null)
           }}
         >
           Add Category
         </Button>
       </div>
-
-
 
       {/* Category table */}
       <div className="bg-white shadow rounded-lg p-4">
@@ -154,6 +159,7 @@ export default function CategoriesPage() {
               <tr>
                 <th className="px-4 py-2 border">ID</th>
                 <th className="px-4 py-2 border">Category Name</th>
+                <th className="px-4 py-2 border">Image</th>
                 <th className="px-4 py-2 border">Status</th>
                 <th className="px-4 py-2 border">Action</th>
               </tr>
@@ -164,7 +170,14 @@ export default function CategoriesPage() {
                   <td className="px-4 py-2 border">{cat.id}</td>
                   <td className="px-4 py-2 border">{cat.name}</td>
                   <td className="px-4 py-2 border">
-                    {cat.status === 0 ? (
+                    {cat.image ? (
+                      <img src={cat.image} alt={cat.name} className="w-12 h-12 object-cover rounded" />
+                    ) : (
+                      <span className="text-gray-400">No Image</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {cat.status === 1 ? (
                       <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full text-sm">
                         Active
                       </span>
@@ -188,6 +201,7 @@ export default function CategoriesPage() {
                             setIsEditing(true)
                             setCurrentId(cat.id)
                             setCategoryName(cat.name)
+                            setCategoryImage(null) // reset, user can choose new
                           }}
                         >
                           <Edit className="w-4 h-4 mr-2" />
@@ -195,10 +209,10 @@ export default function CategoriesPage() {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleToggleStatus(cat.id, cat.status)}
-                          className={cat.status === 0 ? "text-red-600" : "text-green-600"}
+                          className={cat.status === 1 ? "text-red-600" : "text-green-600"}
                         >
                           <Power className="w-4 h-4 mr-2" />
-                          {cat.status === 0 ? "Deactivate" : "Activate"}
+                          {cat.status === 1 ? "Deactivate" : "Activate"}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -230,6 +244,12 @@ export default function CategoriesPage() {
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
             placeholder="Category Name"
+            className="border px-2 py-2 rounded w-full mb-2"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setCategoryImage(e.target.files?.[0] ?? null)}
             className="border px-2 py-2 rounded w-full"
           />
           <DialogFooter className="mt-4">
