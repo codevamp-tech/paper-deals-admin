@@ -90,7 +90,7 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
             <DropdownMenuItem onClick={() => (window.location.href = "/admin/password")}>
               Change Password
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-500 hover:!text-red-600 " onClick={handleLogout}>
+            <DropdownMenuItem className="text-red-400 hover:!text-red-600 " onClick={handleLogout}>
               <LogOut />
               Logout
             </DropdownMenuItem>
