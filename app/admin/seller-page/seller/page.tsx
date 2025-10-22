@@ -144,7 +144,29 @@ export default function SellerPage() {
     }
   }
 
+  const getCategoryDisplay = (organization: Seller['organization']) => {
+    if (!organization) return "-"
 
+    const categoryNames = organization.materials_used_names
+
+    if (!categoryNames || categoryNames.length === 0) {
+      return <span className="text-gray-400">No categories</span>
+    }
+
+    return (
+      <div className="flex flex-wrap gap-1">
+        {categoryNames.map((name, index) => (
+          <Badge
+            key={index}
+            variant="secondary"
+            className="text-xs"
+          >
+            {name}
+          </Badge>
+        ))}
+      </div>
+    )
+  }
   return (
     <div className="p-2">
       <div className="flex items-center justify-between mb-4">
@@ -190,7 +212,7 @@ export default function SellerPage() {
                     {seller.organization?.city || "-"}
                   </td>
                   <td className="px-4 py-2 border">
-                    {seller.organization?.materials_used || "-"}
+                    {getCategoryDisplay(seller.organization)}
                   </td>
                   <td className="px-4 py-2 border">
                     <Badge
