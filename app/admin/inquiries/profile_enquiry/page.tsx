@@ -125,7 +125,7 @@ export default function EnquiryPage() {
                   <td className="border px-3 py-2">
                     {isSellerView
                       ? row.buyer?.name || "N/A"
-                      : `KPDS_${row.buyer_id}`}
+                      : `KPDB_${row.buyer_id}`}
                   </td>
                   {isSellerView && (
                     <td className="border px-3 py-2">{row.phone}</td>
