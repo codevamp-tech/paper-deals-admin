@@ -22,6 +22,7 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
+  const [categories, setCategories] = useState<any[]>([])
 
   // For Edit Dialog
   const [open, setOpen] = useState(false)
@@ -66,7 +67,24 @@ export default function ProductPage() {
     }
   }
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry", {
+        method: "GET",
+      })
+
+      if (!res.ok) throw new Error("Failed to fetch categories")
+
+      const data = await res.json()
+      setCategories(data.categories || [])
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+    }
+  }
+
+
   useEffect(() => {
+    fetchCategories()
     fetchProducts(page)
   }, [page])
 
@@ -149,7 +167,7 @@ export default function ProductPage() {
       {showAddForm && (
         <div className="mb-6 border rounded p-4 bg-gray-50">
           <h3 className="text-lg font-semibold mb-2">Add New Product</h3>
-          <StockManagementPage />
+          <StockManagementPage onProductAdded={() => fetchProducts(page)} />
         </div>
       )}
       <div>
@@ -166,6 +184,7 @@ export default function ProductPage() {
                     <th className="px-4 py-2 border">ID</th>
                     <th className="px-4 py-2 border">Seller Name</th>
                     <th className="px-4 py-2 border">Product Name</th>
+                    <th className="px-4 py-2 border">Category</th>
                     <th className="px-4 py-2 border">Price</th>
                     <th className="px-4 py-2 border">Weight </th>
                     <th className="px-4 py-2 border">Stock</th>
@@ -182,6 +201,7 @@ export default function ProductPage() {
                         <td className="px-4 py-2 border">{product.id}</td>
                         <td className="px-4 py-2 border">{product.seller?.name || "Seller not found"}</td>
                         <td className="px-4 py-2 border">{product.product_name || "-"}</td>
+                        <td className="px-4 py-2 border">{product.category?.name || "-"}</td>
                         <td className="px-4 py-2 border">{product.price_per_kg || "-"}</td>
                         <td className="px-4 py-2 border">{product.weights || "-"}</td>
                         <td className="px-4 py-2 border">{product.stock_in_kg || "-"}</td>
@@ -239,6 +259,35 @@ export default function ProductPage() {
 
           {formData && (
             <div className="grid grid-cols-2 gap-4">
+              <div className="mb-4">
+                <label
+                  htmlFor="category_id"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Category
+                </label>
+
+                <select
+                  id="category_id"
+                  name="category_id"
+                  value={formData.category_id ?? ""}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Category</option>
+                  {Array.isArray(categories) && categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No categories available</option>
+                  )}
+                </select>
+              </div>
+
+
               {[
                 "product_name",
                 "product_unit",
