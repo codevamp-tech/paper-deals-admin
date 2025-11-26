@@ -191,7 +191,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Buyer</label>
             <input
-              value={enquiry.buyer?.name}
+              value={enquiry.buyer?.name || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -199,7 +199,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Email</label>
             <input
-              value={enquiry.buyer?.email_address}
+              value={enquiry.buyer?.email_address || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -207,7 +207,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Phone</label>
             <input
-              value={enquiry.phone}
+              value={enquiry.phone || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -215,7 +215,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">City</label>
             <input
-              value={enquiry.city}
+              value={enquiry.city || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -223,7 +223,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Category</label>
             <input
-              value={enquiry.category?.name}
+              value={enquiry.category?.name || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -231,7 +231,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Product</label>
             <input
-              value={enquiry.product}
+              value={enquiry.product || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -239,7 +239,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">GSM</label>
             <input
-              value={enquiry.gsm}
+              value={enquiry.gsm || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -247,7 +247,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Shade</label>
             <input
-              value={enquiry.shade}
+              value={enquiry.shade || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -255,7 +255,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Quantity</label>
             <input
-              value={enquiry.quantity_in_kg}
+              value={enquiry.quantity_in_kg || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />
@@ -263,7 +263,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Remarks</label>
             <textarea
-              value={enquiry.remarks}
+              value={enquiry.remarks || ""}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />

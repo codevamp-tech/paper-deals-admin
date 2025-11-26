@@ -123,7 +123,7 @@ export default function AdminSidebar({ onClose }) {
 
 
   return (
-    <div className="h-full flex flex-col p-4 text-white">
+    <div className="h-full flex flex-col p-4 bg-green-400 text-white">
       {/* Logo */}
       <div className="hidden md:flex items-center space-x-2 mb-8">
         <div className="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">PD</div>
