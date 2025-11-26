@@ -16,6 +16,7 @@ import { toast } from "sonner"; // optional if you use toast notifications
 import Pagination from "@/components/pagination";
 
 type Rquarment = {
+  Category: any;
   id: number;
   pincode: string;
   phone_no: string;
@@ -37,15 +38,22 @@ export default function RquarmentList() {
   const [selectedItem, setSelectedItem] = useState<Rquarment | null>(null);
   const [newStatus, setNewStatus] = useState<number>(0);
 
-  const fetchData = async (pageNum: number) => {
-    const res = await fetch(`https://paper-deal-server.onrender.com/api/rquarment?page=${pageNum}&limit=5`);
+  const fetchData = async (pageNum?: number) => {
+    const safePage = pageNum && pageNum > 0 ? pageNum : 1;
+
+    const res = await fetch(
+      `https://paper-deal-server.onrender.com/api/rquarment?page=${safePage}&limit=10`
+    );
+
     const json = await res.json();
+
     if (json.success) {
       setData(json.data);
-      setTotalPages(json.totalPages);
-      setPage(json.currentPage);
+      setTotalPages(json.pagination.totalPages);
+      setPage(json.pagination.currentPage);
     }
   };
+
 
   useEffect(() => {
     fetchData(page);
@@ -101,6 +109,7 @@ export default function RquarmentList() {
               <tr>
                 <th className="p-2 border">ID</th>
                 <th className="p-2 border">Product Name</th>
+                <th className="p-2 border">Category</th>
                 <th className="p-2 border">Quantity</th>
                 <th className="p-2 border">Phone</th>
                 <th className="p-2 border">Email</th>
@@ -114,6 +123,7 @@ export default function RquarmentList() {
                 <tr key={item.id} className="text-center">
                   <td className="p-2 border">{item.id}</td>
                   <td className="p-2 border">{item.product_name}</td>
+                  <td className="p-2 border">{item.Category?.name || "—"}</td>
                   <td className="p-2 border">{item.quantity}</td>
                   <td className="p-2 border">{item.phone_no}</td>
                   <td className="p-2 border">{item.email}</td>

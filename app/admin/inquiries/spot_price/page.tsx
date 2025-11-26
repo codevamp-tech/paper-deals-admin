@@ -73,8 +73,12 @@ export default function SpotPriceEnquiryPage() {
             {enquiries.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50">
                 <td className="px-3 py-2 border-b">{row.id}</td>
-                <td className="px-3 py-2 border-b">{row.ProductNew?.product_name || "-"}</td>
-                <td className="px-3 py-2 border-b">{row.ProductNew?.seller_id || "-"}</td>
+                <td className="px-3 py-2 border-b">
+                  {row.productList?.map(p => p.product_name).join(", ") || "-"}
+                </td>
+                <td className="px-3 py-2 border-b">
+                  {row.productList?.map(p => p.seller_id).join(", ") || "-"}
+                </td>
                 <td className="px-3 py-2 border-b">{row.name}</td>
                 <td className="px-3 py-2 border-b">{row.phone}</td>
                 <td className="px-3 py-2 border-b">{row.email_id}</td>

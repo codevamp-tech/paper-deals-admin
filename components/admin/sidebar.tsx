@@ -423,13 +423,13 @@ export default function AdminSidebar({ onClose }) {
               links={[
                 { name: "Support", href: "/admin/inquiries/support", icon: Headset },
                 { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: UserCircle },
-                { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall },
-                { name: "Contact Us", href: "/admin/inquiries/contact_us", icon: MessageSquare },
+                // { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall },
+                { name: "Requarement ", href: "/admin/rquarments", icon: MessageSquare },
                 { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon: IndianRupee },
               ]}
             />
 
-            <Link
+            {/* <Link
               href="/admin/rquarments"
               className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/rquarments")
                 ? "bg-blue-600 text-white"
@@ -438,7 +438,7 @@ export default function AdminSidebar({ onClose }) {
             >
               <HelpCircle className="mr-3 h-5 w-5" />
               Requarement
-            </Link>
+            </Link> */}
 
             {/* Advertisement */}
             <Link
@@ -472,14 +472,14 @@ export default function AdminSidebar({ onClose }) {
               toggle={() => setBuyerOpen(!buyerOpen)}
               links={[
                 { name: "Buyer", href: "/admin/Buyer/buyerPage", icon: UserCircle },
-                { name: "Products", href: "/admin/Buyer/products", icon: Package },
+                // { name: "Products", href: "/admin/Buyer/products", icon: Package },
               ]}
             />
 
             {/* Direct Order */}
             <Link
               href="/admin/directorder"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
                 ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
@@ -505,7 +505,7 @@ export default function AdminSidebar({ onClose }) {
             {/* Live Stock */}
             <Link
               href="/admin/livestock"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livestock")
                 ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
@@ -580,7 +580,7 @@ export default function AdminSidebar({ onClose }) {
 
             <Link
               href="/admin/subscriptions"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultant")
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/subscriptions")
                 ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
