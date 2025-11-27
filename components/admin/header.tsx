@@ -35,7 +35,7 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
   };
 
   return (
-    <header className="flex items-center justify-between bg-white px-4 py-3 shadow md:px-6 sticky top-0 z-20">
+    <header className="flex items-center justify-between bg-gradient-to-r from-blue-600 to-green-600 px-4 py-3 shadow md:px-6 sticky top-0 z-20">
 
       <button className="md:hidden" onClick={onMenuClick}>
         {sidebarOpen ? (
@@ -45,7 +45,7 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
         )}
       </button>
       {/* Dashboard title */}
-      <div className="text-lg font-semibold text-gray-700">
+      <div className="text-lg font-semibold text-white">
         {roleName} Panel
       </div>
 
