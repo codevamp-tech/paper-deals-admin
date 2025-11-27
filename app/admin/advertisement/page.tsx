@@ -189,11 +189,11 @@ export default function AdvertisementPage() {
                   <SelectValue placeholder="Select Page Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="main">Main Page (1520×260)</SelectItem>
-                  <SelectItem value="main2">Main Page 2 (756×117)</SelectItem>
-                  <SelectItem value="buyer">Buyer Page (1520×300)</SelectItem>
-                  <SelectItem value="seller">Seller Page (1520×300)</SelectItem>
-                  <SelectItem value="consultant">Consultant Page (1520×300)</SelectItem>
+                  {/* <SelectItem value="main">Main Page (1520×260)</SelectItem>
+                  <SelectItem value="main2">Main Page 2 (756×117)</SelectItem> */}
+                  <SelectItem value="buyer">B2C</SelectItem>
+                  <SelectItem value="seller">B2B</SelectItem>
+                  {/* <SelectItem value="consultant">Consultant Page (1520×300)</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
