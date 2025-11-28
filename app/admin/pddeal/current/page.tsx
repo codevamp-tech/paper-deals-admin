@@ -17,19 +17,30 @@ export default function DealsPage() {
     <div className="min-h-screen ">
       <div className="container mx-auto p-6">
 
-        <div className="flex items-center  justify-between mb-6">
+        <div className="flex items-center justify-center mb-6">
           <div className="flex gap-2">
             <Button
               variant={activeTab === "current" ? "default" : "outline"}
               onClick={() => setActiveTab("current")}
-              className="transition-all duration-200 ease-in-out"
+              className={`transition-all duration-200 ease-in-out
+  ${activeTab === "current"
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "text-gray-700 hover:bg-gray-100"
+                }
+`}
+
             >
               PD Current Deals
             </Button>
             <Button
               variant={activeTab === "closed" ? "default" : "outline"}
               onClick={() => setActiveTab("closed")}
-              className="transition-all duration-200 ease-in-out"
+              className={`transition-all duration-200 ease-in-out
+  ${activeTab === "closed"
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "text-gray-700 hover:bg-gray-100"
+                }
+`}
             >
               PD  Closed Deals
             </Button>

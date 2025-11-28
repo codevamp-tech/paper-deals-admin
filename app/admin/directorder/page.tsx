@@ -20,16 +20,21 @@ export default function DealsPage() {
             <div className="flex justify-center mb-8">
               <div className="flex bg-muted rounded-lg p-1 gap-1">
                 <Button
-                  variant={selectedDealType === "current" ? "default" : "ghost"}
+                  variant="ghost"
                   onClick={() => setSelectedDealType("current")}
-                  className="transition-all duration-200 ease-in-out"
+                  className={`transition-all duration-200 ease-in-out
+    ${selectedDealType === "current" ? "bg-blue-500 text-white" : "text-gray-700"}
+  `}
                 >
                   Current Direct Deals
                 </Button>
+
                 <Button
-                  variant={selectedDealType === "closed" ? "default" : "ghost"}
+                  variant="ghost"
                   onClick={() => setSelectedDealType("closed")}
-                  className="transition-all duration-200 ease-in-out"
+                  className={`transition-all duration-200 ease-in-out
+    ${selectedDealType === "closed" ? "bg-blue-500 text-white" : "text-gray-700"} 
+  `}
                 >
                   Closed Direct Deals
                 </Button>

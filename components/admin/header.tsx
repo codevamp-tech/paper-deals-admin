@@ -34,18 +34,23 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
     window.location.href = "/"; // redirect to login
   };
 
+
   return (
     <header className="flex items-center justify-between bg-gradient-to-r from-blue-600 to-green-600 px-4 py-3 shadow md:px-6 sticky top-0 z-20">
 
-      <button className="md:hidden" onClick={onMenuClick}>
+      <button
+        className="md:hidden flex justify-end w-full"
+        onClick={onMenuClick}
+      >
         {sidebarOpen ? (
-          <X className="w-6 h-6 text-gray-700" /> // Close icon
+          <X className="w-6 h-6 text-red-600" />   // Close icon in red
         ) : (
-          <Menu className="w-6 h-6 text-gray-700" /> // Menu icon
+          <Menu className="w-6 h-6 text-white" /> // Menu icon in gray
         )}
       </button>
+
       {/* Dashboard title */}
-      <div className="text-lg font-semibold text-white">
+      <div className="text-lg font-semibold text-white pl-4">
         {roleName} Panel
       </div>
 
