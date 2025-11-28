@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Edit, Power, Search } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
 
 type Category = {
   id: number
@@ -81,6 +82,10 @@ export default function CategoriesPage() {
 
   // Add or Update category with image
   const handleSave = async () => {
+    if (!categoryName.trim()) {
+      toast({ title: "Category name is required." });
+      return;
+    }
     try {
       const formData = new FormData()
       formData.append("name", categoryName)
@@ -134,6 +139,7 @@ export default function CategoriesPage() {
             setCategoryName("")
             setCategoryImage(null)
           }}
+          className="bg-blue-500 hover:bg-blue-600"
         >
           Add Category
         </Button>
@@ -245,18 +251,20 @@ export default function CategoriesPage() {
             onChange={(e) => setCategoryName(e.target.value)}
             placeholder="Category Name"
             className="border px-2 py-2 rounded w-full mb-2"
+            required
           />
           <input
             type="file"
             accept="image/*"
             onChange={(e) => setCategoryImage(e.target.files?.[0] ?? null)}
             className="border px-2 py-2 rounded w-full"
+            required
           />
           <DialogFooter className="mt-4">
             <Button onClick={() => setOpen(false)} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600">
               {isEditing ? "Update" : "Add"}
             </Button>
           </DialogFooter>
