@@ -21,19 +21,31 @@ export default function BillingPage() {
             <div className="flex justify-center mb-2">
               <div className="flex bg-muted rounded-lg p-1 gap-1">
                 <Button
-                  variant={selectedDealType === "current" ? "default" : "ghost"}
+                  variant="ghost"
                   onClick={() => setSelectedDealType("current")}
-                  className="transition-all duration-200 ease-in-out"
+                  className={`transition-all duration-200 ease-in-out
+    ${selectedDealType === "current"
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "text-black hover:bg-transparent"
+                    }
+  `}
                 >
                   Direct Deal Billing
                 </Button>
+
                 <Button
-                  variant={selectedDealType === "closed" ? "default" : "ghost"}
+                  variant="ghost"
                   onClick={() => setSelectedDealType("closed")}
-                  className="transition-all duration-200 ease-in-out"
+                  className={`transition-all duration-200 ease-in-out
+    ${selectedDealType === "closed"
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : " hover:bg-transparent"
+                    }
+  `}
                 >
                   PD Deal Billing
                 </Button>
+
               </div>
             </div>
 

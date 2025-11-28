@@ -254,7 +254,7 @@ export default function AdvertisementPage() {
                   </td>
                   <td className="px-4 py-2">{ad.createdAt}</td>
                   <td className="px-4 py-2">
-                    <Button size="sm" onClick={() => openEditDialog(ad)}>
+                    <Button className="bg-blue-500 hover:bg-blue-600" size="sm" onClick={() => openEditDialog(ad)}>
                       Edit
                     </Button>
                   </td>
@@ -289,11 +289,11 @@ export default function AdvertisementPage() {
                   <SelectValue placeholder="Select Page Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="main">Main Page (1520×260)</SelectItem>
-                  <SelectItem value="main2">Main Page 2 (756×117)</SelectItem>
-                  <SelectItem value="buyer">Buyer Page (1520×300)</SelectItem>
-                  <SelectItem value="seller">Seller Page (1520×300)</SelectItem>
-                  <SelectItem value="consultant">Consultant Page (1520×300)</SelectItem>
+                  {/* <SelectItem value="main">Main Page (1520×260)</SelectItem> */}
+                  {/* <SelectItem value="main2">Main Page 2 (756×117)</SelectItem> */}
+                  <SelectItem value="buyer">B2C</SelectItem>
+                  <SelectItem value="seller">B2B</SelectItem>
+                  {/* <SelectItem value="consultant">Consultant Page (1520×300)</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
@@ -307,15 +307,16 @@ export default function AdvertisementPage() {
             </div>
 
             <div>
-              <Label>Image (Optional)</Label>
+              <Label>Image</Label>
               <Input
                 type="file"
                 onChange={(e) => setEditImage(e.target.files?.[0] || null)}
+                required
               />
             </div>
 
             <div className="flex gap-2 mt-4">
-              <Button onClick={handleEditSave} disabled={editLoading}>
+              <Button className="bg-blue-500 hover:bg-blue-600" onClick={handleEditSave} disabled={editLoading}>
                 {editLoading ? "Saving..." : "Save Changes"}
               </Button>
               <DialogClose asChild>

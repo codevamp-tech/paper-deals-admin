@@ -211,7 +211,7 @@ export default function CreatePaperDealPage() {
 
           {/* Submit */}
           <div className="md:col-span-3 flex justify-center mt-4">
-            <Button type="submit">Submit</Button>
+            <Button type="submit" className="bg-blue-500">Submit</Button>
           </div>
         </form>
       </CardContent>

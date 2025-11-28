@@ -123,7 +123,7 @@ export default function AdminSidebar({ onClose }) {
 
 
   return (
-    <div className="h-full flex flex-col p-4  bg-gradient-to-r from-blue-600 to-green-600  text-white">
+    <div className="h-full flex flex-col p-4  bg-gradient-to-b from-blue-600 to-green-600  text-white">
       {/* Logo */}
       <div className="hidden md:flex items-center space-x-2 mb-8">
         <div className="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">PD</div>
@@ -537,7 +537,7 @@ export default function AdminSidebar({ onClose }) {
                 }`}
             >
               <BarChart3 className="mr-3 h-5 w-5" />
-              B2C
+              B2C Report
             </Link>
 
 
