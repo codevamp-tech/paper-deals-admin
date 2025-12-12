@@ -188,30 +188,34 @@ export default function EnquiryDetailPage() {
           Enquiry Details
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <label className="block font-medium">Buyer</label>
-            <input
-              value={enquiry.buyer?.name || ""}
-              disabled
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block font-medium">Email</label>
-            <input
-              value={enquiry.buyer?.email_address || ""}
-              disabled
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block font-medium">Phone</label>
-            <input
-              value={enquiry.phone || ""}
-              disabled
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
+          {userRole !== 2 && (
+            <>
+              <div>
+                <label className="block font-medium">Buyer</label>
+                <input
+                  value={enquiry.buyer?.name || ""}
+                  disabled
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block font-medium">Email</label>
+                <input
+                  value={enquiry.buyer?.email_address || ""}
+                  disabled
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block font-medium">Phone</label>
+                <input
+                  value={enquiry.phone || ""}
+                  disabled
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+            </>
+          )}
           <div>
             <label className="block font-medium">City</label>
             <input
@@ -268,14 +272,16 @@ export default function EnquiryDetailPage() {
               className="w-full border rounded-lg px-3 py-2"
             />
           </div>
-          <div>
-            <label className="block font-medium">Created At</label>
-            <input
-              value={new Date(enquiry.created_at).toLocaleString()}
-              disabled
-              className="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
+          {userRole !== 2 && (
+            <div>
+              <label className="block font-medium">Created At</label>
+              <input
+                value={new Date(enquiry.created_at).toLocaleString()}
+                disabled
+                className="w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+          )}
           <div>
             <label className="block font-medium">Update Status</label>
             <select

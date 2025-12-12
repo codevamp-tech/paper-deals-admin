@@ -109,11 +109,7 @@ const DealsTable: React.FC = () => {
             <th className="border p-2">Remarks</th>
             <th className="border p-2">Date</th>
             <th className="border p-2">Status</th>
-            {userRole === 1 && (
-              <>
-                <th className="p-2 border border-gray-200">Action</th>
-              </>
-            )}
+            <th className="p-2 border border-gray-200">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -149,18 +145,14 @@ const DealsTable: React.FC = () => {
                     {deal.status}
                   </span>
                 </td>
-                {userRole === 1 && (
-                  <>
-                    <td className="border p-2 text-center">
-                      <button
-                        onClick={() => handleEdit(deal.dealId)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </>
-                )}
+                <td className="border p-2 text-center">
+                  <button
+                    onClick={() => handleEdit(deal.dealId)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
+                </td>
               </tr>
             ))
           ) : (

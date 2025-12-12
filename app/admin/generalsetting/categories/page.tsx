@@ -166,7 +166,7 @@ export default function CategoriesPage() {
                 <th className="px-4 py-2 border">ID</th>
                 <th className="px-4 py-2 border">Category Name</th>
                 <th className="px-4 py-2 border">Image</th>
-                <th className="px-4 py-2 border">Status</th>
+                {/* <th className="px-4 py-2 border">Status</th> */}
                 <th className="px-4 py-2 border">Action</th>
               </tr>
             </thead>
@@ -182,7 +182,7 @@ export default function CategoriesPage() {
                       <span className="text-gray-400">No Image</span>
                     )}
                   </td>
-                  <td className="px-4 py-2 border">
+                  {/* <td className="px-4 py-2 border">
                     {cat.status === 1 ? (
                       <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full text-sm">
                         Active
@@ -192,7 +192,7 @@ export default function CategoriesPage() {
                         Inactive
                       </span>
                     )}
-                  </td>
+                  </td> */}
                   <td className="px-4 py-2 border text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -213,13 +213,13 @@ export default function CategoriesPage() {
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => handleToggleStatus(cat.id, cat.status)}
                           className={cat.status === 1 ? "text-red-600" : "text-green-600"}
                         >
                           <Power className="w-4 h-4 mr-2" />
                           {cat.status === 1 ? "Deactivate" : "Activate"}
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>

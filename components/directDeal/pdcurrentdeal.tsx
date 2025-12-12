@@ -170,9 +170,7 @@ export default function CurrentPaperDealPage() {
 
                     <th className="p-2 border">Date</th>
                     <th className="p-2 border">Status</th>
-                    {userRole === 1 && (
-                      <th className="p-2 border">Action</th>
-                    )}
+                    <th className="p-2 border">Action</th>
                   </tr>
                 </thead>
 
@@ -226,16 +224,14 @@ export default function CurrentPaperDealPage() {
                             </span>
                           )}
                         </td>
-                        {userRole === 1 && (
-                          <td className="border p-2 text-center">
-                            <button
-                              onClick={() => handleEdit(d.deal_id)}
-                              className="text-blue-600 hover:text-blue-800"
-                            >
-                              <Edit className="w-5 h-5" />
-                            </button>
-                          </td>
-                        )}
+                        <td className="border p-2 text-center">
+                          <button
+                            onClick={() => handleEdit(d.deal_id)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                        </td>
 
                       </tr>
                     ))
