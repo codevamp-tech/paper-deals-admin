@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { useParams } from "next/navigation"
 import { ChevronLeft, ChevronRight, Check } from "lucide-react"
 import { toast } from "sonner"
+import { getUserFromToken } from "@/hooks/use-token"
 
 interface Buyer {
   id: string
@@ -196,6 +197,9 @@ export default function DealForm() {
   const [categories, setCategories] = useState<any[]>([])
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+
+  const user = getUserFromToken();
+  const userRole = user?.user_role
 
   const handleChange = (field: string, value: any) => {
     setForm((prev: any) => ({ ...prev, [field]: value }))
@@ -926,10 +930,13 @@ export default function DealForm() {
               <label className="block text-sm font-medium mb-2">Product Received By</label>
               <Input onChange={(e) => handleChange("productReceivedBy", e.target.value)} />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Commission (Amount)</label>
-              <Input onChange={(e) => handleChange("commission", e.target.value)} />
-            </div>
+            {userRole !== 2 && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Commission (Amount)</label>
+                <Input onChange={(e) => handleChange("commission", e.target.value)} />
+              </div>
+            )}
+
           </div>
         )
 
