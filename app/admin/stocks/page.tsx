@@ -31,8 +31,10 @@ export default function ProductPage() {
   const [file, setFile] = useState<File | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [excelFile, setExcelFile] = useState<File | null>(null)
+  const [showBlockedDialog, setShowBlockedDialog] = useState(false);
   const user = getUserFromToken();
   const userRole = user?.user_role
+  const isApproved = Number(user?.approved) === 1;
 
   const token = getCookie("token")
   const fetchProducts = async (pageNumber: number) => {
@@ -177,15 +179,55 @@ export default function ProductPage() {
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Upload Stock (Excel)</h2>
         <div className="flex items-center gap-4">
-          <Input type="file" accept=".xls,.xlsx" onChange={handleExcelChange} />
-          <Button onClick={handleExcelUpload}>Upload Excel</Button>
+          <Input
+            type="file"
+            accept=".xls,.xlsx"
+            onChange={handleExcelChange}
+            disabled={!isApproved}
+          />
+
+          <Button
+            onClick={() => {
+              if (!isApproved) {
+                setShowBlockedDialog(true);
+                return;
+              }
+              handleExcelUpload();
+            }}
+            className={
+              isApproved
+                ? ""
+                : "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
+            }
+          >
+            Upload Excel
+          </Button>
+
         </div>
       </div>
 
-      {/* <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-2">Add Stocks</h2>
-        <StockManagementPage />
-      </div> */}
+      <Dialog open={showBlockedDialog} onOpenChange={setShowBlockedDialog}>
+        <DialogContent className="max-w-sm text-center">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">
+              Account Deactivated
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-gray-600 mt-2">
+            Your account has been deactivated by the admin.
+            <br />
+            Please contact your admin to enable this feature.
+          </p>
+
+          <div className="mt-4 flex justify-center">
+            <Button onClick={() => setShowBlockedDialog(false)}>
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }
