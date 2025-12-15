@@ -40,6 +40,7 @@ export default function SellerPage() {
   const [isEdit, setIsEdit] = useState(false) // track mode
   const [editId, setEditId] = useState<number | null>(null) // track seller id
   const router = useRouter()
+  const [limit] = useState(10)
 
 
   // form states
@@ -56,7 +57,7 @@ export default function SellerPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2&page=${page}`
+        `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2&page=${page}&limit=${limit}`
       )
       const data = await res.json()
       setSellers(data.data || [])
