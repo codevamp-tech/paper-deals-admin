@@ -143,7 +143,7 @@ export default function EnquiryPage() {
                   <td className="border px-3 py-2">
                     {row.status === 1 && (
                       <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
-                        Completed
+                        Accepted
                       </span>
                     )}
                     {row.status === 0 && (
@@ -203,7 +203,7 @@ export default function EnquiryPage() {
                   onChange={(e) => setStatus(Number(e.target.value))}
                   className="w-full border rounded px-2 py-1"
                 >
-                  <option value={1}> Completed</option>
+                  <option value={1}>Accepted </option>
                   <option value={0}> Pending</option>
                   <option value={2}>Rejected </option>
                 </select>

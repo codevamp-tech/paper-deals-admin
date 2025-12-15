@@ -289,7 +289,7 @@ export default function EnquiryDetailPage() {
               onChange={(e) => setStatus(Number(e.target.value))}
               className="w-full border rounded-lg px-3 py-2"
             >
-              <option value={1}>Completed</option>
+              <option value={1}>Accepted</option>
               <option value={0}>Pending</option>
               <option value={2}>Rejected</option>
             </select>
@@ -418,7 +418,7 @@ export default function EnquiryDetailPage() {
                               : "bg-yellow-100 text-yellow-800"
                             }`}>
                             {msg.status === 1
-                              ? "Completed"
+                              ? "Accepted"
                               : msg.status === 2
                                 ? "Rejected"
                                 : "Pending"}

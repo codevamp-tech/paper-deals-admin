@@ -30,8 +30,11 @@ export default function ProductPage() {
   const [formData, setFormData] = useState<any>({})
   const [file, setFile] = useState<File | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [showBlockedDialog, setShowBlockedDialog] = useState(false);
   const user = getUserFromToken();
+  console.log("update aproved", user);
   const userRole = user?.user_role
+  const isApproved = Number(user?.approved) === 1;
 
   const fetchProducts = async (pageNumber: number) => {
     try {
@@ -155,8 +158,17 @@ export default function ProductPage() {
         <h2 className="text-2xl font-semibold">Products</h2>
         {userRole === 2 && (
           <Button
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={() => setShowAddForm((prev) => !prev)}
+            onClick={() => {
+              if (!isApproved) {
+                setShowBlockedDialog(true);
+                return;
+              }
+              setShowAddForm((prev) => !prev);
+            }}
+            className={`text-white ${isApproved
+              ? "bg-blue-500 hover:bg-blue-600"
+              : "bg-gray-400 cursor-not-allowed"
+              }`}
           >
             {showAddForm ? "Close Add Product" : "+ Add Product"}
           </Button>
@@ -164,7 +176,7 @@ export default function ProductPage() {
       </div>
 
       {/* Show Add Product Form if seller clicked the button */}
-      {showAddForm && (
+      {showAddForm && isApproved && (
         <div className="mb-6 border rounded p-4 bg-gray-50">
           <h3 className="text-lg font-semibold mb-2">Add New Product</h3>
           <StockManagementPage onProductAdded={() => fetchProducts(page)} />
@@ -353,6 +365,29 @@ export default function ProductPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showBlockedDialog} onOpenChange={setShowBlockedDialog}>
+        <DialogContent className="max-w-sm text-center">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">
+              Account Deactivated
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-gray-600 mt-2">
+            Your account has been deactivated by the admin.
+            <br />
+            Please contact your admin to enable product access.
+          </p>
+
+          <div className="mt-4 flex justify-center">
+            <Button onClick={() => setShowBlockedDialog(false)}>
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
     </div>
   )

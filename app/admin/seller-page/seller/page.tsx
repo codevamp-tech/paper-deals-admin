@@ -22,8 +22,7 @@ type Seller = {
   name: string
   email_address: string
   phone_no: string
-  active_status: number
-  approved: string
+  approved: number | string
   organization?: {
     organizations: string
     contact_person: string
@@ -217,14 +216,15 @@ export default function SellerPage() {
                   <td className="px-4 py-2 border">
                     <Badge
                       className={
-                        seller.active_status === 1
+                        Number(seller.approved) === 1
                           ? "bg-green-500 hover:bg-green-600 text-white"
                           : "bg-red-500 hover:bg-red-600 text-white"
                       }
                     >
-                      {seller.active_status === 1 ? "Active" : "Inactive"}
+                      {Number(seller.approved) === 1 ? "Active" : "Inactive"}
                     </Badge>
                   </td>
+
                   <td className="px-4 py-3">
                     <div className="flex justify-end">
                       <DropdownMenu>
@@ -239,16 +239,11 @@ export default function SellerPage() {
                           <DropdownMenuItem onClick={() => handleEdit(seller)} className="cursor-pointer">
                             Edit Seller
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleStatus(seller.id)} className="cursor-pointer">
-                            {seller.active_status === 1 ? (
-                              <>
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
-                                Activate
-                              </>
-                            )}
+                          <DropdownMenuItem
+                            onClick={() => handleToggleStatus(seller.id)}
+                            className="cursor-pointer"
+                          >
+                            {Number(seller.approved) === 1 ? "Deactivate" : "Activate"}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                         </DropdownMenuContent>
