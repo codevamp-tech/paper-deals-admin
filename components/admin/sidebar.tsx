@@ -465,16 +465,16 @@ export default function AdminSidebar({ onClose }) {
             />
 
             {/* Buyer */}
-            <DropdownMenu
-              title="Buyer"
-              icon={Users}
-              isOpen={buyerOpen}
-              toggle={() => setBuyerOpen(!buyerOpen)}
-              links={[
-                { name: "Buyer", href: "/admin/Buyer/buyerPage", icon: UserCircle },
-                // { name: "Products", href: "/admin/Buyer/products", icon: Package },
-              ]}
-            />
+            <Link
+              href="/admin/Buyer/buyerPage"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/Buyer/buyerPage")
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                }`}
+            >
+              <Users className="mr-3 h-5 w-5" />
+              Buyers
+            </Link>
 
             {/* Direct Order */}
             <Link
