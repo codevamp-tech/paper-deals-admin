@@ -32,7 +32,6 @@ export default function ProductPage() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [showBlockedDialog, setShowBlockedDialog] = useState(false);
   const user = getUserFromToken();
-  console.log("update aproved", user);
   const userRole = user?.user_role
   const isApproved = Number(user?.approved) === 1;
 
@@ -167,7 +166,7 @@ export default function ProductPage() {
             }}
             className={`text-white ${isApproved
               ? "bg-blue-500 hover:bg-blue-600"
-              : "bg-gray-400 cursor-not-allowed"
+              : "bg-gray-400 "
               }`}
           >
             {showAddForm ? "Close Add Product" : "+ Add Product"}
@@ -374,7 +373,7 @@ export default function ProductPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 items-start mt-2">
             Your account has been deactivated by the admin.
             <br />
             Please contact your admin to enable product access.

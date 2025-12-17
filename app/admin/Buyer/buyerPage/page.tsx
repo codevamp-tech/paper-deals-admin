@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import { MoreVertical } from "lucide-react"
 
 type Organization = {
   id: number
@@ -27,7 +28,7 @@ type Organization = {
   email: string
   phone: string
   city: string
-  materials_used: string
+  materials_used_names: string[]
 }
 
 type Buyer = {
@@ -36,6 +37,7 @@ type Buyer = {
   email_address: string
   phone_no: string
   active_status: number
+  approved: number | string
   organization: Organization
 }
 
@@ -133,7 +135,7 @@ export default function BuyerTable() {
   const handleToggleStatus = async (buyer: Buyer) => {
     try {
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/users/users/toggle-buyer-status/${buyer.id}`,
+        `https://paper-deal-server.onrender.com/api/users/toggle-buyer-status/${buyer.id}`,
         { method: "PATCH" }
       )
       const data = await res.json()
@@ -145,6 +147,20 @@ export default function BuyerTable() {
       }
     } catch (error) {
       toast.error("Error toggling buyer status")
+    }
+  }
+
+  const handleToggleProductStatus = async (id: number) => {
+    try {
+      const res = await fetch(
+        `https://paper-deal-server.onrender.com/api/users/product-buyer-status/${id}`,
+        { method: "PUT" }
+      )
+      if (res.ok) {
+        fetchBuyers()
+      }
+    } catch (error) {
+      console.error("Error toggling seller status:", error)
     }
   }
 
@@ -175,7 +191,7 @@ export default function BuyerTable() {
           <thead className="bg-gray-100 text-left">
             <tr>
               <th className="p-2 border">ID</th>
-              <th className="p-2 border">Company Id</th>
+              {/* <th className="p-2 border">Company Id</th> */}
               <th className="p-2 border">Company Name</th>
               <th className="p-2 border">Buyer Name</th>
               <th className="p-2 border">Buyer Email</th>
@@ -196,14 +212,17 @@ export default function BuyerTable() {
             ) : filteredBuyers.length > 0 ? (
               filteredBuyers.map((buyer) => (
                 <tr key={buyer.id}>
-                  <td className="p-2 border">{buyer.id}</td>
-                  <td className="p-2 border">{buyer.organization?.id}</td>
-                  <td className="p-2 border">{buyer.organization?.organizations}</td>
+                  <td className="p-2 border">KPDB_{buyer.id}</td>
+                  {/* <td className="p-2 border">{buyer.organization?.id}</td> */}
+                  <td className="p-2 border">{buyer.organization?.organizations || "-"}</td>
                   <td className="p-2 border">{buyer.name}</td>
                   <td className="p-2 border">{buyer.email_address}</td>
                   <td className="p-2 border">{buyer.phone_no}</td>
-                  <td className="p-2 border">{buyer.organization?.city}</td>
-                  <td className="p-2 border">{buyer.organization?.materials_used}</td>
+                  <td className="p-2 border">{buyer.organization?.city || "-"} </td>
+                  <td className="p-2 border">
+                    {buyer.organization?.materials_used_names?.join(", ") || "-"}
+                  </td>
+
                   <td className="p-2 border">
                     <span
                       className={`px-2 py-1 rounded text-white text-sm ${buyer.active_status === 1 ? "bg-green-500" : "bg-red-500"
@@ -216,7 +235,7 @@ export default function BuyerTable() {
                   <td className="p-2 border">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">Actions</Button>
+                        <Button variant="outline" size="sm"><MoreVertical className="w-4 h-4" /></Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuSeparator />
@@ -226,9 +245,19 @@ export default function BuyerTable() {
                         <DropdownMenuItem onClick={() => handleDelete(buyer)}>
                           Delete
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggleStatus(buyer)}>
-                          {buyer.active_status === 1 ? "Deactivate" : "Activate"}
+                        <DropdownMenuItem
+                          onClick={() => handleToggleProductStatus(buyer.id)}
+                          className="cursor-pointer"
+                        >
+                          {Number(buyer.approved) === 1
+                            ? "Disable Product Upload"
+                            : "Enable Product Upload"}
                         </DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={() => handleToggleStatus(buyer)}>
+                          {buyer.active_status === 1 ? "Deactivate Account" : "Activate Account"}
+                        </DropdownMenuItem>
+
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
