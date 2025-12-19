@@ -16,6 +16,7 @@ type Image = {
   id: number
   title: string
   created_at: string
+  url: string
 }
 
 export default function ImagePage() {
@@ -161,6 +162,7 @@ export default function ImagePage() {
               <tr>
                 <th className="px-4 py-2 border">ID</th>
                 <th className="px-4 py-2 border">Title</th>
+                <th className="px-4 py-2 border">Image</th>
                 <th className="px-4 py-2 border">Created At</th>
                 <th className="px-4 py-2 border">Edit</th>
                 <th className="px-4 py-2 border">Delete</th>
@@ -171,6 +173,18 @@ export default function ImagePage() {
                 <tr key={image.id} className="border-t">
                   <td className="px-4 py-2 border">{image.id}</td>
                   <td className="px-4 py-2 border">{image.title}</td>
+                  <td className="px-4 py-2 border text-center">
+                    {image.url ? (
+                      <img
+                        src={image.url}
+                        alt={image.title}
+                        className="w-20 h-14 object-cover rounded mx-auto"
+                        loading="lazy"
+                      />
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="px-4 py-2 border">
                     {image.created_at
                       ? new Date(image.created_at).toLocaleString("en-IN", {

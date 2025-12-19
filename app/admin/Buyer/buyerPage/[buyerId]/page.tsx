@@ -9,16 +9,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Upload } from "lucide-react"
+import { CalendarIcon, Upload, X } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { getUserFromToken } from "@/hooks/use-token"
-import { Circle } from "lucide-react"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
-import { X } from "lucide-react"
 import { useParams } from "next/navigation"
-
 
 const states = [
   { id: "1", name: "Andaman and Nicobar Islands" },
@@ -68,7 +64,6 @@ interface FormData {
   whatsappNo: string
   status: string
 
-
   // Company Information
   company: string
   contactPerson: string
@@ -80,7 +75,7 @@ interface FormData {
   state: string
   pincode: string
   productionCapacity: string
-  dealsIn: string
+  dealsIn: string | number[] // Updated to handle array or string
   typeOfSeller: string
   description: string
 
@@ -108,7 +103,6 @@ interface FileUploads {
 }
 
 const initialFormData: FormData = {
-
   name: "",
   email: "",
   mobile: "",
@@ -147,23 +141,24 @@ const initialFileUploads: FileUploads = {
   gstCertificate: null,
 }
 
-
-
 export default function SellerEditForm() {
   const [activeSection, setActiveSection] = useState("seller-edit")
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [fileUploads, setFileUploads] = useState<FileUploads>(initialFileUploads)
   const [loading, setLoading] = useState(false)
-  const { sellerId } = useParams()
-  const userId = sellerId
+  const { buyerId } = useParams()
+  const userId = buyerId
+
+  // -- NEW STATE FOR CATEGORIES --
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([])
   const [selectedCategories, setSelectedCategories] = useState<number[]>([])
 
-
+  // -- NEW EFFECT: FETCH CATEGORIES --
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
+        // Using env variable for consistency with your existing code
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/categiry`)
         if (res.ok) {
           const data = await res.json()
           setCategories(data.categories)
@@ -175,6 +170,11 @@ export default function SellerEditForm() {
     fetchCategories()
   }, [])
 
+  // -- NEW EFFECT: SYNC SELECTED CATEGORIES WITH FORM DATA --
+  useEffect(() => {
+    // Sync the array of IDs to the formData "dealsIn" field
+    updateFormData("dealsIn", selectedCategories)
+  }, [selectedCategories])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -260,7 +260,7 @@ export default function SellerEditForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId,
-          organizations: formData.company, // was company
+          organizations: formData.company,
           contact_person: formData.contactPerson,
           email: formData.companyEmail,
           phone: formData.companyMobile,
@@ -270,11 +270,11 @@ export default function SellerEditForm() {
           state: formData.state,
           pincode: formData.pincode,
           production_capacity: formData.productionCapacity,
-          materials_used: formData.dealsIn, // was dealsIn
-          organization_type: formData.typeOfSeller, // was typeOfSeller
+          materials_used: formData.dealsIn,
+          organization_type: formData.typeOfSeller,
           description: formData.description,
-          price_range: "", // optional
-          production_specification: "", // optional
+          price_range: "",
+          production_specification: "",
           verified: 0,
           vip: 0,
           image_banner: fileUploads.logo ? fileUploads.logo.name : null,
@@ -304,7 +304,7 @@ export default function SellerEditForm() {
           gst_number: formData.gstNumber,
           export_import_licence: formData.exportImportLicense,
           pan_card_img: fileUploads.panCard ? fileUploads.panCard.name : null,
-          voter_id_img: null, // optional
+          voter_id_img: null,
           cert_of_incorp: fileUploads.certificateOfIncorporation ? fileUploads.certificateOfIncorporation.name : null,
           gst_cert: fileUploads.gstCertificate ? fileUploads.gstCertificate.name : null,
           doc_status: 1,
@@ -320,12 +320,14 @@ export default function SellerEditForm() {
     }
   };
 
-
   useEffect(() => {
     const fetchSeller = async () => {
       try {
         setLoading(true)
-        const res = await fetch(`https://paper-deal-server.onrender.com/api/users/sellers/${userId}`);
+        let url = "";
+        url = `https://paper-deal-server.onrender.com/api/users/buyerbyid/${userId}`;
+        const res = await fetch(url);
+
         if (res.ok) {
           const data = await res.json()
 
@@ -356,7 +358,6 @@ export default function SellerEditForm() {
     if (userId) fetchSeller()
   }, [userId])
 
-
   const allSections = [
     { id: "seller-edit", title: "Profile" },
     { id: "company-info", title: "Company Information" },
@@ -364,20 +365,13 @@ export default function SellerEditForm() {
     { id: "documents", title: "Documents Upload" },
   ]
 
-
-
-  // Define required fields for profile completion
+  // -- NEW LOGIC: PROFILE COMPLETION PERCENTAGE --
   const requiredFields = [
     "company", "contactPerson", "companyEmail", "companyMobile",
     "address", "city", "state", "pincode",
     "ownerName", "designation", "ownerAddress",
     "gstNumber", "exportImportLicense"
   ]
-
-  useEffect(() => {
-    updateFormData("dealsIn", selectedCategories) // send IDs array to backend
-  }, [selectedCategories])
-
 
   // Calculate filled fields
   const filledCount = requiredFields.filter(field => {
@@ -389,24 +383,25 @@ export default function SellerEditForm() {
 
 
   return (
-    <div className="container mx-auto p-4 max-w-6xl">
+    <div className="container mx-auto p-4 max-w-6xl bg-white text-black">
       {/* Navigation */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             {allSections.map((section) => (
               <Button
                 key={section.id}
                 variant={activeSection === section.id ? "default" : "outline"}
                 onClick={() => setActiveSection(section.id)}
-                className="text-sm"
+                className="text-sm text-black bg-white border-gray-300 hover:bg-gray-100"
+
               >
                 {section.title}
               </Button>
             ))}
           </div>
 
-          {/* Profile Completion Circle */}
+          {/* -- NEW VISUAL: Profile Completion Circle -- */}
           <div className="relative flex items-center justify-center w-16 h-16">
             <svg className="w-16 h-16 transform -rotate-90">
               <circle
@@ -438,9 +433,10 @@ export default function SellerEditForm() {
       {activeSection === "seller-edit" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-medium">Profile</CardTitle>
+            <CardTitle className="text-blue-500 font-medium">Profile</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Seller Profile (role 2) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="name">Name</Label>
@@ -484,13 +480,14 @@ export default function SellerEditForm() {
               </div>
               {/* <div>
                 <Label>Status</Label>
-                <Select value={formData.status} >
+                <Select value={formData.status} disabled>
                   <SelectTrigger className="bg-gray-100">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Approved">Approved</SelectItem>
                     <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
               </div> */}
@@ -501,9 +498,11 @@ export default function SellerEditForm() {
 
       {/* Company Information Section */}
       {activeSection === "company-info" && (
-        <Card>
+        <Card className="bg-white text-black">
           <CardHeader>
-            <CardTitle className="text-lg font-medium text-blue-600">Company Information</CardTitle>
+            <CardTitle className="text-lg font-medium text-blue-600">
+              Company Information
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -513,6 +512,7 @@ export default function SellerEditForm() {
                   id="company"
                   value={formData.company}
                   onChange={(e) => updateFormData("company", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
@@ -523,6 +523,7 @@ export default function SellerEditForm() {
                   id="contactPerson"
                   value={formData.contactPerson}
                   onChange={(e) => updateFormData("contactPerson", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
@@ -534,6 +535,7 @@ export default function SellerEditForm() {
                   type="email"
                   value={formData.companyEmail}
                   onChange={(e) => updateFormData("companyEmail", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
             </div>
@@ -547,6 +549,7 @@ export default function SellerEditForm() {
                   id="companyMobile"
                   value={formData.companyMobile}
                   onChange={(e) => updateFormData("companyMobile", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
@@ -557,13 +560,19 @@ export default function SellerEditForm() {
                   id="address"
                   value={formData.address}
                   onChange={(e) => updateFormData("address", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
                 <Label htmlFor="city">
                   City <span className="text-red-500">*</span>
                 </Label>
-                <Input id="city" value={formData.city} onChange={(e) => updateFormData("city", e.target.value)} />
+                <Input
+                  id="city"
+                  value={formData.city}
+                  onChange={(e) => updateFormData("city", e.target.value)}
+                  className="bg-white text-black border-gray-300"
+                />
               </div>
             </div>
 
@@ -572,7 +581,11 @@ export default function SellerEditForm() {
                 <Label htmlFor="district">
                   District <span className="text-red-500">*</span>
                 </Label>
-                <Input id="district" value="muzaffarnagar" className="bg-gray-100" />
+                <Input
+                  id="district"
+                  value="muzaffarnagar"
+                  className="bg-gray-100 text-black border-gray-300"
+                />
               </div>
               <div>
                 <Label htmlFor="state">
@@ -582,12 +595,16 @@ export default function SellerEditForm() {
                   value={formData.state}
                   onValueChange={(value) => updateFormData("state", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white text-black border-gray-300">
                     <SelectValue placeholder="Select a state" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white text-black">
                     {states.map((state) => (
-                      <SelectItem key={state.id} value={state.id}>
+                      <SelectItem
+                        key={state.id}
+                        value={state.id}
+                        className="text-black"
+                      >
                         {state.name}
                       </SelectItem>
                     ))}
@@ -602,19 +619,27 @@ export default function SellerEditForm() {
                   id="pincode"
                   value={formData.pincode}
                   onChange={(e) => updateFormData("pincode", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="productionCapacity">Production Capacity (TPM)</Label>
+                <Label htmlFor="productionCapacity">
+                  Production Capacity (TPM)
+                </Label>
                 <Input
                   id="productionCapacity"
                   value={formData.productionCapacity}
-                  onChange={(e) => updateFormData("productionCapacity", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("productionCapacity", e.target.value)
+                  }
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
+
+              {/* -- NEW: Deals In Dropdown with Badges -- */}
               <div>
                 <Label htmlFor="dealsIn">Deals In (Select Multiple)</Label>
                 <Select
@@ -625,10 +650,10 @@ export default function SellerEditForm() {
                     )
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white text-black border-gray-300">
                     <SelectValue placeholder="Select categories" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white text-black">
                     {categories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id.toString()}>
                         {selectedCategories.includes(cat.id) ? "✅ " : ""} {cat.name}
@@ -660,9 +685,7 @@ export default function SellerEditForm() {
                   })}
                 </div>
               </div>
-
-
-
+              {/* -- END NEW SECTION -- */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -674,10 +697,10 @@ export default function SellerEditForm() {
                   value={formData.typeOfSeller}
                   onValueChange={(value) => updateFormData("typeOfSeller", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white text-black border-gray-300">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white text-black">
                     <SelectItem value="0">Importer</SelectItem>
                     <SelectItem value="1">Wholeseller</SelectItem>
                     <SelectItem value="2">Manufacturer</SelectItem>
@@ -689,22 +712,35 @@ export default function SellerEditForm() {
 
               <div>
                 <Label>Logo/Image (1357*150)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-white text-black">
                   <input
                     type="file"
                     id="logo-upload"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleFileUpload("logo", e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleFileUpload("logo", e.target.files?.[0] || null)
+                    }
                   />
-                  <Button variant="outline" size="sm" onClick={() => document.getElementById("logo-upload")?.click()}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      document.getElementById("logo-upload")?.click()
+                    }
+                    className="bg-white text-black border-gray-300 hover:bg-gray-100"
+                  >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose File
                   </Button>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.logo ? fileUploads.logo.name : "No file chosen"}
+                  <p className="text-sm text-gray-700 mt-1">
+                    {fileUploads.logo
+                      ? fileUploads.logo.name
+                      : "No file chosen"}
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">Download Paper | View Document</p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Download Paper | View Document
+                  </p>
                 </div>
               </div>
             </div>
@@ -716,18 +752,21 @@ export default function SellerEditForm() {
                 value={formData.description}
                 onChange={(e) => updateFormData("description", e.target.value)}
                 rows={4}
-                className="resize-none"
+                className="resize-none bg-white text-black border-gray-300"
               />
             </div>
           </CardContent>
         </Card>
       )}
 
+
       {/* Personal Information Section */}
       {activeSection === "personal-info" && (
-        <Card>
+        <Card className="bg-white text-black">
           <CardHeader>
-            <CardTitle className="text-lg font-medium text-blue-600">Personal Information (Owner)</CardTitle>
+            <CardTitle className="text-lg font-medium text-blue-600">
+              Personal Information (Owner)
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -739,6 +778,7 @@ export default function SellerEditForm() {
                   id="ownerName"
                   value={formData.ownerName}
                   onChange={(e) => updateFormData("ownerName", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
@@ -749,6 +789,7 @@ export default function SellerEditForm() {
                   id="designation"
                   value={formData.designation}
                   onChange={(e) => updateFormData("designation", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
@@ -759,6 +800,7 @@ export default function SellerEditForm() {
                   id="ownerAddress"
                   value={formData.ownerAddress}
                   onChange={(e) => updateFormData("ownerAddress", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
             </div>
@@ -766,11 +808,14 @@ export default function SellerEditForm() {
         </Card>
       )}
 
+
       {/* Documents Upload Section */}
       {activeSection === "documents" && (
-        <Card>
+        <Card className="bg-white text-black">
           <CardHeader>
-            <CardTitle className="text-lg font-medium text-blue-600">Documents Upload</CardTitle>
+            <CardTitle className="text-lg font-medium text-blue-600">
+              Documents Upload
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -782,6 +827,7 @@ export default function SellerEditForm() {
                   id="gstNumber"
                   value={formData.gstNumber}
                   onChange={(e) => updateFormData("gstNumber", e.target.value)}
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
@@ -791,25 +837,38 @@ export default function SellerEditForm() {
                 <Input
                   id="exportImportLicense"
                   value={formData.exportImportLicense}
-                  onChange={(e) => updateFormData("exportImportLicense", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("exportImportLicense", e.target.value)
+                  }
+                  className="bg-white text-black border-gray-300"
                 />
               </div>
               <div>
                 <Label>PAN Card (.png, .jpeg, .jpg Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-white text-black">
                   <input
                     type="file"
                     id="pan-upload"
                     accept=".png,.jpeg,.jpg"
                     className="hidden"
-                    onChange={(e) => handleFileUpload("panCard", e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleFileUpload("panCard", e.target.files?.[0] || null)
+                    }
                   />
-                  <Button variant="outline" size="sm" onClick={() => document.getElementById("pan-upload")?.click()}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() =>
+                      document.getElementById("pan-upload")?.click()
+                    }
+                  >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose File
                   </Button>
                   <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.panCard ? fileUploads.panCard.name : "No file chosen"}
+                    {fileUploads.panCard
+                      ? fileUploads.panCard.name
+                      : "No file chosen"}
                   </p>
                 </div>
               </div>
@@ -818,37 +877,54 @@ export default function SellerEditForm() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label>ISO Certificate (.pdf Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-white text-black">
                   <input
                     type="file"
                     id="iso-upload"
                     accept=".pdf"
                     className="hidden"
-                    onChange={(e) => handleFileUpload("isocertificate", e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleFileUpload("isocertificate", e.target.files?.[0] || null)
+                    }
                   />
-                  <Button variant="outline" size="sm" onClick={() => document.getElementById("iso-upload")?.click()}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() =>
+                      document.getElementById("iso-upload")?.click()
+                    }
+                  >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose File
                   </Button>
                   <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.isocertificate ? fileUploads.isocertificate.name : "No file chosen"}
+                    {fileUploads.isocertificate
+                      ? fileUploads.isocertificate.name
+                      : "No file chosen"}
                   </p>
                 </div>
               </div>
               <div>
                 <Label>CERTIFICATE OF INCORPORATION (.pdf Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-white text-black">
                   <input
                     type="file"
                     id="incorporation-upload"
                     accept=".pdf"
                     className="hidden"
-                    onChange={(e) => handleFileUpload("certificateOfIncorporation", e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleFileUpload(
+                        "certificateOfIncorporation",
+                        e.target.files?.[0] || null
+                      )
+                    }
                   />
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
-                    onClick={() => document.getElementById("incorporation-upload")?.click()}
+                    onClick={() =>
+                      document.getElementById("incorporation-upload")?.click()
+                    }
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose File
@@ -862,36 +938,44 @@ export default function SellerEditForm() {
               </div>
               <div>
                 <Label>GST CERTIFICATE (.pdf Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-white text-black">
                   <input
                     type="file"
                     id="gst-cert-upload"
                     accept=".pdf"
                     className="hidden"
-                    onChange={(e) => handleFileUpload("gstCertificate", e.target.files?.[0] || null)}
+                    onChange={(e) =>
+                      handleFileUpload("gstCertificate", e.target.files?.[0] || null)
+                    }
                   />
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
-                    onClick={() => document.getElementById("gst-cert-upload")?.click()}
+                    onClick={() =>
+                      document.getElementById("gst-cert-upload")?.click()
+                    }
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose File
                   </Button>
                   <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.gstCertificate ? fileUploads.gstCertificate.name : "No file chosen"}
+                    {fileUploads.gstCertificate
+                      ? fileUploads.gstCertificate.name
+                      : "No file chosen"}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white px-8">
+              <Button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-8"
+              >
                 {loading ? "Saving..." : "Save"}
               </Button>
             </div>
-
-
           </CardContent>
         </Card>
       )}

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { MoreVertical } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 type Organization = {
   id: number
@@ -47,7 +48,7 @@ export default function BuyerTable() {
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(false)
-
+  const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
@@ -107,9 +108,7 @@ export default function BuyerTable() {
     }
   }
 
-  const handleEdit = (buyer: Buyer) => {
-    alert(`Edit Buyer: ${buyer.name}`)
-  }
+
 
   const handleDelete = async (buyer: Buyer) => {
     {
@@ -239,7 +238,9 @@ export default function BuyerTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleEdit(buyer)}>
+                        <DropdownMenuItem onClick={() =>
+                          router.push(`/admin/Buyer/buyerPage/${buyer.id}`)
+                        }>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDelete(buyer)}>
