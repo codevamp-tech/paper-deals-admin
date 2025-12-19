@@ -425,7 +425,7 @@ export default function AdminSidebar({ onClose }) {
                 { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: UserCircle },
                 // { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall },
                 { name: "Requarement ", href: "/admin/rquarments", icon: MessageSquare },
-                { name: "Spot Price Enquiry", href: "/admin/inquiries/spot_price", icon: IndianRupee },
+                { name: "Live Stock Enquiry", href: "/admin/inquiries/spot_price", icon: IndianRupee },
               ]}
             />
 

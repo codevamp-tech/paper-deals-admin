@@ -194,7 +194,7 @@ export default function SellerPage() {
                 <th className="px-4 py-2 border">Deals In</th>
                 <th className="px-4 py-2 border">Status</th>
                 <th className="px-4 py-2 border">Action</th>
-                <th className="px-4 py-2 border">View</th>
+                {/* <th className="px-4 py-2 border">View</th> */}
 
               </tr>
             </thead>
@@ -237,7 +237,9 @@ export default function SellerPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleEdit(seller)} className="cursor-pointer">
+                          <DropdownMenuItem onClick={() =>
+                            router.push(`/admin/seller-page/seller/${seller.id}`)
+                          } className="cursor-pointer">
                             Edit Seller
                           </DropdownMenuItem>
                           <DropdownMenuItem
@@ -251,7 +253,7 @@ export default function SellerPage() {
                       </DropdownMenu>
                     </div>
                   </td>
-                  <td className="px-4 py-2 border">
+                  {/* <td className="px-4 py-2 border">
                     <button
                       onClick={() =>
                         router.push(`/admin/seller-page/seller/${seller.id}`)
@@ -259,7 +261,7 @@ export default function SellerPage() {
                     >
                       <Eye size={22} />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

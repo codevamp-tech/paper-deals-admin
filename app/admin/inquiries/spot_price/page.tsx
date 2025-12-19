@@ -53,7 +53,7 @@ export default function SpotPriceEnquiryPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">View Spot Price Enquiry</h1>
+      <h1 className="text-2xl font-semibold mb-4">View Live Stock Enquiry</h1>
 
       {/* Table */}
       <div className="overflow-x-auto border rounded-lg">
