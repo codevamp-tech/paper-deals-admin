@@ -70,18 +70,18 @@ export default function EnquiryDetailPage() {
         // Once enquiry is loaded, fetch related seller enquiries
         if (data?.category_id) {
           fetch(
-            `https://paper-deal-server.onrender.com/api/stocks/listSellerEnquiry?category_id=${data.category_id}`,
+            `https://paper-deal-server.onrender.com/api/product/by-category/${data.category_id}`,
             {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                // Authorization: `Bearer ${token}`,
               },
               credentials: "include",
             }
           )
             .then(res => res.json())
             .then(resp => {
-              setEnquiries(resp.data || [])
+              setEnquiries(resp.sellers || [])
             })
             .catch(err => console.error(err))
         }
@@ -120,11 +120,17 @@ export default function EnquiryDetailPage() {
       .catch(err => console.error(err))
   }
 
-  const handleCheckboxChange = (seller_id: number) => {
-    setSelectedIds(prev =>
-      prev.includes(seller_id) ? prev.filter(item => item !== seller_id) : [...prev, seller_id]
-    )
-  }
+  const handleCheckboxChange = (seller_id: number | null | undefined) => {
+    if (seller_id === null || seller_id === undefined) return;
+
+    setSelectedIds((prev) =>
+      prev.includes(seller_id)
+        ? prev.filter((id) => id !== seller_id)
+        : [...prev, seller_id]
+    );
+  };
+
+
 
   const handleSendMessages = async () => {
     if (selectedIds.length === 0) {
@@ -324,16 +330,18 @@ export default function EnquiryDetailPage() {
                       className={`hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/70"
                         }`}
                     >
-                      <td className="border p-3">{item.seller?.organization?.id}</td>
-                      <td className="border p-3">{item.seller?.organization?.organizations}</td>
-                      <td className="border p-3">{item.seller?.organization?.city}</td>
+                      <td className="border p-3">{item.organization?.id}</td>
+                      <td className="border p-3">{item.organization?.organizations}</td>
+                      <td className="border p-3">{item.organization?.city}</td>
                       <td className="border p-3 text-center">
                         <input
                           type="checkbox"
                           className="h-4 w-4"
-                          checked={selectedIds.includes(item.seller_id)}
-                          onChange={() => handleCheckboxChange(item.seller_id)}
+                          disabled={item.id === null || item.id === undefined}
+                          checked={selectedIds.includes(item.id)}
+                          onChange={() => handleCheckboxChange(item.id)}
                         />
+
                       </td>
                     </tr>
                   ))}
