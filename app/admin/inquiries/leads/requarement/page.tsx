@@ -14,6 +14,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner"; // optional if you use toast notifications
 import Pagination from "@/components/pagination";
+import { useRouter } from "next/navigation";
+import { Edit } from "lucide-react";
 
 type Rquarment = {
   Category: any;
@@ -32,7 +34,7 @@ export default function RquarmentList() {
   const [data, setData] = useState<Rquarment[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const router = useRouter();
   // Dialog state
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Rquarment | null>(null);
@@ -98,7 +100,7 @@ export default function RquarmentList() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className=" space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Requirement </CardTitle>
@@ -130,9 +132,11 @@ export default function RquarmentList() {
                   <td className="p-2 border">
                     {item.status === 1 ? (
                       <span className="text-green-600 font-medium">Accepted</span>
-                    ) : (
+                    ) : item.status === 2 ? (
                       <span className="text-red-600 font-medium">Rejected</span>
-                    )}
+                    ) : item.status === 0 ? (
+                      <span className="text-orange-500 font-medium">Pending</span>
+                    ) : null}
                   </td>
                   <td className="p-2 border">
                     {new Date(item.created_at).toLocaleDateString()}
@@ -141,10 +145,13 @@ export default function RquarmentList() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEditClick(item)}
+                      onClick={() =>
+                        router.push(`/admin/inquiries/leads/requarement/${item.id}`)
+                      }
                     >
-                      Edit
+                      <Edit />
                     </Button>
+
                   </td>
                 </tr>
               ))}
@@ -183,7 +190,8 @@ export default function RquarmentList() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Accepted</SelectItem>
-                  <SelectItem value="0">Rejected</SelectItem>
+                  <SelectItem value="0">Pending</SelectItem>
+                  <SelectItem value="2">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>

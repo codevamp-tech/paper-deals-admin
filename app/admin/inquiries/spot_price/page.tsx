@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react"
 import Pagination from "@/components/pagination"
+import Link from "next/link"
 
 export default function SpotPriceEnquiryPage() {
   const [currentPage, setCurrentPage] = useState(1)
-  const [enquiries, setEnquiries] = useState([])
+  const [enquiries, setEnquiries] = useState<any[]>([])
   const [totalPages, setTotalPages] = useState(1)
-  const [selectedEnquiry, setSelectedEnquiry] = useState(null)
-  const [status, setStatus] = useState(0)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isMessageOpen, setIsMessageOpen] = useState(false)
+  const [messageContent, setMessageContent] = useState("")
 
   const perPage = 10
 
@@ -31,25 +31,23 @@ export default function SpotPriceEnquiryPage() {
     fetchEnquiries(currentPage)
   }, [currentPage])
 
-  const openDialog = (enquiry) => {
-    setSelectedEnquiry(enquiry)
-    setStatus(enquiry.status) // 0 = Pending, 1 = Completed, 2 = Rejected
-    setIsDialogOpen(true)
+
+
+  const STATUS_MAP = {
+    0: {
+      label: "Pending",
+      className: "bg-orange-100 text-orange-600 border-orange-400",
+    },
+    1: {
+      label: "Completed",
+      className: "bg-green-100 text-green-600 border-green-400",
+    },
+    2: {
+      label: "Rejected",
+      className: "bg-red-100 text-red-600 border-red-400",
+    },
   }
 
-  const updateStatus = async () => {
-    try {
-      await fetch(`https://paper-deal-server.onrender.com/api/spotPriceEnqiry/${selectedEnquiry.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      })
-      setIsDialogOpen(false)
-      fetchEnquiries(currentPage) // refresh current page
-    } catch (err) {
-      console.error("Failed to update status:", err)
-    }
-  }
 
   return (
     <div className="p-6">
@@ -82,22 +80,35 @@ export default function SpotPriceEnquiryPage() {
                 <td className="px-3 py-2 border-b">{row.name}</td>
                 <td className="px-3 py-2 border-b">{row.phone}</td>
                 <td className="px-3 py-2 border-b">{row.email_id}</td>
-                <td className="px-3 py-2 border-b text-blue-600 cursor-pointer">{row.message}</td>
+                <td className="px-3 py-2 border-b">
+                  <button
+                    onClick={() => {
+                      setMessageContent(row.message)
+                      setIsMessageOpen(true)
+                    }}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Read
+                  </button>
+                </td>
+
                 <td className="px-3 py-2 border-b">{new Date(row.created_at).toLocaleString()}</td>
                 <td className="px-3 py-2 border-b">
                   <span
-                    className={`px-2 py-1 text-xs rounded-full border ${row.status === 1
-                      ? "bg-green-100 text-green-600 border-green-400"
-                      : row.status === 2
-                        ? "bg-red-100 text-red-600 border-red-400"
-                        : "bg-orange-100 text-orange-600 border-orange-400"
+                    className={`px-2 py-1 text-xs rounded-full border ${STATUS_MAP[row.status]?.className
                       }`}
                   >
-                    {row.status === 1 ? "Completed" : row.status === 2 ? "Rejected" : "Pending"}
+                    {STATUS_MAP[row.status]?.label}
                   </span>
+
                 </td>
-                <td className="px-3 py-2 border-b text-blue-600 cursor-pointer" onClick={() => openDialog(row)}>
-                  View
+                <td className="px-3 py-2 border-b">
+                  <Link
+                    href={`/admin/inquiries/spot_price/${row.id}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    View
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -110,35 +121,29 @@ export default function SpotPriceEnquiryPage() {
         <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
       </div>
 
-      {/* Update Dialog */}
-      {isDialogOpen && selectedEnquiry && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-lg w-80">
-            <h2 className="text-lg font-semibold mb-4">Update Status</h2>
-            <p className="mb-2">Name: {selectedEnquiry.name}</p>
-            <p className="mb-2">Product: {selectedEnquiry.ProductNew?.product_name || "-"}</p>
 
-            <select
-              className="w-full border px-2 py-1 rounded mb-4"
-              value={status}
-              onChange={(e) => setStatus(parseInt(e.target.value))}
-            >
-              <option value={0}>Pending</option>
-              <option value={1}>Completed</option>
-              <option value={2}>Rejected</option>
-            </select>
+      {isMessageOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-lg font-semibold mb-3">Message</h2>
 
-            <div className="flex justify-end gap-2">
-              <button className="px-4 py-2 border rounded hover:bg-gray-100" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </button>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={updateStatus}>
-                Update
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
+              {messageContent || "No message available"}
+            </p>
+
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setIsMessageOpen(false)}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Close
               </button>
             </div>
           </div>
         </div>
       )}
+
+
     </div>
   )
 }

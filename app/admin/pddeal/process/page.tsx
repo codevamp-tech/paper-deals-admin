@@ -20,6 +20,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 export default function ProcessPaperDealPage() {
   const [search, setSearch] = useState("");
@@ -51,6 +52,7 @@ export default function ProcessPaperDealPage() {
   const [buyerCommission, setBuyerCommission] = useState("");
   const [sellerCommission, setSellerCommission] = useState("");
   const [remarks, setRemarks] = useState("");
+  const router = useRouter();
 
   const fetchDeals = async () => {
     try {
@@ -194,7 +196,15 @@ export default function ProcessPaperDealPage() {
                     </span>
                   )}
                 </td>
-                <td className="p-2 border">
+                <td className="border p-2 text-center">
+                  <Edit
+                    className="cursor-pointer text-blue-600"
+                    onClick={() =>
+                      router.push(`/admin/pddeal/process/${d.id}`)
+                    }
+                  />
+                </td>
+                {/* <td className="p-2 border">
                   <Dialog
                     open={openDeal?.id === d.id}
                     onOpenChange={(isOpen) =>
@@ -261,7 +271,7 @@ export default function ProcessPaperDealPage() {
                       </div>
                     </DialogContent>
                   </Dialog>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
