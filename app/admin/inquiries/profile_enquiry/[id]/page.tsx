@@ -54,6 +54,18 @@ export default function EnquiryDetailPage() {
   const token = getCookie("token")
   const user = getUserFromToken();
   const userRole = user?.user_role
+  const [search, setSearch] = useState("")
+
+  const filteredEnquiries = enquiries.filter((item: any) => {
+    const company = item.organization?.organizations?.toLowerCase() || ""
+    const city = item.organization?.city?.toLowerCase() || ""
+
+    return (
+      company.includes(search.toLowerCase()) ||
+      city.includes(search.toLowerCase())
+    )
+  })
+
 
   useEffect(() => {
     fetch(`https://paper-deal-server.onrender.com/api/enquiry/getbyId/${id}`, {
@@ -309,9 +321,21 @@ export default function EnquiryDetailPage() {
         <>
           {/* Seller Enquiries List */}
           <div className="bg-white shadow-md rounded-xl p-6">
-            <h2 className="text-lg font-semibold mb-4 border-b pb-2">
-              Seller Enquiries List
-            </h2>
+
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold border-b pb-2">
+                Seller Enquiries List
+              </h2>
+
+              <input
+                type="text"
+                placeholder="Search by company or city..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full md:w-72 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
 
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
@@ -324,7 +348,7 @@ export default function EnquiryDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {enquiries.map((item: any, idx) => (
+                  {filteredEnquiries.map((item: any, idx) => (
                     <tr
                       key={item.id}
                       className={`hover:bg-gray-50 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/70"

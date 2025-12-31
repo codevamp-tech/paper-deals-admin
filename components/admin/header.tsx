@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import Cookies from "js-cookie";
+import Link from "next/link";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -55,7 +56,15 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
       </div>
 
       {/* Profile dropdown */}
-      <div className="relative">
+      <div className="relative flex gap-6 items-center">
+        <Link
+          href="https://paper-deals-website.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-white hover:u"
+        >
+          Go to  Website
+        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 border">
