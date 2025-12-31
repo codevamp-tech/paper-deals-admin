@@ -125,12 +125,12 @@ export default function AdminSidebar({ onClose }) {
   return (
     <div className="h-full flex flex-col p-4  bg-gradient-to-b from-blue-600 to-green-600  text-white">
       {/* Logo */}
-      <div className="hidden md:flex items-center space-x-2 mb-8">
-        <div className="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">PD</div>
-        <div>
-          <div className="font-bold text-lg">Admin Panel</div>
-          <div className="text-sm text-gray-400">Paper Deals</div>
-        </div>
+      <div className="hidden bg-white md:flex items-center space-x-2 mb-8">
+        <img
+          className="h-4 w-auto sm:h-5 md:h-10"
+          src="/logomain.png"
+          alt="LOGO"
+        />
       </div>
 
       {/* Navigation */}
@@ -211,8 +211,8 @@ export default function AdminSidebar({ onClose }) {
 
 
             <Link
-              href="/admin/inquiries/profile_enquiry"
-              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/inquiries/profile_enquiry")
+              href="/admin/inquiries/sellerenquiry"
+              className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/inquiries/sellerenquiry")
                 ? "bg-blue-600 text-white"
                 : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
@@ -425,7 +425,7 @@ export default function AdminSidebar({ onClose }) {
                 { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: UserCircle },
                 // { name: "Request Call", href: "/admin/inquiries/request_call", icon: PhoneCall },
                 { name: "Leads ", href: "/admin/inquiries/leads", icon: MessageSquare },
-                { name: "Live Stock Enquiry", href: "/admin/inquiries/spot_price", icon: IndianRupee },
+                { name: "Live Stock Enquiry", href: "/admin/inquiries/spot_price", icon: MessageSquare },
               ]}
             />
 
