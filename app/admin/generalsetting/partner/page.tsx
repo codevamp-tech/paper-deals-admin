@@ -24,6 +24,7 @@ type Partner = {
   logo_name: string
   logo_picture: string
   status: number
+  logo_type: 'b2c' | 'b2b'
   created_at: string
 }
 
@@ -34,6 +35,7 @@ export default function AssociationPartnersPage() {
   const [selected, setSelected] = useState<Partner | null>(null)
   const [editName, setEditName] = useState("")
   const [file, setFile] = useState<File | null>(null)
+  const [logoType, setLogoType] = useState<'b2c' | 'b2b'>('b2c')
 
   // ✅ pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -77,6 +79,7 @@ export default function AssociationPartnersPage() {
   const handleEdit = (partner: Partner) => {
     setSelected(partner)
     setEditName(partner.logo_name)
+    setLogoType(partner.logo_type || 'b2c')
     setOpen(true)
   }
 
@@ -87,6 +90,7 @@ export default function AssociationPartnersPage() {
       const formData = new FormData()
       formData.append("logo_name", editName)
       formData.append("status", "1")
+      formData.append("logo_type", logoType)
       if (file) formData.append("logo_picture", file)
 
       await fetch(`https://paper-deal-server.onrender.com/api/bottom-logo/update/${selected.id}`, {
@@ -100,6 +104,7 @@ export default function AssociationPartnersPage() {
     }
     setOpen(false)
     setFile(null)
+    setLogoType('b2c')
   }
 
   // ✅ Delete
@@ -126,10 +131,12 @@ export default function AssociationPartnersPage() {
     formData.append("file", file)
     formData.append("logo_name", editName)
     formData.append("status", "1")
+    formData.append("logo_type", logoType)
 
     handleCreate(formData)
     setEditName("")
     setFile(null)
+    setLogoType('b2c')
   }
 
 
@@ -160,6 +167,17 @@ export default function AssociationPartnersPage() {
               className="border rounded px-2 py-1 w-full"
             />
           </div>
+          <div>
+            <label className="block text-sm mb-1">Logo Type</label>
+            <select
+              value={logoType}
+              onChange={(e) => setLogoType(e.target.value as 'b2c' | 'b2b')}
+              className="border rounded px-2 py-1"
+            >
+              <option value="b2c">B2C (Website)</option>
+              <option value="b2b">B2B (Admin)</option>
+            </select>
+          </div>
           <div className="self-end">
             <button
               type="submit"
@@ -184,6 +202,7 @@ export default function AssociationPartnersPage() {
                   <th className="px-4 py-2 border">ID</th>
                   <th className="px-4 py-2 border">Logo</th>
                   <th className="px-4 py-2 border">Logo Name</th>
+                  <th className="px-4 py-2 border">Logo Type</th>
                   <th className="px-4 py-2 border">Created At</th>
                   <th className="px-4 py-2 border">Action</th>
                 </tr>
@@ -204,6 +223,14 @@ export default function AssociationPartnersPage() {
                       )}
                     </td>
                     <td className="px-4 py-2 border">{partner.logo_name}</td>
+                    <td className="px-4 py-2 border">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${partner.logo_type === 'b2c'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
+                        }`}>
+                        {partner.logo_type === 'b2c' ? 'B2C (Website)' : 'B2B (Admin)'}
+                      </span>
+                    </td>
                     <td className="px-4 py-2 border">
                       {new Date(partner.created_at).toLocaleString()}
                     </td>
@@ -261,6 +288,16 @@ export default function AssociationPartnersPage() {
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               className="border rounded px-2 py-1"
             />
+
+            <label className="block text-sm">Logo Type</label>
+            <select
+              value={logoType}
+              onChange={(e) => setLogoType(e.target.value as 'b2c' | 'b2b')}
+              className="border rounded px-2 py-1 w-full"
+            >
+              <option value="b2c">B2C (Website)</option>
+              <option value="b2b">B2B (Admin)</option>
+            </select>
           </div>
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setOpen(false)}>

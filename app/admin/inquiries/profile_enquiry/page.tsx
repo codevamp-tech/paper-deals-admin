@@ -112,7 +112,7 @@ export default function EnquiryPage() {
                 <th className="border px-3 py-2">Remarks</th>
                 <th className="border px-3 py-2">Created At</th>
                 <th className="border px-3 py-2">Status</th>
-                <th className="border px-3 py-2">Action</th>
+                {/* <th className="border px-3 py-2">Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -128,17 +128,17 @@ export default function EnquiryPage() {
                       : `KPDB_${row.buyer_id}`}
                   </td>
                   {isSellerView && (
-                    <td className="border px-3 py-2">{row.phone}</td>
+                    <td className="border px-3 py-2">{row.phone || "-"}</td>
                   )}
-                  <td className="border px-3 py-2">{row.city}</td>
-                  <td className="border px-3 py-2">{row.category?.name}</td>
-                  <td className="border px-3 py-2">{row.product}</td>
-                  <td className="border px-3 py-2">{row.gsm}</td>
-                  <td className="border px-3 py-2">{row.shade}</td>
-                  <td className="border px-3 py-2">{row.quantity_in_kg}</td>
-                  <td className="border px-3 py-2">{row.remarks}</td>
+                  <td className="border px-3 py-2">{row.city || "-"}</td>
+                  <td className="border px-3 py-2">{row.category?.name || "-"}</td>
+                  <td className="border px-3 py-2">{row.product || "-"}</td>
+                  <td className="border px-3 py-2">{row.gsm || "-"}</td>
+                  <td className="border px-3 py-2">{row.shade || "-"}</td>
+                  <td className="border px-3 py-2">{row.quantity_in_kg || "-"}</td>
+                  <td className="border px-3 py-2">{row.remarks || "-"}</td>
                   <td className="border px-3 py-2">
-                    {new Date(row.created_at).toLocaleString()}
+                    {new Date(row.created_at).toLocaleDateString("en-IN")}
                   </td>
                   <td className="border px-3 py-2">
                     {row.status === 1 && (
@@ -157,12 +157,12 @@ export default function EnquiryPage() {
                       </span>
                     )}
                   </td>
-                  <td
+                  {/* <td
                     className="border px-3 py-2 text-blue-600 cursor-pointer"
                     onClick={() => router.push(`/admin/inquiries/profile_enquiry/${row.id}`)}
                   >
                     View
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
