@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import Cookies from "js-cookie";
 import Link from "next/link";
+import { useBusinessMode } from "@/context/BusinessModeContext";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -20,6 +21,7 @@ interface AdminHeaderProps {
 }
 export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderProps) {
   const user = getUserFromToken();
+  const { mode, setMode } = useBusinessMode();
 
   const roleName =
     user?.user_role === 2
@@ -29,6 +31,9 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
         : user?.user_role === 1 || user?.user_role === 5
           ? "Admin"
           : "Consultant";
+
+  // Show toggle only for admin/super-admin roles (not sellers or consultants)
+  const showToggle = !user?.user_role || user?.user_role === 1 || user?.user_role === 4;
 
   const handleLogout = () => {
     Cookies.remove("token"); // remove the cookie
@@ -44,9 +49,9 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
         onClick={onMenuClick}
       >
         {sidebarOpen ? (
-          <X className="w-6 h-6 text-red-600" />   // Close icon in red
+          <X className="w-6 h-6 text-red-600" />
         ) : (
-          <Menu className="w-6 h-6 text-white" /> // Menu icon in gray
+          <Menu className="w-6 h-6 text-white" />
         )}
       </button>
 
@@ -54,6 +59,32 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
       <div className="text-lg font-semibold text-white pl-4">
         {roleName} Panel
       </div>
+
+      {/* B2B / B2C Toggle */}
+      {showToggle && (
+        <div className="flex items-center">
+          <div className="relative flex items-center bg-white/20 backdrop-blur-sm rounded-full p-0.5 border border-white/30">
+            <button
+              onClick={() => setMode("b2b")}
+              className={`relative z-10 px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${mode === "b2b"
+                  ? "bg-white text-blue-600 shadow-md"
+                  : "text-white/80 hover:text-white"
+                }`}
+            >
+              B2B
+            </button>
+            <button
+              onClick={() => setMode("b2c")}
+              className={`relative z-10 px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${mode === "b2c"
+                  ? "bg-white text-green-600 shadow-md"
+                  : "text-white/80 hover:text-white"
+                }`}
+            >
+              B2C
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Profile dropdown */}
       <div className="relative flex gap-6 items-center">
