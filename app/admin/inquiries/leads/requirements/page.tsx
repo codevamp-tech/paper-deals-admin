@@ -176,7 +176,7 @@ export default function RquarmentList() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        router.push(`/admin/inquiries/leads/requarement/${item.id}`)
+                        router.push(`/admin/inquiries/leads/requirements/${item.id}`)
                       }
                     >
                       <Edit />
