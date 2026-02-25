@@ -27,6 +27,7 @@ type Rquarment = {
   email: string;
   category_id: number;
   status: number;
+  msg: string;
   created_at: string;
 };
 
@@ -39,6 +40,10 @@ export default function RquarmentList() {
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Rquarment | null>(null);
   const [newStatus, setNewStatus] = useState<number>(0);
+
+  // Message dialog state
+  const [msgOpen, setMsgOpen] = useState(false);
+  const [selectedMsg, setSelectedMsg] = useState("");
 
   const fetchData = async (pageNum?: number) => {
     const safePage = pageNum && pageNum > 0 ? pageNum : 1;
@@ -115,6 +120,7 @@ export default function RquarmentList() {
                 <th className="p-2 border">Quantity</th>
                 <th className="p-2 border">Phone</th>
                 <th className="p-2 border">Email</th>
+                <th className="p-2 border max-w-[200px]">Message</th>
                 <th className="p-2 border">Status</th>
                 <th className="p-2 border">Created At</th>
                 <th className="p-2 border">Action</th>
@@ -129,6 +135,30 @@ export default function RquarmentList() {
                   <td className="p-2 border">{item.quantity}</td>
                   <td className="p-2 border">{item.phone_no}</td>
                   <td className="p-2 border">{item.email}</td>
+                  <td className="p-2 border max-w-[200px]">
+                    {item.msg ? (
+                      item.msg.length > 25 ? (
+                        <div className="flex flex-col items-center justify-center space-y-1">
+                          <span className="truncate w-full inline-block text-xs" title={item.msg}>
+                            {item.msg.substring(0, 25)}...
+                          </span>
+                          <span
+                            className="text-blue-500 cursor-pointer hover:underline text-xs whitespace-nowrap"
+                            onClick={() => {
+                              setSelectedMsg(item.msg);
+                              setMsgOpen(true);
+                            }}
+                          >
+                            Read More
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs">{item.msg}</span>
+                      )
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="p-2 border">
                     {item.status === 1 ? (
                       <span className="text-green-600 font-medium">Accepted</span>
@@ -202,6 +232,21 @@ export default function RquarmentList() {
               Cancel
             </Button>
             <Button onClick={handleUpdate}>Update</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Reading Full Message */}
+      <Dialog open={msgOpen} onOpenChange={setMsgOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Requirement Message</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 p-4 bg-gray-50 rounded-md text-gray-800 text-sm whitespace-pre-wrap max-h-[60vh] overflow-y-auto border border-gray-100 shadow-inner">
+            {selectedMsg || "No message provided."}
+          </div>
+          <DialogFooter className="mt-4">
+            <Button onClick={() => setMsgOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
