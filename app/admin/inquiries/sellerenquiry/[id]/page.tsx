@@ -134,23 +134,55 @@ export default function ViewEnquiryPage() {
         <div className="mt-6 flex items-center gap-4">
           <div className="w-64">
             <label className="block text-sm font-medium mb-1">Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(Number(e.target.value))}
-              className="w-full border rounded-md px-3 py-2 bg-gray-100"
-            >
-              <option value={0}>Pending</option>
-              <option value={1}>Accepted</option>
-              <option value={2}>Rejected</option>
-            </select>
+            <Input
+              value={status === 0 ? "Pending" : status === 1 ? "Accepted" : "Rejected/Lost"}
+              disabled
+              className="bg-gray-100 font-semibold"
+            />
           </div>
 
-          <button
-            onClick={updateStatus}
-            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
-          >
-            Update
-          </button>
+          {status === 0 && (
+            <button
+              onClick={async () => {
+                try {
+                  const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+                  const res = await fetch(`${API_URL}/api/enquiry/${enquiry.id}/accept`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`
+                    }
+                  });
+
+                  const data = await res.json();
+                  if (data.success) {
+                    toast.success(data.message);
+                    setStatus(1);
+                  } else {
+                    toast.error(data.message || "Failed to accept deal");
+                    setStatus(2); // E.g., if already accepted
+                  }
+
+                  setTimeout(() => router.push('/admin/inquiries/sellerenquiry'), 1500);
+                } catch (error) {
+                  console.error("Deal accept failed", error);
+                  toast.error("An error occurred");
+                }
+              }}
+              className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
+            >
+              Accept Deal
+            </button>
+          )}
+
+          {status !== 0 && (
+            <button
+              onClick={() => router.push('/admin/inquiries/sellerenquiry')}
+              className="mt-6 bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition"
+            >
+              Go Back
+            </button>
+          )}
         </div>
       </div>
     </div>
