@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import LivePriceEnquiryPage from "./enquiry/page";
-import RquarmentList from "./requarement/page";
+import RquarmentList from "./requirements/page";
 
 
 type TabType = "requirement" | "livePrice";
