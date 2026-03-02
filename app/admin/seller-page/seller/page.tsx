@@ -16,6 +16,8 @@ import {
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { usePasswordStrength, isPasswordStrong } from "@/lib/passwordStrength"
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator"
 
 type Seller = {
   id: number
@@ -52,6 +54,8 @@ export default function SellerPage() {
     joinDate: "",
     whatsapp: "",
   })
+  const { strength, checkStrength } = usePasswordStrength()
+  const [passwordError, setPasswordError] = useState("")
 
   const fetchSellers = async (page: number) => {
     setLoading(true)
@@ -74,10 +78,20 @@ export default function SellerPage() {
   }, [currentPage])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+    if (name === "password") {
+      checkStrength(value)
+      setPasswordError("")
+    }
   }
 
   const handleSave = async () => {
+    if (!isEdit && !isPasswordStrong(formData.password)) {
+      setPasswordError("Please use a strong password that meets all requirements.")
+      return
+    }
+    setPasswordError("")
     try {
       const url = isEdit
         ? `https://paper-deal-server.onrender.com/api/users/updateseller/${editId}`
@@ -297,13 +311,17 @@ export default function SellerPage() {
               onChange={handleChange}
             />
             {!isEdit && (
-              <Input
-                name="password"
-                type="password"
-                placeholder="Enter Password"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <div>
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder="Enter Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <PasswordStrengthIndicator strength={strength} />
+                {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
+              </div>
             )}
             <Input
               name="mobile"

@@ -277,7 +277,7 @@ export default function EnquiryDetailPage() {
           <div>
             <label className="block font-medium">Quantity</label>
             <input
-              value={enquiry.quantity_in_kg || ""}
+              value={`${enquiry.quantity_in_kg || ""} ${enquiry.quantity_unit || "kg"}`.trim()}
               disabled
               className="w-full border rounded-lg px-3 py-2"
             />

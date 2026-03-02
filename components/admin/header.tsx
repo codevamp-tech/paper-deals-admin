@@ -32,10 +32,9 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
           ? "Admin"
           : "Consultant";
 
-  // Show toggle only for admin/super-admin roles (not sellers or consultants)
-  const showToggle = !user?.user_role || user?.user_role === 1 || user?.user_role === 4;
-
   const handleLogout = () => {
+    localStorage.removeItem("admin_business_mode");
+    localStorage.removeItem("token");
     Cookies.remove("token"); // remove the cookie
     window.location.href = "/"; // redirect to login
   };
@@ -59,32 +58,6 @@ export default function AdminHeader({ onMenuClick, sidebarOpen }: AdminHeaderPro
       <div className="text-lg font-semibold text-white pl-4">
         {roleName} Panel
       </div>
-
-      {/* B2B / B2C Toggle */}
-      {showToggle && (
-        <div className="flex items-center">
-          <div className="relative flex items-center bg-white/20 backdrop-blur-sm rounded-full p-0.5 border border-white/30">
-            <button
-              onClick={() => setMode("b2b")}
-              className={`relative z-10 px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${mode === "b2b"
-                  ? "bg-white text-blue-600 shadow-md"
-                  : "text-white/80 hover:text-white"
-                }`}
-            >
-              B2B
-            </button>
-            <button
-              onClick={() => setMode("b2c")}
-              className={`relative z-10 px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${mode === "b2c"
-                  ? "bg-white text-green-600 shadow-md"
-                  : "text-white/80 hover:text-white"
-                }`}
-            >
-              B2C
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Profile dropdown */}
       <div className="relative flex gap-6 items-center">

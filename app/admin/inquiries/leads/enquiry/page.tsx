@@ -10,6 +10,7 @@ type Enquiry = {
   product_id: number;
   msg: string;
   quantity: string;
+  quantity_unit: string;
   status: number;
   created_at: string;
   buyer?: {
@@ -57,7 +58,7 @@ export default function LivePriceEnquiryPage() {
               <th className="border px-3 py-2">ID</th>
               <th className="border px-3 py-2">Buyer</th>
               <th className="border px-3 py-2">Product</th>
-              <th className="border px-3 py-2">Quantity(Kg) </th>
+              <th className="border px-3 py-2">Quantity</th>
               <th className="border px-3 py-2">Message</th>
               <th className="border px-3 py-2">Status</th>
               <th className="border px-3 py-2">Date</th>
@@ -83,7 +84,7 @@ export default function LivePriceEnquiryPage() {
                   <td className="border px-3 py-2">
                     {item.product?.name || "—"}
                   </td>
-                  <td className="border px-3 py-2">{item.quantity}</td>
+                  <td className="border px-3 py-2">{item.quantity} {item.quantity_unit || "kg"}</td>
                   <td className="border px-3 py-2">{item.msg}</td>
                   <td className="p-2 border">
                     {item.status === 1 ? (

@@ -21,6 +21,9 @@ import {
 import { toast } from "sonner"
 import { MoreVertical } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { usePasswordStrength, isPasswordStrong } from "@/lib/passwordStrength"
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator"
 
 type Organization = {
   id: number
@@ -58,6 +61,9 @@ export default function BuyerTable() {
     join_date: "",
     whatsapp_no: "",
   })
+  const [activeTab, setActiveTab] = useState("buyer")
+  const { strength, checkStrength } = usePasswordStrength()
+  const [passwordError, setPasswordError] = useState("")
 
   const fetchBuyers = async () => {
     setLoading(true)
@@ -80,6 +86,11 @@ export default function BuyerTable() {
   }, [page])
 
   const handleAddBuyer = async () => {
+    if (!isPasswordStrong(formData.password)) {
+      setPasswordError("Please use a strong password that meets all requirements.")
+      return
+    }
+    setPasswordError("")
     try {
       await fetch("https://paper-deal-server.onrender.com/api/users/create-buyer", {
         method: "POST",
@@ -164,9 +175,15 @@ export default function BuyerTable() {
   }
 
   const filteredBuyers = buyers.filter(
-    (buyer) =>
-      buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      buyer.email_address.toLowerCase().includes(searchTerm.toLowerCase())
+    (buyer) => {
+      const searchMatch = buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        buyer.email_address.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const isApproved = Number(buyer.approved);
+      const tabMatch = activeTab === "buyer" ? isApproved === 0 : isApproved === 1;
+
+      return searchMatch && tabMatch;
+    }
   )
 
   return (
@@ -178,12 +195,32 @@ export default function BuyerTable() {
           <Button onClick={() => setOpenDialog(true)}>+ Add Buyer</Button>
         </div>
       </div>
-      <Input
-        placeholder="Search buyers..."
-        className="w-52 mb-2"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+        <Tabs defaultValue="buyer" onValueChange={setActiveTab} className="w-full sm:w-auto">
+          <TabsList className="bg-gray-100 p-1 flex rounded-md">
+            <TabsTrigger
+              value="buyer"
+              className="flex-1 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-6 py-2 rounded-md font-medium transition-all"
+            >
+              Buyers
+            </TabsTrigger>
+            <TabsTrigger
+              value="seller"
+              className="flex-1 data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm px-6 py-2 rounded-md font-medium transition-all"
+            >
+              Sellers
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <Input
+          placeholder="Search buyers or sellers..."
+          className="w-full sm:w-64 bg-white"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {/* Table */}
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full border-collapse text-sm">
@@ -307,10 +344,14 @@ export default function BuyerTable() {
               type="password"
               placeholder="Password"
               value={formData.password}
-              onChange={(e) =>
+              onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value })
-              }
+                checkStrength(e.target.value)
+                setPasswordError("")
+              }}
             />
+            <PasswordStrengthIndicator strength={strength} />
+            {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
             <Input
               placeholder="Mobile (to be verified)"
               value={formData.phone_no}

@@ -18,6 +18,7 @@ type Requirement = {
   id: number;
   product_name: string;
   quantity: number;
+  quantity_unit: string;
   email: string;
   phone_no: string;
   pincode: string;
@@ -136,7 +137,7 @@ export default function EditRequirementPage() {
           </div>
           <div className="flex border-b pb-3">
             <span className="w-1/3 text-gray-500 font-medium">Quantity:</span>
-            <span className="w-2/3 text-gray-900">{data.quantity}</span>
+            <span className="w-2/3 text-gray-900">{data.quantity} {data.quantity_unit || "kg"}</span>
           </div>
           <div className="flex border-b pb-3">
             <span className="w-1/3 text-gray-500 font-medium">Date:</span>

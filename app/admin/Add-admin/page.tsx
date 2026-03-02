@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { usePasswordStrength, isPasswordStrong } from "@/lib/passwordStrength";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator";
 
 export default function AddAdminPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +17,8 @@ export default function AddAdminPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [admins, setAdmins] = useState<any[]>([]);
+  const { strength, checkStrength } = usePasswordStrength();
+  const [passwordError, setPasswordError] = useState("");
 
   // Fetch Admins
   const fetchAdmins = async () => {
@@ -35,12 +39,22 @@ export default function AddAdminPage() {
 
   // Handle form change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === "password") {
+      checkStrength(value);
+      setPasswordError("");
+    }
   };
 
   // Handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordStrong(formData.password)) {
+      setPasswordError("Please use a strong password that meets all requirements.");
+      return;
+    }
+    setPasswordError("");
     setLoading(true);
     setMessage("");
 
@@ -114,6 +128,8 @@ export default function AddAdminPage() {
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition duration-150"
             />
+            <PasswordStrengthIndicator strength={strength} />
+            {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
             <input
               type="text"
               name="phone_no"

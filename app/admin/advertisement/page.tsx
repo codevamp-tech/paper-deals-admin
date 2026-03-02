@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useBusinessMode } from "@/context/BusinessModeContext"
 import {
   Card,
   CardHeader,
@@ -35,6 +36,7 @@ interface Advertisement {
 }
 
 export default function AdvertisementPage() {
+  const { mode } = useBusinessMode()
   const [title, setTitle] = useState("")
   const [pageType, setPageType] = useState("")
   const [image, setImage] = useState<File | null>(null)
@@ -50,6 +52,7 @@ export default function AdvertisementPage() {
   const [editLoading, setEditLoading] = useState(false)
 
   useEffect(() => {
+    setPageType(mode === "b2b" ? "seller" : "buyer")
     const fetchAds = async () => {
       try {
         const res = await fetch("https://paper-deal-server.onrender.com/api/advertisement")
@@ -69,7 +72,7 @@ export default function AdvertisementPage() {
       }
     }
     fetchAds()
-  }, [])
+  }, [mode])
 
   // Create new advertisement
   const handleSubmit = async (e: React.FormEvent) => {
@@ -240,7 +243,7 @@ export default function AdvertisementPage() {
               </tr>
             </thead>
             <tbody>
-              {advertisements.map((ad) => (
+              {advertisements.filter((ad) => mode === "b2b" ? ad.pageType === "seller" : ad.pageType === "buyer").map((ad) => (
                 <tr key={ad.id} className="border-b">
                   <td className="px-4 py-2">{ad.id}</td>
                   <td className="px-4 py-2">{ad.title}</td>
@@ -260,7 +263,7 @@ export default function AdvertisementPage() {
                   </td>
                 </tr>
               ))}
-              {advertisements.length === 0 && (
+              {advertisements.filter((ad) => mode === "b2b" ? ad.pageType === "seller" : ad.pageType === "buyer").length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-4">
                     No advertisements found

@@ -109,6 +109,8 @@ export default function AdminSidebar({ onClose }) {
 
     const handleLogout = async () => {
         try {
+            localStorage.removeItem("admin_business_mode");
+            localStorage.removeItem("token");
             await fetch("/api/auth/logout", { method: "POST" })
             router.push("/")
             router.refresh()
@@ -426,7 +428,7 @@ export default function AdminSidebar({ onClose }) {
                             links={[
                                 { name: "Profile Enquiry", href: "/admin/inquiries/profile_enquiry", icon: UserCircle },
                                 { name: "Leads ", href: "/admin/inquiries/leads", icon: MessageSquare },
-                                { name: "Live Stock Enquiry", href: "/admin/inquiries/spot_price", icon: MessageSquare },
+                                ...(mode === "b2b" ? [{ name: "Live Stock Enquiry", href: "/admin/inquiries/spot_price", icon: MessageSquare }] : [])
                             ]}
                         />
 
@@ -481,6 +483,19 @@ export default function AdminSidebar({ onClose }) {
                                     <Eye className="mr-3 h-5 w-5" />
                                     Live Stock
                                 </Link>
+
+                                {/* Live Price */}
+                                <Link
+                                    href="/admin/livePrice"
+                                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
+                                        ? "bg-blue-600 text-white"
+                                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                                        }`}
+                                >
+                                    <FileBadge className="mr-3 h-5 w-5" />
+                                    Live Price
+                                </Link>
+
 
                                 {/* Consultant */}
                                 <Link
@@ -559,18 +574,6 @@ export default function AdminSidebar({ onClose }) {
                         >
                             <Megaphone className="mr-3 h-5 w-5" />
                             Advertisement
-                        </Link>
-
-                        {/* Live Price */}
-                        <Link
-                            href="/admin/livePrice"
-                            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/livePrice")
-                                ? "bg-blue-600 text-white"
-                                : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                                }`}
-                        >
-                            <FileBadge className="mr-3 h-5 w-5" />
-                            Live Price
                         </Link>
 
                         {/* Billing History */}
