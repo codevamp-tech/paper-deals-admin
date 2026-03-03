@@ -2,6 +2,8 @@
 
 import { getUserFromToken } from "@/hooks/use-token"
 import { useState } from "react"
+import { usePasswordStrength, isPasswordStrong } from "@/lib/passwordStrength"
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator"
 
 export default function ChangePasswordPage() {
   const [newPassword, setNewPassword] = useState("")
@@ -10,9 +12,17 @@ export default function ChangePasswordPage() {
   const [message, setMessage] = useState("")
   const user = getUserFromToken();
   const userId = user?.user_id;
+  const { strength, checkStrength } = usePasswordStrength()
+  const [passwordError, setPasswordError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isPasswordStrong(newPassword)) {
+      setPasswordError("Please use a strong password that meets all requirements.")
+      return
+    }
+    setPasswordError("")
 
     if (newPassword !== confirmPassword) {
       setMessage("❌ Passwords do not match")
@@ -69,11 +79,17 @@ export default function ChangePasswordPage() {
             <input
               type="password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value)
+                checkStrength(e.target.value)
+                setPasswordError("")
+              }}
               placeholder="New Password"
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
               required
             />
+            <PasswordStrengthIndicator strength={strength} />
+            {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
           </div>
 
           {/* Confirm Password */}

@@ -24,6 +24,7 @@ type Rquarment = {
   phone_no: string;
   product_name: string;
   quantity: number;
+  quantity_unit: string;
   email: string;
   category_id: number;
   status: number;
@@ -132,7 +133,7 @@ export default function RquarmentList() {
                   <td className="p-2 border">{item.id}</td>
                   <td className="p-2 border">{item.product_name}</td>
                   <td className="p-2 border">{item.Category?.name || "—"}</td>
-                  <td className="p-2 border">{item.quantity}</td>
+                  <td className="p-2 border">{item.quantity} {item.quantity_unit || "kg"}</td>
                   <td className="p-2 border">{item.phone_no}</td>
                   <td className="p-2 border">{item.email}</td>
                   <td className="p-2 border max-w-[200px]">

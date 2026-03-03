@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MoreHorizontal } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { usePasswordStrength, isPasswordStrong } from "@/lib/passwordStrength";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator";
 
 export default function ConsultantsPage() {
   const [consultants, setConsultants] = useState<any[]>([]);
@@ -25,6 +27,8 @@ export default function ConsultantsPage() {
   const [openAddForm, setOpenAddForm] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [editData, setEditData] = useState<any>(null);
+  const { strength, checkStrength } = usePasswordStrength();
+  const [passwordError, setPasswordError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -84,12 +88,21 @@ export default function ConsultantsPage() {
       setFormData({ ...formData, [name]: files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
+      if (name === "password") {
+        checkStrength(value);
+        setPasswordError("");
+      }
     }
   };
 
   // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordStrong(formData.password)) {
+      setPasswordError("Please use a strong password that meets all requirements.");
+      return;
+    }
+    setPasswordError("");
     try {
       const body = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -271,6 +284,8 @@ export default function ConsultantsPage() {
                 onChange={handleChange}
                 className="border p-2 rounded w-full"
               />
+              <PasswordStrengthIndicator strength={strength} />
+              {passwordError && <p className="text-xs text-red-500 mt-1">{passwordError}</p>}
             </div>
 
             {/* Price */}

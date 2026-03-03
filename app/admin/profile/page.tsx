@@ -158,6 +158,64 @@ export default function SellerEditForm() {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([])
   const [selectedCategories, setSelectedCategories] = useState<number[]>([])
 
+  // Bank Details state
+  const [bankData, setBankData] = useState({
+    bank_name: "",
+    account_holder_name: "",
+    account_number: "",
+    ifsc_code: "",
+    branch_name: "",
+    upi_id: "",
+  })
+  const [bankLoading, setBankLoading] = useState(false)
+
+  // Catalog state
+  const [catalogUrl, setCatalogUrl] = useState<string | null>(null)
+  const [catalogFile, setCatalogFile] = useState<File | null>(null)
+  const [catalogUploading, setCatalogUploading] = useState(false)
+
+  // Fetch bank details
+  useEffect(() => {
+    if (!userId) return
+    fetch(`https://paper-deal-server.onrender.com/api/bank-details/${userId}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setBankData({
+            bank_name: data.bank_name || "",
+            account_holder_name: data.account_holder_name || "",
+            account_number: data.account_number || "",
+            ifsc_code: data.ifsc_code || "",
+            branch_name: data.branch_name || "",
+            upi_id: data.upi_id || "",
+          })
+        }
+      })
+      .catch(err => console.error("Error fetching bank details:", err))
+  }, [userId])
+
+  // Save bank details
+  const handleBankSave = async () => {
+    try {
+      setBankLoading(true)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/bank-details`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, ...bankData }),
+      })
+      if (res.ok) {
+        alert("Bank details saved successfully!")
+      } else {
+        alert("Failed to save bank details.")
+      }
+    } catch (error) {
+      console.error("Error saving bank details:", error)
+      alert("Error saving bank details.")
+    } finally {
+      setBankLoading(false)
+    }
+  }
+
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -223,6 +281,7 @@ export default function SellerEditForm() {
             typeOfSeller: org.organization_type?.toString() || "",
             description: org.description || "",
           }))
+          setCatalogUrl(org.catalog || null)
         }
       } catch (error) {
         console.error("Error fetching data", error)
@@ -389,6 +448,7 @@ export default function SellerEditForm() {
     { id: "company-info", title: "Company Information" },
     { id: "personal-info", title: "Personal Information (Owner)" },
     { id: "documents", title: "Documents Upload" },
+    ...(user?.user_role === 2 ? [{ id: "bank-details", title: "Bank Details" }] : []),
   ]
 
   const sections = user?.user_role === 2
@@ -866,6 +926,78 @@ export default function SellerEditForm() {
                 className="resize-none"
               />
             </div>
+
+            {/* Catalog Upload - Only for seller (user_role 2) */}
+            {user?.user_role === 2 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Catalog (PDF)</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <input
+                      type="file"
+                      id="catalog-upload"
+                      accept="application/pdf"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        setCatalogFile(file)
+                        try {
+                          setCatalogUploading(true)
+                          const fd = new FormData()
+                          fd.append("catalog", file)
+                          const res = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`, {
+                            method: "PUT",
+                            body: fd,
+                          })
+                          if (res.ok) {
+                            const data = await res.json()
+                            setCatalogUrl(data.catalog || null)
+                            alert("Catalog uploaded successfully!")
+                          } else {
+                            alert("Failed to upload catalog.")
+                          }
+                        } catch (err) {
+                          console.error(err)
+                          alert("Error uploading catalog.")
+                        } finally {
+                          setCatalogUploading(false)
+                          setCatalogFile(null)
+                        }
+                      }}
+                    />
+                    <Button variant="outline" size="sm" onClick={() => document.getElementById("catalog-upload")?.click()} disabled={catalogUploading}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      {catalogUploading ? "Uploading..." : "Choose & Upload PDF"}
+                    </Button>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {catalogFile ? catalogFile.name : "No file chosen"}
+                    </p>
+                  </div>
+                </div>
+                {catalogUrl && (
+                  <div>
+                    <Label>Current Catalog</Label>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-sm text-gray-600 truncate flex-1 border border-gray-300 rounded-md px-3 py-2 bg-gray-50">
+                        {catalogUrl.split("/").pop() || "Catalog"}
+                      </span>
+                      <Button variant="outline" size="sm" onClick={() => window.open(catalogUrl, "_blank")}>
+                        View
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {
+                        const a = document.createElement("a")
+                        a.href = catalogUrl
+                        a.download = "catalog.pdf"
+                        a.click()
+                      }}>
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -1044,6 +1176,78 @@ export default function SellerEditForm() {
             </Card>
           )}
         </>
+      )}
+
+      {/* Bank Details Section */}
+      {activeSection === "bank-details" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-medium text-blue-600">Bank Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="bank_name">Bank Name</Label>
+                <Input
+                  id="bank_name"
+                  value={bankData.bank_name}
+                  onChange={(e) => setBankData(prev => ({ ...prev, bank_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="account_holder_name">Account Holder Name</Label>
+                <Input
+                  id="account_holder_name"
+                  value={bankData.account_holder_name}
+                  onChange={(e) => setBankData(prev => ({ ...prev, account_holder_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="account_number">Account Number</Label>
+                <Input
+                  id="account_number"
+                  value={bankData.account_number}
+                  onChange={(e) => setBankData(prev => ({ ...prev, account_number: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="ifsc_code">IFSC Code</Label>
+                <Input
+                  id="ifsc_code"
+                  value={bankData.ifsc_code}
+                  onChange={(e) => setBankData(prev => ({ ...prev, ifsc_code: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="branch_name">Branch Name</Label>
+                <Input
+                  id="branch_name"
+                  value={bankData.branch_name}
+                  onChange={(e) => setBankData(prev => ({ ...prev, branch_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="upi_id">UPI ID</Label>
+                <Input
+                  id="upi_id"
+                  value={bankData.upi_id}
+                  onChange={(e) => setBankData(prev => ({ ...prev, upi_id: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex justify-center pt-6">
+              <Button
+                onClick={handleBankSave}
+                disabled={bankLoading}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-8"
+              >
+                {bankLoading ? "Saving..." : "Save Bank Details"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

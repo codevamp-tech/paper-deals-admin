@@ -33,6 +33,7 @@ type Enquiry = {
   product_id: number;
   msg: string;
   quantity: string;
+  quantity_unit: string;
   status: number;
   created_at: string;
   buyer?: Buyer;
@@ -129,7 +130,7 @@ export default function EditLivePriceEnquiry() {
           </p>
 
           <p>
-            <strong>Quantity:</strong> {enquiry.quantity}
+            <strong>Quantity:</strong> {enquiry.quantity} {enquiry.quantity_unit || "kg"}
           </p>
 
           <p>

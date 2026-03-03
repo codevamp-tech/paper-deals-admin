@@ -18,7 +18,7 @@ export default function AdminLogin() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    type: 1,
+    type: "1_b2b", // default to Admin (B2B)
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -29,13 +29,24 @@ export default function AdminLogin() {
     setIsLoading(true)
     setError("")
 
+    let actualType = Number(formData.type);
+    let mode = "b2b";
+
+    if (formData.type === "1_b2b") {
+      actualType = 1;
+      mode = "b2b";
+    } else if (formData.type === "1_b2c") {
+      actualType = 1;
+      mode = "b2c";
+    }
+
     try {
-      const response = await fetch(`https://paper-deal-server.onrender.com/api/admin/login`, {
+      const response = await fetch(`${Apilocalurl}/api/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, type: actualType }),
         credentials: "include",
       })
 
@@ -45,6 +56,7 @@ export default function AdminLogin() {
       if (response.ok) {
         Cookies.set("token", data.token, { expires: 7 })
         localStorage.setItem("token", data.token);
+        localStorage.setItem("admin_business_mode", mode);
         router.push("/admin/dashboard")
       } else {
         setError(data.message || "Login failed")
@@ -93,10 +105,11 @@ export default function AdminLogin() {
                 onChange={(e) => setFormData((prev) => ({ ...prev, type: e.target.value }))}
                 required
               >
-                <option value={1}>Admin</option>
-                <option value={4}>Super Admin</option>
-                <option value={2}>Seller</option>
-                <option value={5}>Consultant</option>
+                <option value="1_b2b">Admin (B2B)</option>
+                <option value="1_b2c">Admin (B2C)</option>
+                <option value="4">Super Admin</option>
+                <option value="2">Seller</option>
+                <option value="5">Consultant</option>
               </select>
             </div>
 

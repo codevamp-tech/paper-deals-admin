@@ -2,6 +2,7 @@
 
 import { Edit, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useBusinessMode } from "@/context/BusinessModeContext";
 
 interface Testimonial {
   id: number;
@@ -9,11 +10,14 @@ interface Testimonial {
   company: string;
   post: string;
   para: string; // match backend column
+  type?: string;
   profile?: string; // image url from s3
   created_at?: string;
 }
 
 export default function AddTestimonialPage() {
+  const { mode } = useBusinessMode();
+
   const [form, setForm] = useState({
     writer: "",
     company: "",
@@ -64,6 +68,7 @@ export default function AddTestimonialPage() {
       formData.append("company", form.company);
       formData.append("post", form.post);
       formData.append("para", form.para);
+      formData.append("type", mode);
       if (form.file) formData.append("file", form.file);
 
       await fetch("https://paper-deal-server.onrender.com/api/testimonial/create", {
@@ -97,6 +102,7 @@ export default function AddTestimonialPage() {
     formData.append("company", e.target.company.value);
     formData.append("post", e.target.post.value);
     formData.append("para", e.target.para.value);
+    formData.append("type", mode);
 
     // Append file only if user selected new one
     if (e.target.file.files.length > 0) {
@@ -215,7 +221,7 @@ export default function AddTestimonialPage() {
               </tr>
             </thead>
             <tbody>
-              {testimonials.map((t) => (
+              {testimonials.filter(t => !t.type || t.type === mode).map((t) => (
                 <tr key={t.id} className="text-center">
                   <td className="px-4 py-2 border">{t.id}</td>
                   <td className="px-4 py-2 border text-red-600">

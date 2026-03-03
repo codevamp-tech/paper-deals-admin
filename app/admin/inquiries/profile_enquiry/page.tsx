@@ -108,7 +108,7 @@ export default function EnquiryPage() {
                 <th className="border px-3 py-2">Product</th>
                 <th className="border px-3 py-2">Gsm</th>
                 <th className="border px-3 py-2">Shade</th>
-                <th className="border px-3 py-2">Quantity (Kg)</th>
+                <th className="border px-3 py-2">Quantity</th>
                 <th className="border px-3 py-2">Remarks</th>
                 <th className="border px-3 py-2">Created At</th>
                 <th className="border px-3 py-2">Status</th>
@@ -135,7 +135,7 @@ export default function EnquiryPage() {
                   <td className="border px-3 py-2">{row.product || "-"}</td>
                   <td className="border px-3 py-2">{row.gsm || "-"}</td>
                   <td className="border px-3 py-2">{row.shade || "-"}</td>
-                  <td className="border px-3 py-2">{row.quantity_in_kg || "-"}</td>
+                  <td className="border px-3 py-2">{row.quantity_in_kg || "-"} {row.quantity_unit || "kg"}</td>
                   <td className="border px-3 py-2">{row.remarks || "-"}</td>
                   <td className="border px-3 py-2">
                     {new Date(row.created_at).toLocaleDateString("en-IN")}
