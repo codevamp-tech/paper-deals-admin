@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LivePriceEnquiryPage from "./enquiry/page";
 import RquarmentList from "./requirements/page";
+import { useBusinessMode } from "@/context/BusinessModeContext";
 
 
 type TabType = "requirement" | "livePrice";
 
 export default function LeadsTabs() {
   const [activeTab, setActiveTab] = useState<TabType>("requirement");
+  const { mode } = useBusinessMode();
+
+  useEffect(() => {
+    if (mode === "b2c" && activeTab === "livePrice") {
+      setActiveTab("requirement");
+    }
+  }, [mode, activeTab]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -26,16 +34,18 @@ export default function LeadsTabs() {
           Requirement
         </button>
 
-        <button
-          onClick={() => setActiveTab("livePrice")}
-          className={`px-5 py-2 rounded-md text-sm font-medium border transition
-            ${activeTab === "livePrice"
-              ? "bg-blue-600 text-white border-blue-600"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-            }`}
-        >
-          Live Price Enquiry
-        </button>
+        {mode === "b2b" && (
+          <button
+            onClick={() => setActiveTab("livePrice")}
+            className={`px-5 py-2 rounded-md text-sm font-medium border transition
+              ${activeTab === "livePrice"
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+          >
+            Live Price Enquiry
+          </button>
+        )}
       </div>
 
       {/* Content */}
