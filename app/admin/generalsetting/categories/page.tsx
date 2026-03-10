@@ -24,6 +24,7 @@ type Category = {
   name: string
   status: number // 0 = Active, 1 = Inactive
   image?: string
+  mode?: string
 }
 
 export default function CategoriesPage() {
@@ -42,6 +43,7 @@ export default function CategoriesPage() {
   const [currentId, setCurrentId] = useState<number | null>(null)
   const [categoryName, setCategoryName] = useState("")
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
+  const [categoryMode, setCategoryMode] = useState("b2c")
 
   // Search state
   const [search, setSearch] = useState("")
@@ -89,6 +91,7 @@ export default function CategoriesPage() {
     try {
       const formData = new FormData()
       formData.append("name", categoryName)
+      formData.append("mode", categoryMode)
       if (categoryImage) formData.append("image", categoryImage)
 
       if (isEditing && currentId !== null) {
@@ -106,6 +109,7 @@ export default function CategoriesPage() {
       setOpen(false)
       setCategoryName("")
       setCategoryImage(null)
+      setCategoryMode("b2c")
       setIsEditing(false)
       setCurrentId(null)
       fetchCategories(page)
@@ -138,6 +142,7 @@ export default function CategoriesPage() {
             setIsEditing(false)
             setCategoryName("")
             setCategoryImage(null)
+            setCategoryMode("b2c")
           }}
           className="bg-blue-500 hover:bg-blue-600"
         >
@@ -165,6 +170,7 @@ export default function CategoriesPage() {
               <tr>
                 <th className="px-4 py-2 border">ID</th>
                 <th className="px-4 py-2 border">Category Name</th>
+                <th className="px-4 py-2 border">Mode</th>
                 <th className="px-4 py-2 border">Image</th>
                 {/* <th className="px-4 py-2 border">Status</th> */}
                 <th className="px-4 py-2 border">Action</th>
@@ -175,6 +181,7 @@ export default function CategoriesPage() {
                 <tr key={cat.id} className="border-t">
                   <td className="px-4 py-2 border">{cat.id}</td>
                   <td className="px-4 py-2 border">{cat.name}</td>
+                  <td className="px-4 py-2 border font-semibold text-gray-700 capitalize">{cat.mode || "b2c"}</td>
                   <td className="px-4 py-2 border">
                     {cat.image ? (
                       <img src={cat.image} alt={cat.name} className="w-12 h-12 object-cover rounded" />
@@ -207,6 +214,7 @@ export default function CategoriesPage() {
                             setIsEditing(true)
                             setCurrentId(cat.id)
                             setCategoryName(cat.name)
+                            setCategoryMode(cat.mode || "b2c")
                             setCategoryImage(null) // reset, user can choose new
                           }}
                         >
@@ -253,6 +261,15 @@ export default function CategoriesPage() {
             className="border px-2 py-2 rounded w-full mb-2"
             required
           />
+          <select
+            value={categoryMode}
+            onChange={(e) => setCategoryMode(e.target.value)}
+            className="border px-2 py-2 rounded w-full mb-2"
+            required
+          >
+            <option value="b2c">B2C</option>
+            <option value="b2b">B2B</option>
+          </select>
           <input
             type="file"
             accept="image/*"
