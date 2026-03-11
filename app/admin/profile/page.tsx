@@ -173,6 +173,7 @@ export default function SellerEditForm() {
   const [catalogUrl, setCatalogUrl] = useState<string | null>(null)
   const [catalogFile, setCatalogFile] = useState<File | null>(null)
   const [catalogUploading, setCatalogUploading] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   // Fetch bank details
   useEffect(() => {
@@ -282,6 +283,7 @@ export default function SellerEditForm() {
             description: org.description || "",
           }))
           setCatalogUrl(org.catalog || null)
+          setLogoUrl(org.image_banner || null)
         }
       } catch (error) {
         console.error("Error fetching data", error)
@@ -909,9 +911,13 @@ export default function SellerEditForm() {
                     Choose File
                   </Button>
                   <p className="text-sm text-gray-500 mt-1">
-                    {fileUploads.logo ? fileUploads.logo.name : "No file chosen"}
+                    {fileUploads.logo ? fileUploads.logo.name : (logoUrl?.split("/").pop() || "No file chosen")}
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">Download Paper | View Document</p>
+                  {logoUrl && !fileUploads.logo && (
+                    <Button variant="link" className="p-0 h-auto text-blue-600 mt-1" onClick={() => window.open(logoUrl, "_blank")}>
+                      View Current Logo
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
