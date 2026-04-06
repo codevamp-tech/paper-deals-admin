@@ -20,7 +20,6 @@ export default function EditSpotPriceEnquiryPage() {
 
         setData(result)
         setStatus(result.status ?? 0) // ✅ FIX
-        router.push(`/admin/inquiries/spot_price`)
       } catch (err) {
         console.error("Fetch failed", err)
       }
