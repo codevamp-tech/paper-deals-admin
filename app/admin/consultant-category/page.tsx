@@ -19,7 +19,7 @@ export default function ConsultantCategory() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [search, setSearch] = useState("");
 
-  const API_URL = "https://paper-deal-server.onrender.com/api/consultant-category";
+  const API_URL = "http://localhost:5000/api/consultant-category";
 
   // Fetch categories
   const fetchCategories = async () => {

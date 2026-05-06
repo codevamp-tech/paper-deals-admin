@@ -60,7 +60,7 @@ export default function BookedUserPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`https://paper-deal-server.onrender.com/api/consultant/bookedUser/${userId}`)
+        const response = await fetch(`http://localhost:5000/api/consultant/bookedUser/${userId}`)
         if (!response.ok) throw new Error("Failed to fetch consultant data")
         const result = await response.json()
         setData(result)

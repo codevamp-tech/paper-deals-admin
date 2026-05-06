@@ -38,11 +38,11 @@ export default function ProductPage() {
   const fetchProducts = async (pageNumber: number) => {
     try {
       setLoading(true)
-      const token = getCookie("token")
-      if (!token) throw new Error("No token in cookies")
+      const token = localStorage.getItem("token")
+      if (!token) throw new Error("No token found")
 
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/product/get?page=${pageNumber}&limit=10`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/product/get?page=${pageNumber}&limit=10`,
         {
           method: "GET",
           headers: {
@@ -71,7 +71,7 @@ export default function ProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry", {
+      const res = await fetch("http://localhost:5000/api/categiry", {
         method: "GET",
       })
 
@@ -122,7 +122,7 @@ export default function ProductPage() {
       }
 
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/product/edit/${editingProduct.id}`,
+        `http://localhost:5000/api/product/edit/${editingProduct.id}`,
         {
           method: "PUT",
           body: form,
@@ -140,7 +140,7 @@ export default function ProductPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/product/delete/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/product/delete/${id}`, {
         method: "DELETE",
       })
 

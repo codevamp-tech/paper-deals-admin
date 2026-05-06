@@ -29,7 +29,7 @@ export default function LivePriceEnquiryPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("https://paper-deal-server.onrender.com/api/live-price-lead")
+    fetch("http://localhost:5000/api/live-price-lead")
       .then((res) => res.json())
       .then((result) => {
         setData(result.data || result);

@@ -67,7 +67,7 @@ export default function ProductForm({ onProductAdded }: { onProductAdded?: () =>
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
+        const res = await fetch("http://localhost:5000/api/categiry")
         if (!res.ok) throw new Error("Failed to load categories")
         const data = await res.json()
         setCategories(data.categories)
@@ -99,14 +99,14 @@ export default function ProductForm({ onProductAdded }: { onProductAdded?: () =>
       const submitData = new FormData()
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "image" && value instanceof File) {
-          submitData.append("image", value)
+          submitData.append("images", value)
         } else {
           submitData.append(key, value)
         }
       })
       submitData.append("seller_id", String(sellerId))
 
-      const res = await fetch("https://paper-deal-server.onrender.com/api/product", {
+      const res = await fetch("http://localhost:5000/api/product", {
         method: "POST",
         body: submitData,
       })

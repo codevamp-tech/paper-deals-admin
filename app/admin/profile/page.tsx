@@ -178,7 +178,7 @@ export default function SellerEditForm() {
   // Fetch bank details
   useEffect(() => {
     if (!userId) return
-    fetch(`https://paper-deal-server.onrender.com/api/bank-details/${userId}`)
+    fetch(`http://localhost:5000/api/bank-details/${userId}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
@@ -199,7 +199,7 @@ export default function SellerEditForm() {
   const handleBankSave = async () => {
     try {
       setBankLoading(true)
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/bank-details`, {
+      const res = await fetch(`http://localhost:5000/api/bank-details`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, ...bankData }),
@@ -221,7 +221,7 @@ export default function SellerEditForm() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
+        const res = await fetch("http://localhost:5000/api/categiry")
         if (res.ok) {
           const data = await res.json()
           setCategories(data.categories)
@@ -240,9 +240,9 @@ export default function SellerEditForm() {
         setLoading(true)
 
         const [personalRes, docRes, orgRes] = await Promise.all([
-          fetch(`https://paper-deal-server.onrender.com/api/personal/${userId}`),
-          fetch(`https://paper-deal-server.onrender.com/api/document/${userId}`),
-          fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`)
+          fetch(`http://localhost:5000/api/personal/${userId}`),
+          fetch(`http://localhost:5000/api/document/${userId}`),
+          fetch(`http://localhost:5000/api/organizations/${userId}`)
         ])
 
         if (personalRes.ok) {
@@ -309,13 +309,13 @@ export default function SellerEditForm() {
       setLoading(true);
 
       // Check if organization exists
-      const checkRes = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`);
+      const checkRes = await fetch(`http://localhost:5000/api/organizations/${userId}`);
       const exists = checkRes.ok;
 
       const method = exists ? "PUT" : "POST";
 
       // Organization API
-      await fetch(`https://paper-deal-server.onrender.com/api/organizations/${exists ? userId : ""}`, {
+      await fetch(`http://localhost:5000/api/organizations/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -343,7 +343,7 @@ export default function SellerEditForm() {
       });
 
       // Personal API
-      await fetch(`https://paper-deal-server.onrender.com/api/personal/${exists ? userId : ""}`, {
+      await fetch(`http://localhost:5000/api/personal/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -356,7 +356,7 @@ export default function SellerEditForm() {
       });
 
       // Document API
-      await fetch(`https://paper-deal-server.onrender.com/api/document/${exists ? userId : ""}`, {
+      await fetch(`http://localhost:5000/api/document/${exists ? userId : ""}`, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -387,9 +387,9 @@ export default function SellerEditForm() {
         setLoading(true)
         let url = "";
         if (user?.user_role === 5) {
-          url = `https://paper-deal-server.onrender.com/api/users/consultant/${userId}`;
+          url = `http://localhost:5000/api/users/consultant/${userId}`;
         } else if (user?.user_role === 2) {
-          url = `https://paper-deal-server.onrender.com/api/users/sellers/${userId}`;
+          url = `http://localhost:5000/api/users/sellers/${userId}`;
         } else {
           return; // not seller or consultant, exit
         }
@@ -428,7 +428,7 @@ export default function SellerEditForm() {
   const handleConsultantSave = async () => {
     try {
       setLoading(true)
-      await fetch(`https://paper-deal-server.onrender.com/api/consultant-pic/${userId}`, {
+      await fetch(`http://localhost:5000/api/consultant-pic/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -952,7 +952,7 @@ export default function SellerEditForm() {
                           setCatalogUploading(true)
                           const fd = new FormData()
                           fd.append("catalog", file)
-                          const res = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`, {
+                          const res = await fetch(`http://localhost:5000/api/organizations/${userId}`, {
                             method: "PUT",
                             body: fd,
                           })

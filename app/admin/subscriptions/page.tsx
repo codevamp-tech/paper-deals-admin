@@ -18,21 +18,21 @@ export default function AdminSubscriptions() {
         setLoading(true);
 
         // ✅ Subscription Plans
-        const subsRes = await fetch("https://paper-deal-server.onrender.com/api/subscription-plans");
+        const subsRes = await fetch("http://localhost:5000/api/subscription-plans");
         const subsData = await subsRes.json();
         if (subsData.success) {
           setSubscriptions(subsData.plans);
         }
 
         // ✅ Detailed Subscriptions
-        const detailedRes = await fetch("https://paper-deal-server.onrender.com/api/subscriptions");
+        const detailedRes = await fetch("http://localhost:5000/api/subscriptions");
         const detailedData = await detailedRes.json();
         if (detailedData.success) {
           setDetailedSubscriptions(detailedData.subscriptions || []);
         }
 
         // ✅ Chat Payments
-        const chatRes = await fetch(`https://paper-deal-server.onrender.com/api/consultant-slots?user_id=${user?.user_id}&user_role=${user?.user_role}`);
+        const chatRes = await fetch(`http://localhost:5000/api/consultant-slots?user_id=${user?.user_id}&user_role=${user?.user_role}`);
         const chatData = await chatRes.json();
         if (chatData.success) {
           setChatPayments(chatData.slots || []);

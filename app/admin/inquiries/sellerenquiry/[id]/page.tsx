@@ -145,7 +145,7 @@ export default function ViewEnquiryPage() {
             <button
               onClick={async () => {
                 try {
-                  const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+                  const token = localStorage.getItem("token");
                   const res = await fetch(`${API_URL}/api/enquiry/${enquiry.id}/accept`, {
                     method: "POST",
                     headers: {
