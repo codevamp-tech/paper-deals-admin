@@ -20,7 +20,7 @@ export default function ClosedReport() {
       const token = getCookie("token");
       if (!token) throw new Error("No token in cookies");
       const res = await fetch(
-        `http://localhost:5000/api/dashboard/get-closed-report?page=${page}&limit=${limit}`,
+        `https://paper-deal-server.onrender.com/api/dashboard/get-closed-report?page=${page}&limit=${limit}`,
         {
           method: "GET",
           headers: {

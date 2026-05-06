@@ -36,7 +36,7 @@ export default function ChatUsersPage() {
   useEffect(() => {
     const fetchChatThreads = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/message/list",
+        const res = await fetch("https://paper-deal-server.onrender.com/api/message/list",
           {
             method: "GET",
             headers: {
@@ -65,7 +65,7 @@ export default function ChatUsersPage() {
     setConversation([]);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/message/conversation?senderId=${thread.incoming_msg_id}&receiverId=${thread.outgoing_msg_id}`
+        `https://paper-deal-server.onrender.com/api/message/conversation?senderId=${thread.incoming_msg_id}&receiverId=${thread.outgoing_msg_id}`
       );
       if (!res.ok) throw new Error("Failed to fetch conversation");
       const data = await res.json();

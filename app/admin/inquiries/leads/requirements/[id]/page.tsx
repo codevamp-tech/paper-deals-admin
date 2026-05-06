@@ -44,7 +44,7 @@ export default function EditRequirementPage() {
   // Fetch single requirement
   const fetchRequirement = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/rquarment/${id}`);
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/rquarment/${id}`);
       const json = await res.json();
 
       if (json.success) {
@@ -69,7 +69,7 @@ export default function EditRequirementPage() {
   const handleUpdate = async () => {
     setUpdating(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/rquarment/status/${id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/rquarment/status/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

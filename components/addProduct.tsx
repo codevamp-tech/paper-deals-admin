@@ -67,7 +67,7 @@ export default function ProductForm({ onProductAdded }: { onProductAdded?: () =>
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("http://localhost:5000/api/categiry")
+        const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
         if (!res.ok) throw new Error("Failed to load categories")
         const data = await res.json()
         setCategories(data.categories)
@@ -106,7 +106,7 @@ export default function ProductForm({ onProductAdded }: { onProductAdded?: () =>
       })
       submitData.append("seller_id", String(sellerId))
 
-      const res = await fetch("http://localhost:5000/api/product", {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/product", {
         method: "POST",
         body: submitData,
       })

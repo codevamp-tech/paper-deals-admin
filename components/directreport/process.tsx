@@ -11,7 +11,7 @@ export default function DealProcessReportPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const res = await fetch("http://localhost:5000/api/dashboard/get-process-report", {
+        const res = await fetch("https://paper-deal-server.onrender.com/api/dashboard/get-process-report", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

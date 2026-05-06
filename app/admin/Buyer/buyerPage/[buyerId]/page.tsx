@@ -224,7 +224,7 @@ export default function SellerEditForm() {
     const fetchCategories = async () => {
       try {
         // Using env variable for consistency with your existing code
-        const res = await fetch("http://localhost:5000/api/categiry")
+        const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
         if (res.ok) {
           const data = await res.json()
           const b2cCategories = data.categories.filter((cat: any) => cat.mode === "b2c" || !cat.mode)
@@ -249,9 +249,9 @@ export default function SellerEditForm() {
         setLoading(true)
 
         const [personalRes, docRes, orgRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/personal/${userId}`),
-          fetch(`http://localhost:5000/api/document/${userId}`),
-          fetch(`http://localhost:5000/api/organizations/${userId}`)
+          fetch(`https://paper-deal-server.onrender.com/api/personal/${userId}`),
+          fetch(`https://paper-deal-server.onrender.com/api/document/${userId}`),
+          fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`)
         ])
 
         if (personalRes.ok) {
@@ -369,13 +369,13 @@ export default function SellerEditForm() {
       // Check existence based on what we are saving
       let exists = false;
       if (section === "organization" || section === "both") {
-        const checkRes = await fetch(`http://localhost:5000/api/organizations/${userId}`);
+        const checkRes = await fetch(`https://paper-deal-server.onrender.com/api/organizations/${userId}`);
         exists = checkRes.ok;
       }
 
       let docExists = false;
       if (section === "documents" || section === "both") {
-        const docCheckRes = await fetch(`http://localhost:5000/api/document/${userId}`);
+        const docCheckRes = await fetch(`https://paper-deal-server.onrender.com/api/document/${userId}`);
         docExists = docCheckRes.ok;
       }
 
@@ -407,7 +407,7 @@ export default function SellerEditForm() {
         if (fileUploads.logo) fd.append("logo", fileUploads.logo)
         if (catalogFile) fd.append("catalog", catalogFile)
 
-        const orgRes = await fetch(`http://localhost:5000/api/organizations${exists ? `/${userId}` : ""}`, {
+        const orgRes = await fetch(`https://paper-deal-server.onrender.com/api/organizations${exists ? `/${userId}` : ""}`, {
           method,
           body: fd,
         })
@@ -422,7 +422,7 @@ export default function SellerEditForm() {
       // Document API
       if (section === "documents" || section === "both") {
         const docRes = await fetch(
-          `http://localhost:5000/api/document/${userId}`,
+          `https://paper-deal-server.onrender.com/api/document/${userId}`,
           {
             method: docMethod,
             headers: { "Content-Type": "application/json" },
@@ -487,7 +487,7 @@ export default function SellerEditForm() {
       try {
         setLoading(true)
         let url = "";
-        url = `http://localhost:5000/api/users/buyerbyid/${userId}`;
+        url = `https://paper-deal-server.onrender.com/api/users/buyerbyid/${userId}`;
         const res = await fetch(url);
 
         if (res.ok) {

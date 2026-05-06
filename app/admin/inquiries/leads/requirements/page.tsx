@@ -50,7 +50,7 @@ export default function RquarmentList() {
     const safePage = pageNum && pageNum > 0 ? pageNum : 1;
 
     const res = await fetch(
-      `http://localhost:5000/api/rquarment?page=${safePage}&limit=10`
+      `https://paper-deal-server.onrender.com/api/rquarment?page=${safePage}&limit=10`
     );
 
     const json = await res.json();
@@ -79,7 +79,7 @@ export default function RquarmentList() {
     if (!selectedItem) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/rquarment/status/${selectedItem.id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/rquarment/status/${selectedItem.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

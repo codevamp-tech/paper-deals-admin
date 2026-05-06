@@ -249,8 +249,8 @@ export default function DealForm() {
       }
 
       const url = currentStep === 0
-        ? `http://localhost:5000/api/pd-deals/${dealId}`
-        : `http://localhost:5000/api/${endpoint}`
+        ? `https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`
+        : `https://paper-deal-server.onrender.com/api/${endpoint}`
 
       const res = await fetch(url, options)
       const data = await res.json()
@@ -311,7 +311,7 @@ export default function DealForm() {
 
   const fetchDeal = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/pd-deals/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/${dealId}`)
       const result = await res.json()
       if (result.success && result.data) {
         setForm(mapApiToForm(result.data))
@@ -323,7 +323,7 @@ export default function DealForm() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categiry")
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry")
       const data = await res.json()
       setCategories(data.categories || data.data || [])
     } catch (error) {
@@ -333,7 +333,7 @@ export default function DealForm() {
 
   const fetchDeliveries = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/dealQuantity/deal-quantities/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/dealQuantity/deal-quantities/${dealId}`)
       const data = await res.json()
       if (res.ok && data) {
         setDeliveries(data.deliveries || [])
@@ -347,7 +347,7 @@ export default function DealForm() {
 
   const fetchPaymentList = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/pdPayment/payment/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdPayment/payment/${dealId}`)
       const data = await res.json()
       if (data.success && data.data) {
         setPaymentList(data.data)
@@ -359,7 +359,7 @@ export default function DealForm() {
 
   const fetchTransportList = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/pdTransportations/transportation/${dealId}`)
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdTransportations/transportation/${dealId}`)
       const data = await res.json()
       if (data.success && data.data) {
         setTransportList(data.data)
@@ -380,7 +380,7 @@ export default function DealForm() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/dealQuantity/deal-quantities", {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/dealQuantity/deal-quantities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -470,12 +470,12 @@ export default function DealForm() {
 
     const endpoints = [
       null,
-      `http://localhost:5000/api/pdSampling/sampling/${dealId}`,
-      `http://localhost:5000/api/pdValidation/validation/${dealId}`,
-      `http://localhost:5000/api/pdClearance/clearance/${dealId}`,
-      `http://localhost:5000/api/pdPayment/payment/${dealId}`,
-      `http://localhost:5000/api/pdTransportations/transportation/${dealId}`,
-      `http://localhost:5000/api/pdClose/close/${dealId}`
+      `https://paper-deal-server.onrender.com/api/pdSampling/sampling/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdValidation/validation/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdClearance/clearance/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdPayment/payment/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdTransportations/transportation/${dealId}`,
+      `https://paper-deal-server.onrender.com/api/pdClose/close/${dealId}`
     ]
 
     if (!endpoints[stepIndex]) return null
@@ -529,7 +529,7 @@ export default function DealForm() {
     if (!confirm("Are you sure you want to delete this payment?")) return
 
     try {
-      const res = await fetch(`http://localhost:5000/api/pdPayment/${id}`, { method: "DELETE" })
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdPayment/${id}`, { method: "DELETE" })
       if (res.ok) {
         toast.success("Payment deleted")
         fetchPaymentList()
@@ -543,7 +543,7 @@ export default function DealForm() {
     if (!confirm("Are you sure you want to delete this transportation?")) return
 
     try {
-      const res = await fetch(`http://localhost:5000/api/pdTransportations/${id}`, { method: "DELETE" })
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/pdTransportations/${id}`, { method: "DELETE" })
       if (res.ok) {
         toast.success("Transportation deleted")
         fetchTransportList()
