@@ -35,7 +35,7 @@ export default function AddTestimonialPage() {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/testimonial/testimonials");
+      const res = await fetch("https://paper-deal-server.onrender.com/api/testimonial/testimonials");
       const data = await res.json();
       setTestimonials(data);
     } catch (error) {
@@ -71,7 +71,7 @@ export default function AddTestimonialPage() {
       formData.append("type", mode);
       if (form.file) formData.append("file", form.file);
 
-      await fetch("http://localhost:5000/api/testimonial/create", {
+      await fetch("https://paper-deal-server.onrender.com/api/testimonial/create", {
         method: "POST",
         body: formData,
       });
@@ -87,7 +87,7 @@ export default function AddTestimonialPage() {
   const handleDelete = async (id: number) => {
 
 
-    await fetch(`http://localhost:5000/api/testimonial/testimonials/${id}`, {
+    await fetch(`https://paper-deal-server.onrender.com/api/testimonial/testimonials/${id}`, {
       method: "DELETE",
     });
 
@@ -110,7 +110,7 @@ export default function AddTestimonialPage() {
     }
 
 
-    await fetch(`http://localhost:5000/api/testimonial/update/${editing.id}`, {
+    await fetch(`https://paper-deal-server.onrender.com/api/testimonial/update/${editing.id}`, {
       method: "PUT",
       body: formData,
     });

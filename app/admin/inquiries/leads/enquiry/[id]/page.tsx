@@ -55,7 +55,7 @@ export default function EditLivePriceEnquiry() {
   const fetchEnquiry = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/live-price-lead/${id}`
+        `https://paper-deal-server.onrender.com/api/live-price-lead/${id}`
       );
 
       if (!res.ok) {
@@ -83,7 +83,7 @@ export default function EditLivePriceEnquiry() {
   const handleUpdate = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/live-price-lead/status/${id}`,
+        `https://paper-deal-server.onrender.com/api/live-price-lead/status/${id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -30,7 +30,7 @@ export default function ProcessDealByIdPage() {
   useEffect(() => {
     const fetchDeal = async () => {
       const res = await fetch(
-        `http://localhost:5000/api/pd-deals-master/pddealbyid/${id}`
+        `https://paper-deal-server.onrender.com/api/pd-deals-master/pddealbyid/${id}`
       );
       const json = await res.json();
       setDeal(json);
@@ -41,7 +41,7 @@ export default function ProcessDealByIdPage() {
 
     const fetchSellers = async () => {
       const res = await fetch(
-        "http://localhost:5000/api/users/getallsellers?user_type=2"
+        "https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2"
       );
       const json = await res.json();
       setSellers(json.data);
@@ -72,7 +72,7 @@ export default function ProcessDealByIdPage() {
         remarks: remarks || "",
       };
 
-      const response = await fetch(`http://localhost:5000/api/pd-deals`, {
+      const response = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

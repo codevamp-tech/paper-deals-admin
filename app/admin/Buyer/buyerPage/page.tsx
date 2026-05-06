@@ -69,7 +69,7 @@ export default function BuyerTable() {
     setLoading(true)
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/getBuyer?page=${page}&limit=10`
+        `https://paper-deal-server.onrender.com/api/users/getBuyer?page=${page}&limit=10`
       )
       const data = await res.json()
       setBuyers(data.data || [])
@@ -92,7 +92,7 @@ export default function BuyerTable() {
     }
     setPasswordError("")
     try {
-      await fetch("http://localhost:5000/api/users/create-buyer", {
+      await fetch("https://paper-deal-server.onrender.com/api/users/create-buyer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -125,7 +125,7 @@ export default function BuyerTable() {
     {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/users/deletebuyer/${buyer.id}`,
+          `https://paper-deal-server.onrender.com/api/users/deletebuyer/${buyer.id}`,
           { method: "DELETE" }
         )
         const data = await res.json()
@@ -145,7 +145,7 @@ export default function BuyerTable() {
   const handleToggleStatus = async (buyer: Buyer) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/toggle-buyer-status/${buyer.id}`,
+        `https://paper-deal-server.onrender.com/api/users/toggle-buyer-status/${buyer.id}`,
         { method: "PATCH" }
       )
       const data = await res.json()
@@ -163,7 +163,7 @@ export default function BuyerTable() {
   const handleToggleProductStatus = async (id: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/product-buyer-status/${id}`,
+        `https://paper-deal-server.onrender.com/api/users/product-buyer-status/${id}`,
         { method: "PUT" }
       )
       if (res.ok) {

@@ -53,7 +53,7 @@ export default function CategoriesPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `http://localhost:5000/api/categiry?page=${pageNum}&limit=${limit}`
+        `https://paper-deal-server.onrender.com/api/categiry?page=${pageNum}&limit=${limit}`
       )
       const data = await res.json()
       setCategories(data.categories)
@@ -95,12 +95,12 @@ export default function CategoriesPage() {
       if (categoryImage) formData.append("image", categoryImage)
 
       if (isEditing && currentId !== null) {
-        await fetch(`http://localhost:5000/api/categiry/${currentId}`, {
+        await fetch(`https://paper-deal-server.onrender.com/api/categiry/${currentId}`, {
           method: "PUT",
           body: formData,
         })
       } else {
-        await fetch("http://localhost:5000/api/categiry", {
+        await fetch("https://paper-deal-server.onrender.com/api/categiry", {
           method: "POST",
           body: formData,
         })
@@ -121,7 +121,7 @@ export default function CategoriesPage() {
   // Toggle Active / Inactive
   const handleToggleStatus = async (id: number, currentStatus: number) => {
     try {
-      await fetch(`http://localhost:5000/api/categiry/deactivate/${id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/categiry/deactivate/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: currentStatus === 0 ? 1 : 0 }),

@@ -35,7 +35,7 @@ export default function CreateDealPage() {
   useEffect(() => {
     const fetchSellers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users/getallsellers?user_type=2")
+        const res = await fetch("https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2")
         if (!res.ok) throw new Error("Failed to fetch sellers")
         const data = await res.json()
         const sellersArray = Array.isArray(data) ? data : data.data
@@ -80,7 +80,7 @@ export default function CreateDealPage() {
         if (value !== null) payload.append(key, value as any)
       })
 
-      const res = await fetch("http://localhost:5000/api/dashboard/", {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/dashboard/", {
         method: "POST",
         body: payload
       })

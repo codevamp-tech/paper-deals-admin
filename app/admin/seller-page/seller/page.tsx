@@ -61,7 +61,7 @@ export default function SellerPage() {
     setLoading(true)
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/getallsellers?user_type=2&page=${page}&limit=${limit}`
+        `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2&page=${page}&limit=${limit}`
       )
       const data = await res.json()
       setSellers(data.data || [])
@@ -94,8 +94,8 @@ export default function SellerPage() {
     setPasswordError("")
     try {
       const url = isEdit
-        ? `http://localhost:5000/api/users/updateseller/${editId}`
-        : "http://localhost:5000/api/users/addseller"
+        ? `https://paper-deal-server.onrender.com/api/users/updateseller/${editId}`
+        : "https://paper-deal-server.onrender.com/api/users/addseller"
 
       const res = await fetch(url, {
         method: "POST",
@@ -147,7 +147,7 @@ export default function SellerPage() {
   const handleToggleStatus = async (id: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/users/sellers/${id}/toggle-status`,
+        `https://paper-deal-server.onrender.com/api/users/sellers/${id}/toggle-status`,
         { method: "PUT" }
       )
       if (res.ok) {

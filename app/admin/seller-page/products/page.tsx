@@ -71,7 +71,7 @@ export default function ProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categiry", {
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry", {
         method: "GET",
       })
 
@@ -122,7 +122,7 @@ export default function ProductPage() {
       }
 
       const res = await fetch(
-        `http://localhost:5000/api/product/edit/${editingProduct.id}`,
+        `https://paper-deal-server.onrender.com/api/product/edit/${editingProduct.id}`,
         {
           method: "PUT",
           body: form,
@@ -140,7 +140,7 @@ export default function ProductPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/product/delete/${id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/product/delete/${id}`, {
         method: "DELETE",
       })
 

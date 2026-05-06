@@ -127,10 +127,10 @@ export default function AdminDashboard() {
           };
 
           const [userRes, closedRes, inProgressRes, leadsRes] = await Promise.all([
-            fetch("http://localhost:5000/api/users/userCount"),
-            fetch("http://localhost:5000/api/pd-deals/getClosedDealsCount", { headers }),
-            fetch("http://localhost:5000/api/pd-deals/getLeadsInProgress", { headers }),
-            fetch("http://localhost:5000/api/pd-deals/getleads", { headers }),
+            fetch("https://paper-deal-server.onrender.com/api/users/userCount"),
+            fetch("https://paper-deal-server.onrender.com/api/pd-deals/getClosedDealsCount", { headers }),
+            fetch("https://paper-deal-server.onrender.com/api/pd-deals/getLeadsInProgress", { headers }),
+            fetch("https://paper-deal-server.onrender.com/api/pd-deals/getleads", { headers }),
           ]);
 
           const userData = await userRes.json();
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchOrders = async (page = 1) => {
       try {
-        const res = await fetch(`http://localhost:5000/api/dashboard?page=${page}&limit=${rowsPerPage}`);
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/dashboard?page=${page}&limit=${rowsPerPage}`);
         const data = await res.json();
 
         // Map API fields to table fields
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchPaperDeals = async (page = 1) => {
       try {
-        const res = await fetch(`http://localhost:5000/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
+        const res = await fetch(`https://paper-deal-server.onrender.com/api/pd-deals/filtered?page=${page}&limit=${paperRowsPerPage}`);
         const data = await res.json();
 
         const mappedDeals = data.deals.map((item: any, index: number) => ({
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         // Previous Chats
-        const resPrev = await fetch(`http://localhost:5000/api/message/chatCount`,
+        const resPrev = await fetch(`https://paper-deal-server.onrender.com/api/message/chatCount`,
           {
             method: "GET",
             headers: {
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
         setPrevChats(dataPrev.previousChats || 0);
 
         // Upcoming Chats
-        const resUpcoming = await fetch(`http://localhost:5000/api/dashboard/getcountforCons`,
+        const resUpcoming = await fetch(`https://paper-deal-server.onrender.com/api/dashboard/getcountforCons`,
           {
             method: "GET",
             headers: {

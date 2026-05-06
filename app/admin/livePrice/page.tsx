@@ -35,7 +35,7 @@ export default function LivePricePage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/live-price?page=${pageNum}&limit=10`
+        `https://paper-deal-server.onrender.com/api/live-price?page=${pageNum}&limit=10`
       );
       const json = await res.json();
       setData(json.data);
@@ -54,7 +54,7 @@ export default function LivePricePage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categiry");
+      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry");
       const json = await res.json();
       // support both paginated + non-paginated API
       setCategories(json.categories || json);
@@ -84,14 +84,14 @@ export default function LivePricePage() {
 
       if (editingId) {
         // update
-        await fetch(`http://localhost:5000/api/live-price/${editingId}`, {
+        await fetch(`https://paper-deal-server.onrender.com/api/live-price/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
         // create
-        await fetch("http://localhost:5000/api/live-price", {
+        await fetch("https://paper-deal-server.onrender.com/api/live-price", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -121,7 +121,7 @@ export default function LivePricePage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/api/live-price/${id}`, {
+      await fetch(`https://paper-deal-server.onrender.com/api/live-price/${id}`, {
         method: "DELETE",
       });
       fetchData();
