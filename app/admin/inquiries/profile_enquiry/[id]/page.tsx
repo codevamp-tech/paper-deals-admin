@@ -68,7 +68,7 @@ export default function EnquiryDetailPage() {
 
 
   useEffect(() => {
-    fetch(`https://paper-deal-server.onrender.com/api/enquiry/getbyId/${id}`, {
+    fetch(`http://localhost:5000/api/enquiry/getbyId/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -82,7 +82,7 @@ export default function EnquiryDetailPage() {
         // Once enquiry is loaded, fetch related seller enquiries
         if (data?.category_id) {
           fetch(
-            `https://paper-deal-server.onrender.com/api/product/by-category/${data.category_id}`,
+            `http://localhost:5000/api/product/by-category/${data.category_id}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -101,7 +101,7 @@ export default function EnquiryDetailPage() {
       .catch(err => console.error(err))
 
     // Fetch messages for enquiryShow
-    fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiryShow/${id}`, {
+    fetch(`http://localhost:5000/api/enquiry/enquiryShow/${id}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -115,7 +115,7 @@ export default function EnquiryDetailPage() {
 
   // Update status
   const handleUpdate = () => {
-    fetch(`https://paper-deal-server.onrender.com/api/enquiry/enquiries/${id}`, {
+    fetch(`http://localhost:5000/api/enquiry/enquiries/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export default function EnquiryDetailPage() {
     }
 
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/enquiry/send-messages`, {
+      const res = await fetch(`http://localhost:5000/api/enquiry/send-messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

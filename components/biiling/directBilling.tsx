@@ -25,7 +25,7 @@ export default function DirectBillingTable() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch(`https://paper-deal-server.onrender.com/api/dashboard/getDirectBilling?page=${page}&search=${search}`)
+    fetch(`http://localhost:5000/api/dashboard/getDirectBilling?page=${page}&search=${search}`)
       .then((res) => res.json())
       .then((res) => {
         // ✅ Map API response to table fields

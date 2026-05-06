@@ -14,7 +14,7 @@ export default function EditSpotPriceEnquiryPage() {
     const fetchEnquiry = async () => {
       try {
         const res = await fetch(
-          `https://paper-deal-server.onrender.com/api/spotPriceEnqiry/${id}`
+          `http://localhost:5000/api/spotPriceEnqiry/${id}`
         )
         const result = await res.json()
 
@@ -33,7 +33,7 @@ export default function EditSpotPriceEnquiryPage() {
       setLoading(true)
 
       await fetch(
-        `https://paper-deal-server.onrender.com/api/spotPriceEnqiry/${id}`, // ✅ FIX
+        `http://localhost:5000/api/spotPriceEnqiry/${id}`, // ✅ FIX
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

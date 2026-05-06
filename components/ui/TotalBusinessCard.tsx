@@ -24,7 +24,7 @@ export default function TotalBusinessCard() {
     const fetchData = async () => {
       try {
         const [directRes, paperRes, directRevenue, paperRevenue] = await Promise.all([
-          fetch("https://paper-deal-server.onrender.com/api/dashboard/summary", {
+          fetch("http://localhost:5000/api/dashboard/summary", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export default function TotalBusinessCard() {
             },
             credentials: "include",
           }),
-          fetch("https://paper-deal-server.onrender.com/api/pd-deals/stats", {
+          fetch("http://localhost:5000/api/pd-deals/stats", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -40,12 +40,12 @@ export default function TotalBusinessCard() {
             },
             credentials: "include",
           }),
-          fetch("https://paper-deal-server.onrender.com/api/dashboard/getDirectOrderRevenue", {
+          fetch("http://localhost:5000/api/dashboard/getDirectOrderRevenue", {
             method: "GET",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             credentials: "include",
           }),
-          fetch("https://paper-deal-server.onrender.com/api/pd-deals-master/getPdDealRevenue", {
+          fetch("http://localhost:5000/api/pd-deals-master/getPdDealRevenue", {
             method: "GET",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             credentials: "include",

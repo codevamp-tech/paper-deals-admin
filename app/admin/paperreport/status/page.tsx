@@ -19,7 +19,7 @@ export default function StatusReport() {
       if (toDate) query.append("toDate", toDate);
 
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/pd-deals/get-status-report?${query.toString()}`,
+        `http://localhost:5000/api/pd-deals/get-status-report?${query.toString()}`,
         {
           method: "GET",
           headers: {

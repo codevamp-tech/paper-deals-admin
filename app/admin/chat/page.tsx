@@ -37,11 +37,11 @@ export default function UserList() {
       try {
         let url = ""
         if (activeTab === "buyer") {
-          url = `https://paper-deal-server.onrender.com/api/users/getBuyer?page=${currentPage}&limit=9`
+          url = `http://localhost:5000/api/users/getBuyer?page=${currentPage}&limit=9`
         } else if (activeTab === "seller") {
-          url = `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=2?page=${currentPage}&limit=9`
+          url = `http://localhost:5000/api/users/getallsellers?user_type=2?page=${currentPage}&limit=9`
         } else if (activeTab === "consultant") {
-          url = `https://paper-deal-server.onrender.com/api/users/getallsellers?user_type=5?page=${currentPage}&limit=9`
+          url = `http://localhost:5000/api/users/getallsellers?user_type=5?page=${currentPage}&limit=9`
         }
 
         const response = await fetch(url)

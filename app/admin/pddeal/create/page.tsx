@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -15,17 +16,20 @@ import {
 import { getUserFromToken } from "@/hooks/use-token";
 import { toast } from "sonner";
 
-// ✅ Match your actual token structure
+// ✅ Match actual JWT token structure from backend
 interface TokenPayload {
   user_id: string;     // backend user id
   user_name: string;   // executive name
+  user_role: number;
   phone_no: string;    // phone number
+  approved: number;
 }
 
 export default function CreatePaperDealPage() {
   const [buyers, setBuyers] = useState<any[]>([]);
   const today = new Date().toISOString().split("T")[0];
   const user = getUserFromToken();
+  const router = useRouter();
   console.log("user????>>", user);
 
   const [form, setForm] = useState({
@@ -45,8 +49,9 @@ export default function CreatePaperDealPage() {
     if (user) {
       setForm((prev) => ({
         ...prev,
-        pdExecutive: user?.user_name,
-        mobile: user?.phone_no,
+        pdExecutive: user?.user_name || "",
+        userId: user?.user_id || "",
+        mobile: user?.phone_no || "",
       }));
     }
   }, []);
@@ -55,7 +60,7 @@ export default function CreatePaperDealPage() {
   useEffect(() => {
     const fetchBuyers = async () => {
       try {
-        const res = await fetch("https://paper-deal-server.onrender.com/api/users/getBuyer");
+        const res = await fetch("http://localhost:5000/api/users/getBuyer");
         const data = await res.json();
         setBuyers(data?.data || []);
       } catch (error) {
@@ -94,19 +99,20 @@ export default function CreatePaperDealPage() {
     e.preventDefault();
 
     const payload = {
-      user_id: form.userId, // ✅ send actual id, not name
+      user_id: form.userId, // ✅ send actual user id from token
       buyer_id: form.buyer,
       total_deal_amount: parseFloat(form.dealAmount || "0"),
       enquiry_id: form.enquiryId,
       creation_date: form.creationDate,
       product_description: form.product,
-      price: parseFloat(form.price || "0"),
-      quantity: parseFloat(form.quantity || "0"),
+      price_per_kg: parseFloat(form.price || "0"),
+      deal_size: parseFloat(form.quantity || "0"),
+      balanced_deal_size: parseFloat(form.quantity || "0"), // initially same as deal_size
       mobile: form.mobile,
     };
 
     try {
-      const res = await fetch("https://paper-deal-server.onrender.com/api/pd-deals-master/create", {
+      const res = await fetch("http://localhost:5000/api/pd-deals-master/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -115,7 +121,7 @@ export default function CreatePaperDealPage() {
       const result = await res.json();
       if (res.ok) {
         toast.success("PD Deal created successfully!");
-
+        router.push("/admin/pddeal/process");
       } else {
         alert("Error: " + result.message);
       }
