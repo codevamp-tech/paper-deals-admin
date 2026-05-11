@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getUserFromToken } from "@/hooks/use-token";
 import { Edit, Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -85,27 +86,33 @@ export default function SlotPage() {
 
   const handleSave = async () => {
     if (!userId || !fromTime || !toTime || !date) return;
+    
+    const selectedSlot = allSlots.find(s => s.from_time === fromTime && s.to_time === toTime);
+
     const payload = {
-      from_time: fromTime,
-      to_time: toTime,
+      consultant_id: userId,
+      slot_id: selectedSlot ? String(selectedSlot.id) : null,
       consultant_price: consultantPrice,
-      date,
-      user_id: userId,
+      created_on: date,
     };
+
     try {
       const res = await fetch("https://paper-deal-server.onrender.com/api/consultant/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
       if (res.ok) {
-        setFromTime("");
-        setToTime("");
-        setDate("");
+        toast({ title: "Success", description: "Slot Saved Successfully" });
+        setOpen(false);
         fetchSlots();
+      } else {
+        toast({ title: "Error", description: "Failed to save slot", variant: "destructive" });
       }
     } catch (error) {
-      console.error("Error saving slot", error);
+      toast({ title: "Error", description: "Error saving slot", variant: "destructive" });
+      console.error(error);
     }
   };
 
@@ -137,12 +144,13 @@ export default function SlotPage() {
   const handleUpdate = async () => {
     if (!editingId || !userId) return;
 
+    const selectedSlot = allSlots.find(s => s.from_time === fromTime && s.to_time === toTime);
+
     const payload = {
-      from_time: fromTime,
-      to_time: toTime,
+      consultant_id: userId,
+      slot_id: selectedSlot ? String(selectedSlot.id) : null,
       consultant_price: consultantPrice,
-      date,
-      user_id: userId,
+      created_on: date,
     };
 
     try {
@@ -246,8 +254,8 @@ export default function SlotPage() {
               <Input
                 type="number"
                 value={consultantPrice}
-                readOnly
-                className="bg-gray-100"
+                onChange={(e) => setConsultantPrice(e.target.value)}
+                className="bg-white"
               />
             </div>
 
