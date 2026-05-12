@@ -110,6 +110,7 @@ export default function AdminDashboard() {
   const [leads, setLeads] = useState(0);
   const [leadsInProcess, setLeadsInProcess] = useState(0);
   const [closedDeals, setClosedDeals] = useState(0);
+  const [pendingEnquiries, setPendingEnquiries] = useState(0);
 
   // Extract sellers, buyers, consultants from userStats (fallback to 0)
   const sellers = userStats.sellers || 0;
@@ -131,17 +132,20 @@ export default function AdminDashboard() {
             fetch("https://paper-deal-server.onrender.com/api/pd-deals/getClosedDealsCount", { headers }),
             fetch("https://paper-deal-server.onrender.com/api/pd-deals/getLeadsInProgress", { headers }),
             fetch("https://paper-deal-server.onrender.com/api/pd-deals/getleads", { headers }),
+            fetch("https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=1&limit=1", { headers }),
           ]);
-
+ 
           const userData = await userRes.json();
           const closedData = await closedRes.json();
           const inProgressData = await inProgressRes.json();
           const leadsData = await leadsRes.json();
-
+          const enquiriesData = await enquiriesRes.json();
+ 
           setUserStats(userData);
           setClosedDeals(closedData.totalCount || 0);
           setLeadsInProcess(inProgressData.data?.total || 0);
           setLeads(leadsData.data?.total || 0);
+          setPendingEnquiries(enquiriesData.pendingCount || 0);
         } catch (err) {
           console.error("Error fetching counts:", err);
         }
@@ -287,6 +291,17 @@ export default function AdminDashboard() {
                   <div className="mt-1 text-white/90">Total Leads</div>
                 </div>
                 <ShoppingBag className="absolute right-6 top-1/2 h-24 w-24 -translate-y-1/2 text-white/20" />
+              </CardContent>
+            </Card>
+
+            {/* Pending Enquiries Card */}
+            <Card className="overflow-hidden border-0 bg-orange-400 shadow-lg">
+              <CardContent className="relative p-6">
+                <div className="relative z-10">
+                  <div className="text-4xl font-bold text-white">{pendingEnquiries}</div>
+                  <div className="mt-1 text-white/90">Pending Enquiries</div>
+                </div>
+                <MessageSquare className="absolute right-6 top-1/2 h-24 w-24 -translate-y-1/2 text-white/20" />
               </CardContent>
             </Card>
 

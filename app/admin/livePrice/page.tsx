@@ -34,8 +34,9 @@ export default function LivePricePage() {
   const fetchData = async (pageNum: number = 1) => {
     setLoading(true);
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com";
       const res = await fetch(
-        `https://paper-deal-server.onrender.com/api/live-price?page=${pageNum}&limit=10`
+        `${apiUrl}/api/live-price?page=${pageNum}&limit=10`
       );
       const json = await res.json();
       setData(json.data);
@@ -54,7 +55,8 @@ export default function LivePricePage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://paper-deal-server.onrender.com/api/categiry");
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com";
+      const res = await fetch(`${apiUrl}/api/categiry`);
       const json = await res.json();
       // support both paginated + non-paginated API
       setCategories(json.categories || json);
@@ -84,14 +86,16 @@ export default function LivePricePage() {
 
       if (editingId) {
         // update
-        await fetch(`https://paper-deal-server.onrender.com/api/live-price/${editingId}`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com";
+        await fetch(`${apiUrl}/api/live-price/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
         // create
-        await fetch("https://paper-deal-server.onrender.com/api/live-price", {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com";
+        await fetch(`${apiUrl}/api/live-price`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -121,7 +125,8 @@ export default function LivePricePage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`https://paper-deal-server.onrender.com/api/live-price/${id}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://paper-deal-server.onrender.com";
+      await fetch(`${apiUrl}/api/live-price/${id}`, {
         method: "DELETE",
       });
       fetchData();

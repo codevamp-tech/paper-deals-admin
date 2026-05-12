@@ -86,23 +86,46 @@ export default function SlotPage() {
 
   const handleSave = async () => {
     if (!userId || !fromTime || !toTime || !date) return;
-    
-    const selectedSlot = allSlots.find(s => s.from_time === fromTime && s.to_time === toTime);
-
-    const payload = {
-      consultant_id: userId,
-      slot_id: selectedSlot ? String(selectedSlot.id) : null,
-      consultant_price: consultantPrice,
-      created_on: date,
-    };
-
+ 
     try {
+      // 1. Find or Create the master slot for this specific date/time
+      let selectedSlot = allSlots.find(
+        (s) => s.from_time === fromTime && s.to_time === toTime && 
+               (s.date ? s.date.split("T")[0] : "") === date
+      );
+ 
+      if (!selectedSlot) {
+        // Create a new master slot entry if none exists for this date
+        const slotRes = await fetch("https://paper-deal-server.onrender.com/api/slot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from_time: fromTime,
+            to_time: toTime,
+            date: date,
+            status: 1,
+          }),
+        });
+        if (!slotRes.ok) throw new Error("Failed to create master slot");
+        selectedSlot = await slotRes.json();
+        // Update local cache
+        setAllSlots((prev) => [...prev, selectedSlot]);
+      }
+ 
+      // 2. Link the consultant to this specific slot
+      const payload = {
+        consultant_id: userId,
+        slot_id: String(selectedSlot.id),
+        consultant_price: consultantPrice,
+        created_on: date,
+      };
+ 
       const res = await fetch("https://paper-deal-server.onrender.com/api/consultant/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
+ 
       if (res.ok) {
         toast({ title: "Success", description: "Slot Saved Successfully" });
         setOpen(false);
@@ -142,30 +165,53 @@ export default function SlotPage() {
 
   // Update slot
   const handleUpdate = async () => {
-    if (!editingId || !userId) return;
-
-    const selectedSlot = allSlots.find(s => s.from_time === fromTime && s.to_time === toTime);
-
-    const payload = {
-      consultant_id: userId,
-      slot_id: selectedSlot ? String(selectedSlot.id) : null,
-      consultant_price: consultantPrice,
-      created_on: date,
-    };
-
+    if (!editingId || !userId || !date) return;
+ 
     try {
+      // 1. Find or Create the master slot for this specific date/time
+      let selectedSlot = allSlots.find(
+        (s) => s.from_time === fromTime && s.to_time === toTime && 
+               (s.date ? s.date.split("T")[0] : "") === date
+      );
+ 
+      if (!selectedSlot) {
+        const slotRes = await fetch("https://paper-deal-server.onrender.com/api/slot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from_time: fromTime,
+            to_time: toTime,
+            date: date,
+            status: 1,
+          }),
+        });
+        if (!slotRes.ok) throw new Error("Failed to create master slot");
+        selectedSlot = await slotRes.json();
+        setAllSlots((prev) => [...prev, selectedSlot]);
+      }
+ 
+      // 2. Update the consultant slot link
+      const payload = {
+        consultant_id: userId,
+        slot_id: String(selectedSlot.id),
+        consultant_price: consultantPrice,
+        created_on: date,
+      };
+ 
       const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
+ 
       if (res.ok) {
         fetchSlots();
         setOpen(false);
         setEditingId(null);
+        toast({ title: "Success", description: "Slot Updated Successfully" });
       }
     } catch (error) {
+      toast({ title: "Error", description: "Error updating slot", variant: "destructive" });
       console.error("Error updating slot", error);
     }
   };

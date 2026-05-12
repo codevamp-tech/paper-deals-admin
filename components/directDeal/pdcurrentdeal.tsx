@@ -226,7 +226,7 @@ export default function CurrentPaperDealPage() {
                         </td>
                         <td className="border p-2 text-center">
                           <button
-                            onClick={() => handleEdit(d.deal_id)}
+                            onClick={() => handleEdit(d.id)}
                             className="text-blue-600 hover:text-blue-800"
                           >
                             <Edit className="w-5 h-5" />
