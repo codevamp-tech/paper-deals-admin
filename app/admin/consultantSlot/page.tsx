@@ -15,6 +15,21 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const timeOptions = [
+  "08:00 AM", "08:30 AM", "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM",
+  "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM",
+  "05:00 PM", "05:30 PM", "06:00 PM", "06:30 PM", "07:00 PM", "07:30 PM",
+  "08:00 PM", "08:30 PM", "09:00 PM"
+];
 
 export default function SlotPage() {
   const [fromTime, setFromTime] = useState("");
@@ -173,26 +188,36 @@ export default function SlotPage() {
 
             {/* From Time */}
             <div>
-              <Label>From Time (e.g. 10:00 AM)</Label>
-              <Input
-                type="text"
-                placeholder="10:00 AM"
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-                className="bg-white"
-              />
+              <Label>From Time</Label>
+              <Select value={fromTime} onValueChange={(val) => setFromTime(val)}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select From Time" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {timeOptions.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* To Time */}
             <div>
-              <Label>To Time (e.g. 11:00 AM)</Label>
-              <Input
-                type="text"
-                placeholder="11:00 AM"
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-                className="bg-white"
-              />
+              <Label>To Time</Label>
+              <Select value={toTime} onValueChange={(val) => setToTime(val)}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select To Time" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {timeOptions.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Price */}
@@ -297,17 +322,33 @@ export default function SlotPage() {
             </div>
             <div>
               <Label>From Time</Label>
-              <Input
-                value={fromTime}
-                onChange={(e) => setFromTime(e.target.value)}
-              />
+              <Select value={fromTime} onValueChange={(val) => setFromTime(val)}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select From Time" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {timeOptions.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>To Time</Label>
-              <Input
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-              />
+              <Select value={toTime} onValueChange={(val) => setToTime(val)}>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select To Time" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {timeOptions.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Consultant Price</Label>
