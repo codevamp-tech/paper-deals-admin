@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronUp, ChevronDown } from "lucide-react"
+import { ChevronUp, ChevronDown, MessageSquare } from "lucide-react"
 import { getUserFromToken } from "@/hooks/use-token"
 import Pagination from "@/components/pagination"
+import { useRouter } from "next/navigation"
 
 interface UserData {
   id: number
@@ -16,35 +17,34 @@ interface UserData {
   phone_no: string
 }
 
-interface SlotData {
+interface AvailabilityData {
+  date: string
   from_time: string
   to_time: string
-  date: string
 }
 
-interface ConsultantData {
+interface BookingData {
   id: number
+  availability_id: number
   consultant_id: number
-  book_id: number
-  slot_id: string
-  orderId: string
+  buyer_id: number
+  amount: number
+  order_id: string
   payment_id: string | null
   signature: string | null
-  consultant_price: number
   status: number
-  created_on: string
-  to_date: string | null
   created_at: string
-  user: UserData
-  slot: SlotData
+  buyer: UserData
+  availability: AvailabilityData
 }
 
-type SortField = "id" | "consultant_price" | "status" | "created_on" | "user" | "slot"
+type SortField = "id" | "amount" | "status" | "buyer" | "availability"
 type SortDirection = "asc" | "desc"
 
 export default function BookedUserPage() {
-  const [data, setData] = useState<ConsultantData[]>([])
-  const [filteredData, setFilteredData] = useState<ConsultantData[]>([])
+  const router = useRouter()
+  const [data, setData] = useState<BookingData[]>([])
+  const [filteredData, setFilteredData] = useState<BookingData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
@@ -58,10 +58,17 @@ export default function BookedUserPage() {
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
+      if (!userId) return;
       try {
         setLoading(true)
-        const response = await fetch(`https://paper-deal-server.onrender.com/api/consultant/bookedUser/${userId}`)
-        if (!response.ok) throw new Error("Failed to fetch consultant data")
+        setError(null)
+        const response = await fetch(`https://paper-deal-server.onrender.com/api/consultant-booking/${userId}`)
+        if (response.status === 404) {
+          setData([])
+          setFilteredData([])
+          return
+        }
+        if (!response.ok) throw new Error("Failed to fetch consultant bookings")
         const result = await response.json()
         setData(result)
         setFilteredData(result)
@@ -79,15 +86,14 @@ export default function BookedUserPage() {
     const filtered = data.filter((item) =>
       [
         item.id,
-        item.consultant_price,
+        item.amount,
         item.status,
-        item.created_on,
-        item.user?.name,
-        item.user?.email_address,
-        item.user?.phone_no,
-        item.slot?.from_time,
-        item.slot?.to_time,
-        item.slot?.date,
+        item.buyer?.name,
+        item.buyer?.email_address,
+        item.buyer?.phone_no,
+        item.availability?.from_time,
+        item.availability?.to_time,
+        item.availability?.date,
       ]
         .filter(Boolean)
         .some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase()))
@@ -103,17 +109,16 @@ export default function BookedUserPage() {
     setSortDirection(direction)
 
     const sorted = [...filteredData].sort((a, b) => {
-      let aValue: any = a[field as keyof ConsultantData]
-      let bValue: any = b[field as keyof ConsultantData]
+      let aValue: any = a[field as keyof BookingData]
+      let bValue: any = b[field as keyof BookingData]
 
-      // special cases
-      if (field === "user") {
-        aValue = a.user?.name
-        bValue = b.user?.name
+      if (field === "buyer") {
+        aValue = a.buyer?.name || ""
+        bValue = b.buyer?.name || ""
       }
-      if (field === "slot") {
-        aValue = a.slot?.from_time
-        bValue = b.slot?.from_time
+      if (field === "availability") {
+        aValue = `${a.availability?.date} ${a.availability?.from_time}`
+        bValue = `${b.availability?.date} ${b.availability?.from_time}`
       }
 
       if (typeof aValue === "string" && typeof bValue === "string") {
@@ -130,19 +135,18 @@ export default function BookedUserPage() {
 
   // Export functions
   const exportToCSV = () => {
-    const headers = ["ID", "User Name", "Email", "Phone", "Slot", "Consultant Price", "Status", "Created On"]
+    const headers = ["ID", "Buyer Name", "Email", "Phone", "Date & Time", "Amount Paid", "Status"]
     const csvContent = [
       headers.join(","),
       ...filteredData.map((row) =>
         [
           row.id,
-          row.user?.name,
-          row.user?.email_address,
-          row.user?.phone_no,
-          `${row.slot?.from_time} - ${row.slot?.to_time}`,
-          row.consultant_price,
-          row.status,
-          row.created_on,
+          row.buyer?.name,
+          row.buyer?.email_address,
+          row.buyer?.phone_no,
+          `${row.availability?.date || ''} ${row.availability?.from_time || ''} - ${row.availability?.to_time || ''}`,
+          row.amount,
+          row.status === 1 ? "Confirmed" : "Pending",
         ].join(",")
       ),
     ].join("\n")
@@ -150,7 +154,7 @@ export default function BookedUserPage() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = "booked-users.csv"
+    a.download = "consultant-bookings.csv"
     a.click()
     window.URL.revokeObjectURL(url)
   }
@@ -159,7 +163,7 @@ export default function BookedUserPage() {
     const text = filteredData
       .map(
         (row) =>
-          `${row.id}\t${row.user?.name}\t${row.user?.email_address}\t${row.user?.phone_no}\t${row.slot?.from_time} - ${row.slot?.to_time}\t${row.consultant_price}\t${row.status}\t${row.created_on}`
+          `${row.id}\t${row.buyer?.name || ''}\t${row.buyer?.email_address || ''}\t${row.buyer?.phone_no || ''}\t${row.availability?.date || ''} ${row.availability?.from_time || ''} - ${row.availability?.to_time || ''}\t${row.amount}\t${row.status === 1 ? 'Confirmed' : 'Pending'}`
       )
       .join("\n")
     navigator.clipboard.writeText(text)
@@ -182,13 +186,13 @@ export default function BookedUserPage() {
     )
   }
 
-  if (loading) return <Card className="py-8 text-center">Loading...</Card>
+  if (loading) return <Card className="py-8 text-center">Loading Bookings...</Card>
   if (error) return <Card className="py-8 text-center text-red-600">Error: {error}</Card>
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Booked Users</CardTitle>
+        <CardTitle>Booked Users (Consultations)</CardTitle>
       </CardHeader>
       <CardContent>
         {/* Export & Search */}
@@ -217,25 +221,31 @@ export default function BookedUserPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {["ID", "User Name", "Email", "Phone", "Slot", "Consultant Price", "Status", "Created On"].map(
-                  (field, index) => (
-                    <th
-                      key={index}
-                      onClick={() =>
-                        handleSort(
-                          field === "User Name" ? "user" : field === "Slot" ? "slot" : (field.replace(" ", "_").toLowerCase() as SortField)
-                        )
-                      }
-                      className="px-4 py-2 text-left cursor-pointer hover:bg-gray-100"
-                    >
-                      <span className="flex items-center">
-                        {field}
-                        <SortIcon
-                          field={field === "User Name" ? "user" : field === "Slot" ? "slot" : (field.replace(" ", "_").toLowerCase() as SortField)}
-                        />
-                      </span>
-                    </th>
-                  )
+                {["ID", "Buyer Name", "Email", "Phone", "Date & Time", "Amount Paid", "Status", "Action"].map(
+                  (field, index) => {
+                    const sortKey = 
+                      field === "Buyer Name" ? "buyer" : 
+                      field === "Date & Time" ? "availability" : 
+                      field === "Amount Paid" ? "amount" : 
+                      field === "Status" ? "status" : "id";
+
+                    return (
+                      <th
+                        key={index}
+                        onClick={() =>
+                          field !== "Action" && handleSort(sortKey as SortField)
+                        }
+                        className={`px-4 py-2 text-left ${field !== "Action" ? "cursor-pointer hover:bg-gray-100" : ""}`}
+                      >
+                        <span className="flex items-center">
+                          {field}
+                          {field !== "Action" && (
+                            <SortIcon field={sortKey as SortField} />
+                          )}
+                        </span>
+                      </th>
+                    );
+                  }
                 )}
               </tr>
             </thead>
@@ -243,20 +253,35 @@ export default function BookedUserPage() {
               {currentData.map((row) => (
                 <tr key={row.id}>
                   <td className="px-4 py-2 font-medium">{row.id}</td>
-                  <td className="px-4 py-2">{row.user?.name}</td>
-                  <td className="px-4 py-2">{row.user?.email_address}</td>
-                  <td className="px-4 py-2">{row.user?.phone_no}</td>
-                  <td className="px-4 py-2">{`${row.slot?.from_time} - ${row.slot?.to_time}`}</td>
-                  <td className="px-4 py-2">{row.consultant_price}</td>
+                  <td className="px-4 py-2">{row.buyer?.name || "N/A"}</td>
+                  <td className="px-4 py-2">{row.buyer?.email_address || "N/A"}</td>
+                  <td className="px-4 py-2">{row.buyer?.phone_no || "N/A"}</td>
+                  <td className="px-4 py-2">
+                    {row.availability 
+                      ? `${new Date(row.availability.date).toLocaleDateString()} ${row.availability.from_time} - ${row.availability.to_time}`
+                      : "N/A"}
+                  </td>
+                  <td className="px-4 py-2">Rs. {row.amount}</td>
                   <td className="px-4 py-2">
                     <Badge
                       variant={row.status === 1 ? "default" : "secondary"}
-                      className={row.status === 1 ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}
+                      className={row.status === 1 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}
                     >
-                      {row.status === 1 ? "Active" : "Inactive"}
+                      {row.status === 1 ? "Confirmed" : "Pending"}
                     </Badge>
                   </td>
-                  <td className="px-4 py-2">{row.created_on}</td>
+                  <td className="px-4 py-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/admin/chat/${row.buyer?.id}`)}
+                      className="flex items-center gap-1"
+                      disabled={!row.buyer?.id}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Chat
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>

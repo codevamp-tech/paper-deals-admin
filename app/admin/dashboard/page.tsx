@@ -134,13 +134,13 @@ export default function AdminDashboard() {
             fetch("https://paper-deal-server.onrender.com/api/pd-deals/getleads", { headers }),
             fetch("https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=1&limit=1", { headers }),
           ]);
- 
+
           const userData = await userRes.json();
           const closedData = await closedRes.json();
           const inProgressData = await inProgressRes.json();
           const leadsData = await leadsRes.json();
           const enquiriesData = await enquiriesRes.json();
- 
+
           setUserStats(userData);
           setClosedDeals(closedData.totalCount || 0);
           setLeadsInProcess(inProgressData.data?.total || 0);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +20,8 @@ export default function SlotPage() {
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
   const [date, setDate] = useState("");
-  const [consultantPrice, setConsultantPrice] = useState("1");
+  const [consultantPrice, setConsultantPrice] = useState("500");
   const [slots, setSlots] = useState<any[]>([]);
-  const [allSlots, setAllSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -30,47 +29,18 @@ export default function SlotPage() {
   const user = getUserFromToken();
   const userId = user?.user_id;
 
-  // Normalize consultant slot (sometimes nested under `slot`)
-  const normalizeSlot = (s: any) => ({
-    id: s.id,
-    from_time: s.from_time || s.slot?.from_time || "",
-    to_time: s.to_time || s.slot?.to_time || "",
-    date: s.date || s.slot?.date || "",
-    consultant_price: s.consultant_price || s.slot?.consultant_price || "1",
-  });
-
-  // Fetch all slots (master list)
-  const fetchAllSlots = async () => {
-    try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/slot`);
-      const data = await res.json();
-      setAllSlots(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error fetching all slots", error);
-      setAllSlots([]);
-    }
-  };
-
-  // Fetch consultant’s booked slots
+  // Fetch consultant’s availability slots
   const fetchSlots = async () => {
     if (!userId) return;
     setLoading(true);
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${userId}`);
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant-availability/${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch slots");
       const data = await res.json();
-      const arr = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.data)
-          ? data.data
-          : Array.isArray(data?.slots)
-            ? data.slots
-            : Array.isArray(data?.result)
-              ? data.result
-              : [];
-
-      setSlots(arr.map(normalizeSlot));
+      setSlots(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching slots", error);
+      toast({ title: "Error", description: "Failed to load slots", variant: "destructive" });
       setSlots([]);
     } finally {
       setLoading(false);
@@ -80,55 +50,36 @@ export default function SlotPage() {
   useEffect(() => {
     if (userId) {
       fetchSlots();
-      fetchAllSlots();
     }
   }, [userId]);
 
   const handleSave = async () => {
-    if (!userId || !fromTime || !toTime || !date) return;
- 
+    if (!userId || !fromTime || !toTime || !date) {
+      toast({ title: "Validation Error", description: "Please fill in all fields", variant: "destructive" });
+      return;
+    }
+
     try {
-      // 1. Find or Create the master slot for this specific date/time
-      let selectedSlot = allSlots.find(
-        (s) => s.from_time === fromTime && s.to_time === toTime && 
-               (s.date ? s.date.split("T")[0] : "") === date
-      );
- 
-      if (!selectedSlot) {
-        // Create a new master slot entry if none exists for this date
-        const slotRes = await fetch("https://paper-deal-server.onrender.com/api/slot", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from_time: fromTime,
-            to_time: toTime,
-            date: date,
-            status: 1,
-          }),
-        });
-        if (!slotRes.ok) throw new Error("Failed to create master slot");
-        selectedSlot = await slotRes.json();
-        // Update local cache
-        setAllSlots((prev) => [...prev, selectedSlot]);
-      }
- 
-      // 2. Link the consultant to this specific slot
       const payload = {
         consultant_id: userId,
-        slot_id: String(selectedSlot.id),
-        consultant_price: consultantPrice,
-        created_on: date,
+        date: date,
+        from_time: fromTime,
+        to_time: toTime,
+        price: Number(consultantPrice) || 0
       };
- 
-      const res = await fetch("https://paper-deal-server.onrender.com/api/consultant/book", {
+
+      const res = await fetch("https://paper-deal-server.onrender.com/api/consultant-availability", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
- 
+
       if (res.ok) {
-        toast({ title: "Success", description: "Slot Saved Successfully" });
-        setOpen(false);
+        toast({ title: "Success", description: "Availability Slot Created Successfully" });
+        setFromTime("");
+        setToTime("");
+        setDate("");
+        setConsultantPrice("500");
         fetchSlots();
       } else {
         toast({ title: "Error", description: "Failed to save slot", variant: "destructive" });
@@ -139,76 +90,41 @@ export default function SlotPage() {
     }
   };
 
-  // Already booked from times
-  const bookedFromTimes = useMemo(
-    () => slots.map((s) => s.from_time),
-    [slots]
-  );
-
-  // Available "to times" depend on selected fromTime
-  const availableToTimes = useMemo(() => {
-    if (!fromTime) return [];
-    const slot = allSlots.find((s) => s.from_time === fromTime);
-    if (!slot) return [];
-    // Filter: all times after chosen fromTime
-    return allSlots.filter((s) => s.from_time >= fromTime);
-  }, [fromTime, allSlots]);
   // Edit slot
   const handleEdit = (slot: any) => {
     setEditingId(slot.id);
     setFromTime(slot.from_time);
     setToTime(slot.to_time);
     setDate(slot.date ? slot.date.split("T")[0] : "");
-    setConsultantPrice(String(slot.consultant_price || "1"));
+    setConsultantPrice(String(slot.price || "0"));
     setOpen(true);
   };
 
   // Update slot
   const handleUpdate = async () => {
-    if (!editingId || !userId || !date) return;
- 
+    if (!editingId || !userId || !fromTime || !toTime || !date) return;
+
     try {
-      // 1. Find or Create the master slot for this specific date/time
-      let selectedSlot = allSlots.find(
-        (s) => s.from_time === fromTime && s.to_time === toTime && 
-               (s.date ? s.date.split("T")[0] : "") === date
-      );
- 
-      if (!selectedSlot) {
-        const slotRes = await fetch("https://paper-deal-server.onrender.com/api/slot", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from_time: fromTime,
-            to_time: toTime,
-            date: date,
-            status: 1,
-          }),
-        });
-        if (!slotRes.ok) throw new Error("Failed to create master slot");
-        selectedSlot = await slotRes.json();
-        setAllSlots((prev) => [...prev, selectedSlot]);
-      }
- 
-      // 2. Update the consultant slot link
       const payload = {
-        consultant_id: userId,
-        slot_id: String(selectedSlot.id),
-        consultant_price: consultantPrice,
-        created_on: date,
+        date: date,
+        from_time: fromTime,
+        to_time: toTime,
+        price: Number(consultantPrice) || 0
       };
- 
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${editingId}`, {
+
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant-availability/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
- 
+
       if (res.ok) {
         fetchSlots();
         setOpen(false);
         setEditingId(null);
-        toast({ title: "Success", description: "Slot Updated Successfully" });
+        toast({ title: "Success", description: "Availability Slot Updated Successfully" });
+      } else {
+        toast({ title: "Error", description: "Failed to update slot", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Error", description: "Error updating slot", variant: "destructive" });
@@ -218,93 +134,32 @@ export default function SlotPage() {
 
   // Delete slot
   const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this availability slot?")) return;
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant/${id}`, {
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant-availability/${id}`, {
         method: "DELETE",
       });
-      if (res.ok) fetchSlots();
+      if (res.ok) {
+        toast({ title: "Success", description: "Slot deleted successfully" });
+        fetchSlots();
+      } else {
+        toast({ title: "Error", description: "Failed to delete slot", variant: "destructive" });
+      }
     } catch (error) {
+      toast({ title: "Error", description: "Error deleting slot", variant: "destructive" });
       console.error("Error deleting slot", error);
     }
   };
-
-  // Already booked times
-  const selectedTimes = useMemo(() => slots.map((s) => s.from_time), [slots]);
 
   return (
     <div className="p-6 space-y-8">
       {/* Create Slot Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Consultant Slot</CardTitle>
+          <CardTitle>Create Availability Slot</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-4 gap-4">
-            {/* From Time */}
-            <div>
-              <Label>From Time</Label>
-              <select
-                value={fromTime}
-                onChange={(e) => {
-                  setFromTime(e.target.value);
-                  setToTime(""); // reset toTime
-                }}
-                className="border rounded p-2 w-full"
-              >
-                <option value="">Select</option>
-                {allSlots.map((s) => (
-                  <option
-                    key={s.id}
-                    value={s.from_time}
-                    disabled={bookedFromTimes.includes(s.from_time)}
-                    className={
-                      bookedFromTimes.includes(s.from_time)
-                        ? "bg-red-200"
-                        : "bg-white"
-                    }
-                  >
-                    {s.from_time}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* To Time */}
-            <div>
-              <Label>To Time</Label>
-              <select
-                value={toTime}
-                onChange={(e) => setToTime(e.target.value)}
-                className="border rounded p-2 w-full"
-              >
-                <option value="">Select</option>
-                {availableToTimes.map((s) => (
-                  <option
-                    key={s.id}
-                    value={s.to_time}
-                    className={
-                      bookedFromTimes.includes(s.from_time)
-                        ? "bg-red-200"
-                        : "bg-white"
-                    }
-                  >
-                    {s.to_time}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Price */}
-            <div>
-              <Label>Consultant Price</Label>
-              <Input
-                type="number"
-                value={consultantPrice}
-                onChange={(e) => setConsultantPrice(e.target.value)}
-                className="bg-white"
-              />
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Date */}
             <div>
               <Label>Date</Label>
@@ -312,12 +167,48 @@ export default function SlotPage() {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                className="bg-white"
+              />
+            </div>
+
+            {/* From Time */}
+            <div>
+              <Label>From Time (e.g. 10:00 AM)</Label>
+              <Input
+                type="text"
+                placeholder="10:00 AM"
+                value={fromTime}
+                onChange={(e) => setFromTime(e.target.value)}
+                className="bg-white"
+              />
+            </div>
+
+            {/* To Time */}
+            <div>
+              <Label>To Time (e.g. 11:00 AM)</Label>
+              <Input
+                type="text"
+                placeholder="11:00 AM"
+                value={toTime}
+                onChange={(e) => setToTime(e.target.value)}
+                className="bg-white"
+              />
+            </div>
+
+            {/* Price */}
+            <div>
+              <Label>Consultant Price (Rs.)</Label>
+              <Input
+                type="number"
+                value={consultantPrice}
+                onChange={(e) => setConsultantPrice(e.target.value)}
+                className="bg-white"
               />
             </div>
           </div>
 
           <Button className="mt-4" onClick={handleSave}>
-            Save
+            Save Availability Slot
           </Button>
         </CardContent>
       </Card>
@@ -325,50 +216,59 @@ export default function SlotPage() {
       {/* Slot List */}
       <Card>
         <CardHeader>
-          <CardTitle>Slot List</CardTitle>
+          <CardTitle>My Availability Slots</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="p-4">Loading...</div>
+              <div className="p-4 text-center">Loading slots...</div>
             ) : !Array.isArray(slots) || slots.length === 0 ? (
-              <div className="p-4">No slots found.</div>
+              <div className="p-4 text-center text-muted-foreground">No availability slots set. Add some above!</div>
             ) : (
               <table className="min-w-full border border-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-2 border">#</th>
-                    <th className="px-4 py-2 border">From Time</th>
-                    <th className="px-4 py-2 border">To Time</th>
-                    <th className="px-4 py-2 border">Price</th>
-                    <th className="px-4 py-2 border">Date</th>
-                    <th className="px-4 py-2 border">Edit</th>
-                    <th className="px-4 py-2 border">Delete</th>
+                    <th className="px-4 py-2 border text-left">#</th>
+                    <th className="px-4 py-2 border text-left">Date</th>
+                    <th className="px-4 py-2 border text-left">From Time</th>
+                    <th className="px-4 py-2 border text-left">To Time</th>
+                    <th className="px-4 py-2 border text-left">Price</th>
+                    <th className="px-4 py-2 border text-left">Status</th>
+                    <th className="px-4 py-2 border text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {slots.map((slot: any, i) => (
-                    <tr key={slot.id}>
+                    <tr key={slot.id} className={slot.is_booked ? "bg-green-50/50" : ""}>
                       <td className="p-2 border">{i + 1}</td>
-                      <td className="p-2 border">{slot.from_time}</td>
-                      <td className="p-2 border">{slot.to_time}</td>
-                      <td className="p-2 border">{slot.consultant_price}</td>
                       <td className="p-2 border">
-                        {slot.date
-                          ? new Date(slot.date).toLocaleDateString()
-                          : "-"}
+                        {slot.date ? new Date(slot.date).toLocaleDateString() : "-"}
                       </td>
+                      <td className="p-2 border font-medium">{slot.from_time}</td>
+                      <td className="p-2 border font-medium">{slot.to_time}</td>
+                      <td className="p-2 border">Rs. {slot.price}</td>
                       <td className="p-2 border">
-                        <Button variant="ghost" onClick={() => handleEdit(slot)}>
-                          <Edit />
-                        </Button>
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${slot.is_booked ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}>
+                          {slot.is_booked ? "Booked" : "Available"}
+                        </span>
                       </td>
-                      <td className="p-2 border">
+                      <td className="p-2 border text-center space-x-2">
                         <Button
                           variant="ghost"
-                          onClick={() => handleDelete(slot.id)}
+                          size="sm"
+                          disabled={slot.is_booked}
+                          onClick={() => handleEdit(slot)}
                         >
-                          <Trash2 />
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={slot.is_booked}
+                          onClick={() => handleDelete(slot.id)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </td>
                     </tr>
@@ -384,9 +284,17 @@ export default function SlotPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Slot</DialogTitle>
+            <DialogTitle>Edit Availability Slot</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label>Date</Label>
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
             <div>
               <Label>From Time</Label>
               <Input
@@ -406,16 +314,7 @@ export default function SlotPage() {
               <Input
                 type="number"
                 value={consultantPrice}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
-            <div>
-              <Label>Date</Label>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => setConsultantPrice(e.target.value)}
               />
             </div>
           </div>
