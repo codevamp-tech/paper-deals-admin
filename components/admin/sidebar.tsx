@@ -238,16 +238,7 @@ export default function AdminSidebar({ onClose }) {
                             Products
                         </Link>
                         {/* Direct Order */}
-                        <Link
-                            href="/admin/directorder"
-                            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/directorder")
-                                ? "bg-blue-600 text-white"
-                                : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                                }`}
-                        >
-                            <ClipboardList className="mr-3 h-5 w-5" />
-                            B2C
-                        </Link>
+
 
                         {/* <Link
               href="/admin/profile"
@@ -507,6 +498,16 @@ export default function AdminSidebar({ onClose }) {
                                 >
                                     <Pi className="mr-3 h-5 w-5" />
                                     Consultant
+                                </Link>
+                                <Link
+                                    href="/admin/consultantSlot"
+                                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive("/admin/consultantSlot")
+                                        ? "bg-blue-600 text-white"
+                                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                                        }`}
+                                >
+                                    <Book className="mr-3 h-5 w-5" />
+                                    Consultant Slots
                                 </Link>
                                 <Link
                                     href="/admin/consultant-category"

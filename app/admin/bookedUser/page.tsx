@@ -223,11 +223,11 @@ export default function BookedUserPage() {
               <tr>
                 {["ID", "Buyer Name", "Email", "Phone", "Date & Time", "Amount Paid", "Status", "Action"].map(
                   (field, index) => {
-                    const sortKey = 
-                      field === "Buyer Name" ? "buyer" : 
-                      field === "Date & Time" ? "availability" : 
-                      field === "Amount Paid" ? "amount" : 
-                      field === "Status" ? "status" : "id";
+                    const sortKey =
+                      field === "Buyer Name" ? "buyer" :
+                        field === "Date & Time" ? "availability" :
+                          field === "Amount Paid" ? "amount" :
+                            field === "Status" ? "status" : "id";
 
                     return (
                       <th
@@ -257,7 +257,7 @@ export default function BookedUserPage() {
                   <td className="px-4 py-2">{row.buyer?.email_address || "N/A"}</td>
                   <td className="px-4 py-2">{row.buyer?.phone_no || "N/A"}</td>
                   <td className="px-4 py-2">
-                    {row.availability 
+                    {row.availability
                       ? `${new Date(row.availability.date).toLocaleDateString()} ${row.availability.from_time} - ${row.availability.to_time}`
                       : "N/A"}
                   </td>

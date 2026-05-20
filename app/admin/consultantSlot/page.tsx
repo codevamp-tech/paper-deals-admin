@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,15 +41,57 @@ export default function SlotPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
 
-  const user = getUserFromToken();
+  const [user, setUser] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const loggedInUser = getUserFromToken();
+    if (loggedInUser) {
+      setUser(loggedInUser);
+    }
+  }, []);
+
   const userId = user?.user_id;
+  const isConsultant = user?.user_role === 5;
+
+  const [consultants, setConsultants] = useState<any[]>([]);
+  const [selectedConsultant, setSelectedConsultant] = useState<string>("");
+
+  // Fetch consultants if Admin
+  useEffect(() => {
+    if (user && !isConsultant) {
+      const fetchConsultantsList = async () => {
+        try {
+          const res = await fetch("https://paper-deal-server.onrender.com/api/users/getallconsultants?user_type=5&page=1&limit=100");
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.data || [];
+            setConsultants(list);
+            if (list.length > 0) {
+              const demo = list.find((c: any) => c.email_address === "democonsultant@gmail.com" || c.name?.toLowerCase().includes("demo"));
+              if (demo) {
+                setSelectedConsultant(String(demo.id));
+              } else {
+                setSelectedConsultant(String(list[0].id));
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching consultants:", error);
+        }
+      };
+      fetchConsultantsList();
+    }
+  }, [user, isConsultant]);
 
   // Fetch consultant’s availability slots
-  const fetchSlots = async () => {
-    if (!userId) return;
+  const fetchSlots = useCallback(async () => {
+    const targetId = isConsultant ? userId : selectedConsultant;
+    if (!targetId) return;
     setLoading(true);
     try {
-      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant-availability/${userId}`);
+      const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant-availability/${targetId}`);
       if (!res.ok) throw new Error("Failed to fetch slots");
       const data = await res.json();
       setSlots(Array.isArray(data) ? data : []);
@@ -60,27 +102,29 @@ export default function SlotPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, selectedConsultant, isConsultant]);
 
   useEffect(() => {
-    if (userId) {
+    const targetId = isConsultant ? userId : selectedConsultant;
+    if (targetId) {
       fetchSlots();
     }
-  }, [userId]);
+  }, [fetchSlots, userId, selectedConsultant, isConsultant]);
 
   const handleSave = async () => {
-    if (!userId || !fromTime || !toTime || !date) {
+    const targetId = isConsultant ? userId : selectedConsultant;
+    if (!targetId || !fromTime || !toTime || !date) {
       toast({ title: "Validation Error", description: "Please fill in all fields", variant: "destructive" });
       return;
     }
 
     try {
       const payload = {
-        consultant_id: userId,
+        consultant_id: Number(targetId),
         date: date,
         from_time: fromTime,
         to_time: toTime,
-        price: Number(consultantPrice) || 0
+        price: isConsultant ? 0 : (Number(consultantPrice) || 0)
       };
 
       const res = await fetch("https://paper-deal-server.onrender.com/api/consultant-availability", {
@@ -117,14 +161,15 @@ export default function SlotPage() {
 
   // Update slot
   const handleUpdate = async () => {
-    if (!editingId || !userId || !fromTime || !toTime || !date) return;
+    const targetId = isConsultant ? userId : selectedConsultant;
+    if (!editingId || !targetId || !fromTime || !toTime || !date) return;
 
     try {
       const payload = {
         date: date,
         from_time: fromTime,
         to_time: toTime,
-        price: Number(consultantPrice) || 0
+        price: isConsultant ? Number(consultantPrice) : (Number(consultantPrice) || 0)
       };
 
       const res = await fetch(`https://paper-deal-server.onrender.com/api/consultant-availability/${editingId}`, {
@@ -166,15 +211,53 @@ export default function SlotPage() {
     }
   };
 
+  if (!isClient) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[300px]">
+        <div className="text-muted-foreground text-sm">Loading slot configuration...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-8">
+      {/* Consultant Selector for Admin */}
+      {!isConsultant && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Consultant</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-xs space-y-2">
+              <Label htmlFor="consultant-select">Choose a Consultant</Label>
+              {consultants.length > 0 ? (
+                <Select value={selectedConsultant} onValueChange={(val) => setSelectedConsultant(val)}>
+                  <SelectTrigger id="consultant-select" className="bg-white">
+                    <SelectValue placeholder="Select Consultant" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {consultants.map((c) => (
+                      <SelectItem key={c.id} value={String(c.id)}>
+                        {c.name} ({c.email_address})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="text-sm text-gray-500 py-2">Loading consultants list...</div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Create Slot Form */}
       <Card>
         <CardHeader>
           <CardTitle>Create Availability Slot</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-1 ${isConsultant ? 'md:grid-cols-3' : 'md:grid-cols-4'} gap-4`}>
             {/* Date */}
             <div>
               <Label>Date</Label>
@@ -221,15 +304,17 @@ export default function SlotPage() {
             </div>
 
             {/* Price */}
-            <div>
-              <Label>Consultant Price (Rs.)</Label>
-              <Input
-                type="number"
-                value={consultantPrice}
-                onChange={(e) => setConsultantPrice(e.target.value)}
-                className="bg-white"
-              />
-            </div>
+            {!isConsultant && (
+              <div>
+                <Label>Consultant Price (Rs.)</Label>
+                <Input
+                  type="number"
+                  value={consultantPrice}
+                  onChange={(e) => setConsultantPrice(e.target.value)}
+                  className="bg-white"
+                />
+              </div>
+            )}
           </div>
 
           <Button className="mt-4" onClick={handleSave}>
@@ -241,7 +326,7 @@ export default function SlotPage() {
       {/* Slot List */}
       <Card>
         <CardHeader>
-          <CardTitle>My Availability Slots</CardTitle>
+          <CardTitle>{isConsultant ? "My Availability Slots" : "Consultant Availability Slots"}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -257,7 +342,9 @@ export default function SlotPage() {
                     <th className="px-4 py-2 border text-left">Date</th>
                     <th className="px-4 py-2 border text-left">From Time</th>
                     <th className="px-4 py-2 border text-left">To Time</th>
-                    <th className="px-4 py-2 border text-left">Price</th>
+                    {!isConsultant && (
+                      <th className="px-4 py-2 border text-left">Price</th>
+                    )}
                     <th className="px-4 py-2 border text-left">Status</th>
                     <th className="px-4 py-2 border text-center">Actions</th>
                   </tr>
@@ -267,11 +354,13 @@ export default function SlotPage() {
                     <tr key={slot.id} className={slot.is_booked ? "bg-green-50/50" : ""}>
                       <td className="p-2 border">{i + 1}</td>
                       <td className="p-2 border">
-                        {slot.date ? new Date(slot.date).toLocaleDateString() : "-"}
+                        {slot.date ? slot.date.split("T")[0] : "-"}
                       </td>
                       <td className="p-2 border font-medium">{slot.from_time}</td>
                       <td className="p-2 border font-medium">{slot.to_time}</td>
-                      <td className="p-2 border">Rs. {slot.price}</td>
+                      {!isConsultant && (
+                        <td className="p-2 border font-semibold text-blue-600">Rs. {slot.price}</td>
+                      )}
                       <td className="p-2 border">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${slot.is_booked ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}>
                           {slot.is_booked ? "Booked" : "Available"}
@@ -350,14 +439,16 @@ export default function SlotPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Consultant Price</Label>
-              <Input
-                type="number"
-                value={consultantPrice}
-                onChange={(e) => setConsultantPrice(e.target.value)}
-              />
-            </div>
+            {!isConsultant && (
+              <div>
+                <Label>Consultant Price</Label>
+                <Input
+                  type="number"
+                  value={consultantPrice}
+                  onChange={(e) => setConsultantPrice(e.target.value)}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button onClick={handleUpdate}>Update</Button>
