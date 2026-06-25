@@ -22,6 +22,7 @@ export default function SellerB2BEnquiryPage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
   const router = useRouter();
   const limit = 10
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -50,6 +51,7 @@ export default function SellerB2BEnquiryPage() {
         console.log("B2B Seller Enquiries API DATA:", res);
         setData(res.enquiries || []);
         setTotalPages(res.totalPages || 1);
+        setTotal(res.total || 0);
       })
       .catch((err) => {
         console.error("Error fetching B2B enquiries:", err);
@@ -202,11 +204,13 @@ export default function SellerB2BEnquiryPage() {
           </div>
         )}
 
-        <Pagination
-          totalPages={totalPages}
-          currentPage={page}
-          onPageChange={(newPage) => setPage(newPage)}
-        />
+        {total > 4 && (
+          <Pagination
+            totalPages={totalPages}
+            currentPage={page}
+            onPageChange={(newPage) => setPage(newPage)}
+          />
+        )}
       </div>
     </div>
   )
