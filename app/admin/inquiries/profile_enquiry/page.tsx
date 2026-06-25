@@ -23,6 +23,7 @@ export default function EnquiryPage() {
   const [status, setStatus] = useState<number>(0)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [counts, setCounts] = useState({ all: 0, B2B: 0, B2C: 0 })
   // Read saved admin mode from localStorage (default: "all")
   const [modeTab, setModeTab] = useState<ModeTab>("all")
   const router = useRouter()
@@ -42,8 +43,9 @@ export default function EnquiryPage() {
 
   // fetch enquiries
   useEffect(() => {
+    const modeParam = modeTab === "all" ? "" : `&mode=${modeTab}`;
     fetch(
-      `https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1`,
+      `https://paper-deal-server.onrender.com/api/enquiry/enquiries?page=${page}&limit=${limit}&role=1${modeParam}`,
       {
         method: "GET",
         headers: {
@@ -57,9 +59,12 @@ export default function EnquiryPage() {
       .then((d) => {
         setData(d.enquiries || [])
         setTotalPages(d.totalPages || 1)
+        if (d.counts) {
+          setCounts(d.counts)
+        }
       })
       .catch((err) => console.error(err))
-  }, [page])
+  }, [page, modeTab])
 
   // Resolve effective mode for a row (null/undefined → "B2C")
   const getMode = (row: any): "B2B" | "B2C" =>
@@ -105,8 +110,12 @@ export default function EnquiryPage() {
     return matchesSearch && matchesTab
   })
 
-  const tabCount = (v: ModeTab) =>
-    v === "all" ? data.length : data.filter((r) => getMode(r) === v).length
+  const tabCount = (v: ModeTab) => {
+    if (v === "all") return counts.all
+    if (v === "B2B") return counts.B2B
+    if (v === "B2C") return counts.B2C
+    return 0
+  }
 
   const tabs: { label: string; value: ModeTab }[] = [
     { label: "All Enquiries", value: "all" },
@@ -268,11 +277,13 @@ export default function EnquiryPage() {
           </table>
         </div>
 
-        <Pagination
-          totalPages={totalPages}
-          currentPage={page}
-          onPageChange={(newPage) => setPage(newPage)}
-        />
+        {counts[modeTab] > 4 && (
+          <Pagination
+            totalPages={totalPages}
+            currentPage={page}
+            onPageChange={(newPage) => setPage(newPage)}
+          />
+        )}
       </div>
 
       {/* Dialog */}
